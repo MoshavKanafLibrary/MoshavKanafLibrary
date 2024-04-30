@@ -66,8 +66,8 @@ app.get('/api', (req, res) => {
 });
 
 // Start the server
-app.listen(3500, () => {
-  console.log(`Server is listening on port ${3500} Thanks`);
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Server is listening on port 3000? Thanks`);
 });
 
 // get a user by his id
