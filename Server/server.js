@@ -8,14 +8,52 @@ import { Agent } from 'https';
 import cheerio from 'cheerio'
 import fs from 'fs';
 import puppeteer from 'puppeteer';
+import { fileURLToPath } from "url";
+import path from "path";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
-app.use(express.json());
-let numberOfBooks = null;
-const port = 3000;
+app.use(express.json()); // Enable JSON parsing for request bodies
 
-// Use the cors middleware to enable CORS for all routes
-app.use(cors());
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PATCH, PUT, DELETE, OPTIONS"
+  );
+  next();
+});
+
+app.use((req, res, next) => {
+  if (!req.url.endsWith(".js") && !req.url.endsWith(".css")) {
+    res.type("text/html");
+  }
+  next();
+});
+app.use((req, res, next) => {
+  if (req.url.endsWith(".js")) {
+    res.type("text/javascript");
+  }
+  next();
+});
+
+app.use(
+  "/assets",
+  express.static(path.join(__dirname, "..", "..", "Client", "dist", "assets"))
+);
+app.use(express.static(path.join(__dirname, "..", "..", "Client", "dist")));
+
+app.get("/index-*.js", function (req, res) {
+  res.type("application/javascript");
+  res.sendFile(
+    path.join(__dirname, "..", "..", "Client", "dist", "assets", req.path)
+  );
+});
 
 // Define a route handler for the root route
 app.get('/', (req, res) => {
@@ -28,8 +66,8 @@ app.get('/api', (req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
+app.listen(3500, () => {
+  console.log(`Server is listening on port ${3500} Thanks`);
 });
 
 // get a user by his id
