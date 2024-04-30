@@ -29,30 +29,12 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, res, next) => {
-  if (!req.url.endsWith(".js") && !req.url.endsWith(".css")) {
-    res.type("text/html");
-  }
-  next();
-});
-app.use((req, res, next) => {
-  if (req.url.endsWith(".js")) {
-    res.type("text/javascript");
-  }
-  next();
-});
+// Serve static files from the 'dist' directory where Vite outputs the built project
+app.use(express.static(path.join(__dirname, '../Client/dist')));
 
-app.use(
-  "/assets",
-  express.static(path.join(__dirname, "..", "..", "Client", "dist", "assets"))
-);
-app.use(express.static(path.join(__dirname, "..", "..", "Client", "dist")));
-
-app.get("/index-*.js", function (req, res) {
-  res.type("application/javascript");
-  res.sendFile(
-    path.join(__dirname, "..", "..", "Client", "dist", "assets", req.path)
-  );
+// Handle SPA routing by returning the index.html file for any unknown paths
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../Client/dist', 'index.html'));
 });
 
 // Define a route handler for the root route
