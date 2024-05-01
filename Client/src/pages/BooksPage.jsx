@@ -5,7 +5,7 @@ import {useNavigate} from 'react-router-dom'
 import useUser from '../hooks/useUser'
 // Import Axios
 import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:10000';
+// axios.defaults.baseURL = 'http://localhost:10000';
 
 const fetchAllBooks = async (page, pageSize, searchQuery = '', selectedCategories = [], selectedAuthors = []) => {
   try {
