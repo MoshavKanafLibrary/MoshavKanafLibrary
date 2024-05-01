@@ -2,7 +2,8 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import  UserContext  from "../contexts/UserContext";
-axios.defaults.baseURL = 'http://localhost:3500';
+// axios.defaults.baseURL = 'http://localhost:3500';
+axios.defaults.baseURL = 'http://localhost:3000';
 
 
 

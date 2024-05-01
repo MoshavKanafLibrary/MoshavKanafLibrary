@@ -3,12 +3,13 @@ import { FaSearch, FaSpinner} from 'react-icons/fa'; // Removed FaTimes
 import { Dialog, Transition } from '@headlessui/react';
 import {useNavigate} from 'react-router-dom'
 import useUser from '../hooks/useUser'
-
 // Import Axios
 import axios from 'axios';
+axios.defaults.baseURL = 'http://localhost:3000';
 
 const fetchAllBooks = async (page, pageSize, searchQuery = '', selectedCategories = [], selectedAuthors = []) => {
   try {
+    console.log("Here")
     const response = await axios.get('/api/books/getAllBooks', {
       params: {
         page,
@@ -18,8 +19,9 @@ const fetchAllBooks = async (page, pageSize, searchQuery = '', selectedCategorie
         authors: selectedAuthors.join(','), // Join array with commas        authors: selectedAuthors,
       },
     });
-
+    console.log(response);
     if (response.status === 200) {
+      console.log("asdfasdfasdf", response.data)
       return response.data;
     } else {
       console.error("Unexpected response:", response.statusText);
@@ -151,12 +153,13 @@ const BooksPage = () => {
     };
   }, []); // Empty dependency array ensures the effect runs only once when the component mounts
 
-  const filteredBooks = books.filter((book) => {
+  const filteredBooks = books && Array.isArray(books) ? books.filter((book) => {
     const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) || book.author.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(book.category);
     const matchesAuthor = selectedAuthors.length === 0 || selectedAuthors.includes(book.author);
     return matchesSearch && matchesCategory && matchesAuthor;
-  });
+  }) : [];
+  
   // Calculate total pages using `totalBookCount`
   const totalPages = Math.ceil(totalBookCount / pageSize);
 

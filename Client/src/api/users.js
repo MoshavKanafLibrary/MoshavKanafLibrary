@@ -1,5 +1,5 @@
 import axios from "axios";
-axios.defaults.baseURL = 'http://localhost:3500';
+// axios.defaults.baseURL = 'http://localhost:3000';
 
 export const addNewUserToDb = async (user) => {
   // const token = user && (await user.getIdToken());

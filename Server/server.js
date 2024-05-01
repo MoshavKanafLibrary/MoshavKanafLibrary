@@ -15,7 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 app.use(express.json()); // Enable JSON parsing for request bodies
-
+app.use(cors());
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -32,10 +32,6 @@ app.use((req, res, next) => {
 // Serve static files from the 'dist' directory where Vite outputs the built project
 app.use(express.static(path.join(__dirname, '../Client/dist')));
 
-// Handle SPA routing by returning the index.html file for any unknown paths
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../Client/dist', 'index.html'));
-});
 
 // Define a route handler for the root route
 app.get('/', (req, res) => {
@@ -46,16 +42,23 @@ app.get('/', (req, res) => {
 app.get('/api', (req, res) => {
   res.json({ message: 'Hello from the server!' }); // Send a JSON response to the client
 });
-
+console.log("test")
 // Start the server
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server is listening on port 3000? Thanks`);
+  console.log(process.env.PORT);
 });
 
 // get a user by his id
 app.get("/api/users/:uid", async (req, res) => {
   try {
     console.log("test")
+    console.log("test")
+    console.log("test")
+    console.log("test")
+    console.log("test")
+    console.log("test")
+
     const { uid } = req.params;
 
     // Use `doc` and `getDoc` to fetch a document by ID in Firestore
@@ -177,6 +180,7 @@ app.post("/api/users/signUp", async (req, res) => {
 
 app.get("/api/books/getAllBooks", async (req, res) => {
   try {
+    console.log("Here")
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
 
