@@ -32,7 +32,7 @@ app.use((req, res, next) => {
 // Serve static files from the 'dist' directory where Vite outputs the built project
 app.use(express.static(path.join(__dirname, '../Client/dist')));
 
-
+``
 // Define a route handler for the root route
 app.get('/', (req, res) => {
   res.send('Hello, World from Server!'); // Send a simple response for the root route
