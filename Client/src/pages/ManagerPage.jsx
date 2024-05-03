@@ -30,58 +30,65 @@ const ManagerPage = () => {
   };
 
   const handleUpdateBook = async (e) => {
-    const bookId = e.target.value; // Get the selected book ID
-    setSelectedBook(bookId); // Update the selected book ID
+    navigate("/searchBook", { state: { mode: 1 } });
+  }
 
-    if (bookId) {
-      try {
-        const response = await axios.get(`/api/books/${bookId}`); // Fetch the selected book's data by ID
-        if (response.data.success) {
-          const bookData = response.data.bookData;
-          navigate("/AddOrUpdateBook", { state: { bookData: { id: bookId, ...bookData } } }); // Navigate to update the book with its data
-        } else {
-          setError("Error fetching book data: " + response.data.message);
-        }
-      } catch (error) {
-        setError("Error fetching book data: " + error.message);
-      }
-    }
-  };
+  const handleOrderBook = async (e) => {
+    navigate("/searchBook", { state: { mode: 0} });
+  }
+  
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-800 text-gray-50">
-      <div className="bg-bg-navbar-custom shadow-2xl rounded-lg md:px-16 px-4 pt-10 pb-12 w-full sm:w-3/4 lg:w-1/2">
-        <h1 className="text-3xl text-center font-bold">Welcome back!</h1>
-        <p className="text-lg text-center mb-6">What would you like to do today?</p>
+    <div className="flex flex-col items-center justify-center min-h-screen text-gray-50">
+      
+      <div className="bg-gray-700 shadow-2xl rounded-lg md:px-20 px-8 pt-24 pb-24 w-full sm:w-3/4 lg:w-1/2">
+        <h1 className="text-4xl text-center font-bold mb-4">Welcome back!</h1>
+        <p className="text-xl text-center mb-8">What would you like to do today?</p>
 
-        <div className="flex flex-col items-center space-y-4">
-          {/* Button to add a new book */}
+        <div className="flex flex-col items-center space-y-6">
           <button
-            className="bg-green-600 hover:bg-blue-700 text-gray-50 font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline"
-            onClick={handleAddNewBook} // Navigate to add a new book
+            className="w-56 bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 text-black font-bold py-4 px-8 rounded focus:outline-none focus:shadow-outline hover:from-gray-400 hover:via-gray-300 hover:to-gray-200"
+            onClick={handleAddNewBook}
           >
             Add a New Book
           </button>
 
-          {/* Dropdown to select a book to update */}
-          <div className="flex flex-col items-center">
-            <select
-              className="bg-gray-700 shadow border rounded py-2 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
-              value={selectedBook} // Set to the selected book
-              onChange={handleUpdateBook} // Handle book change for updating
-            >
-              <option value="">Update a Book</option>
-              {books.map((book) => (
-                <option key={book.id} value={book.id}>
-                  {book.title}
-                </option>
-              ))}
-            </select>
-          </div>
+          <button
+            className="w-56 bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 text-black font-bold py-4 px-8 rounded focus:outline-none focus:shadow-outline hover:from-gray-400 hover:via-gray-300 hover:to-gray-200"
+            onClick={handleUpdateBook}
+          >
+            Update a Book
+          </button>
+
+          <button
+            className="w-56 bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 text-black font-bold py-4 px-8 rounded focus:outline-none focus:shadow-outline hover:from-gray-400 hover:via-gray-300 hover:to-gray-200"
+            onClick={handleOrderBook}
+          >
+            Order a book
+          </button>
+
+
+          <button
+            className="w-56 bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 text-black font-bold py-4 px-8 rounded focus:outline-none focus:shadow-outline hover:from-gray-400 hover:via-gray-300 hover:to-gray-200"
+          >
+            Borrow Requests
+          </button>
+
+          <button
+            className="w-56 bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 text-black font-bold py-4 px-8 rounded focus:outline-none focus:shadow-outline hover:from-gray-400 hover:via-gray-300 hover:to-gray-200"
+          >
+            Open new Borrow request for user
+          </button>
+
+          <button
+            className="w-56 bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 text-black font-bold py-4 px-8 rounded focus:outline-none focus:shadow-outline hover:from-gray-400 hover:via-gray-300 hover:to-gray-200"
+          >
+            Print Books Reports
+          </button>
 
           {/* Display error messages if any */}
           {error && (
-            <p className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded text-center">
+            <p className="text-lg bg-red-100 border border-red-400 text-red-700 px-8 py-6 rounded text-center">
               {error}
             </p>
           )}

@@ -7,7 +7,7 @@ import useUser from '../hooks/useUser';
 const BookDetailPage = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { book } = state;
+  const { book, mode } = state;
 
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true); // Add loading state
@@ -45,8 +45,16 @@ const BookDetailPage = () => {
     }
   };
 
+  
+  const handleUpdate = () => {
+    if (book) {
+      navigate(`/addOrUpdateBook/${book.title}`, { state: { bookData: { id: book._id, ...book } } });
+    }
+  };
+
+
   return (
-    <div>
+    <>
       {loading && ( // Overlay with spinner if loading is true
         <div className="fixed top-0 left-0 w-full h-full bg-black opacity-50 flex justify-center items-center z-50">
           <FaSpinner className="animate-spin text-white text-6xl" />
@@ -64,16 +72,30 @@ const BookDetailPage = () => {
               <p className="text-sm text-gray-500 mt-2">by {book.author}</p>
             </div>
             <div className="mt-4 md:text-right absolute bottom-4 right-4">
-              <button 
-                className={`bg-gray-700 text-white px-4 py-2 rounded-lg ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
-                onClick={handleOrderNow}
-              >
-                Order now
-              </button>
+              {mode === 1 && (
+                <button 
+                  className="bg-green-700 text-white px-4 py-2 rounded-lg mr-2"
+                  onClick={handleUpdate}
+                >
+                  Update
+                </button>
+              )}
+              {mode === 0 && (
+                <button 
+                  className="bg-gray-700 text-white hover:bg-blue-700 text-gray-50 font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline"
+                  onClick={handleOrderNow}
+                >
+                  Order now
+                </button>
+              )}
             </div>
+
           </div>
         </div>
       </div>
+      
+  {mode === 0 && (
+    <div recommendations>
       <div className={`container mx-auto px-4 py-8 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
         {books.length === 0 ? (
           <p className="text-4xl font-bold text-center">Currently we don't have recommendations for you. You can assist the librarian :)</p>
@@ -86,6 +108,7 @@ const BookDetailPage = () => {
           </>
         )}
       </div>
+      
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
         {books.map((book, index) => (
           <div
@@ -108,6 +131,8 @@ const BookDetailPage = () => {
         ))}
       </div>
     </div>
+       )}
+   </>
   );
 };
 

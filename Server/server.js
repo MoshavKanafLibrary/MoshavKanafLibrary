@@ -500,13 +500,27 @@ app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
 // Handler for adding a new book
 app.post("/api/books/add", async (req, res) => {
   try {
-    const bookData = req.body; // Extract book data from request body
+    const { title, copiesID } = req.body; // Extract title and copiesID array from request body
 
     // Reference to the "books" collection
     const booksCollection = collection(db, "books");
+    const copiesCollection = collection(db, "copies");
 
     // Create a new document in the "books" collection
-    const docRef = await addDoc(booksCollection, bookData);
+    const docRef = await addDoc(booksCollection, req.body);
+
+    // Create new copies in the "copies" collection for each copyID
+    const copiesPromises = copiesID.map(copyID => {
+      return addDoc(copiesCollection, {
+        title: title,
+        isBorrowed: false,
+        borrowedTo: null,
+        copyID: copyID
+      });
+    });
+
+    // Await all promises to resolve
+    await Promise.all(copiesPromises);
 
     // Respond with a success message and the new document ID
     res.status(200).json({ success: true, docId: docRef.id });
@@ -517,6 +531,7 @@ app.post("/api/books/add", async (req, res) => {
   }
 });
 
+
 // Handler for updating an existing book
 app.put("/api/books/update/:id", async (req, res) => {
   try {
@@ -526,8 +541,51 @@ app.put("/api/books/update/:id", async (req, res) => {
     // Reference to the specific book document
     const bookRef = doc(db, "books", id);
 
+    // Get the current book data
+    const bookSnap = await getDoc(bookRef);
+    const bookData = bookSnap.data();
+
     // Update the book document with the new data
     await updateDoc(bookRef, updatedData);
+
+    // Check if title has changed and update copies collection if necessary
+    if (updatedData.title && updatedData.title !== bookData.title) {
+      const copiesCollection = collection(db, "copies");
+      const querySnapshot = await getDocs(query(copiesCollection, where("title", "==", bookData.title)));
+      const copiesUpdates = querySnapshot.docs.map(doc => {
+        return updateDoc(doc.ref, { title: updatedData.title });
+      });
+      await Promise.all(copiesUpdates);
+    }
+
+    // Update copiesID if provided
+    if (updatedData.copiesID) {
+      const existingCopies = new Set(bookData.copiesID);
+      const updatedCopies = new Set(updatedData.copiesID);
+      const copiesToAdd = updatedData.copiesID.filter(x => !existingCopies.has(x));
+      const copiesToRemove = bookData.copiesID.filter(x => !updatedCopies.has(x));
+
+      const copiesCollection = collection(db, "copies");
+      // Add new copies
+      const addPromises = copiesToAdd.map(copyID => {
+        return addDoc(copiesCollection, {
+          title: updatedData.title || bookData.title,
+          isBorrowed: false,
+          borrowedTo: null,
+          copyID: copyID
+        });
+      });
+      // Remove outdated copies
+      const removePromises = copiesToRemove.map(async copyID => {
+        const querySnapshot = await getDocs(query(copiesCollection, where("copyID", "==", copyID)));
+        const deletePromises = querySnapshot.docs.map(doc => {
+          return deleteDoc(doc.ref);
+        });
+        return Promise.all(deletePromises);
+      });
+
+      await Promise.all([...addPromises, ...removePromises.flat()]);
+    }
 
     // Respond with a success message
     res.status(200).json({ success: true });
@@ -591,13 +649,38 @@ app.delete("/api/books/:id", async (req, res) => {
     // Reference to the specific book document
     const bookRef = doc(db, "books", id);
 
+    // Get the book document to retrieve copiesID
+    const bookSnap = await getDoc(bookRef);
+    if (!bookSnap.exists()) {
+      res.status(404).json({ success: false, message: "Book not found" });
+      return;
+    }
+    const bookData = bookSnap.data();
+
     // Delete the book document from Firestore
     await deleteDoc(bookRef);
 
+    // Also delete all associated copies if they exist
+    if (bookData.copiesID && bookData.copiesID.length > 0) {
+      const copiesCollection = collection(db, "copies");
+      const deletePromises = bookData.copiesID.map(copyID => {
+        const querySnapshot = getDocs(query(copiesCollection, where("copyID", "==", copyID)));
+        return querySnapshot.then(snapshot => {
+          // Create a promise to delete each copy
+          const deleteCopiesPromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+          return Promise.all(deleteCopiesPromises);
+        });
+      });
+
+      // Wait for all the delete operations to complete
+      await Promise.all(deletePromises);
+    }
+
     // Respond with a success message
-    res.status(200).json({ success: true, message: `Book with ID ${id} deleted successfully` });
+    res.status(200).json({ success: true, message: `Book with ID ${id} and all associated copies deleted successfully` });
   } catch (error) {
     console.error("Error deleting book:", error);
     res.status(500).json({ success: false, message: "Failed to delete book" });
   }
 });
+
