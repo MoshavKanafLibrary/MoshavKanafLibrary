@@ -11,10 +11,10 @@ const GoogleLogin = ({ setShowAddMoreInfo }) => {
       const userCredential = await signInWithPopup(auth, provider);
       // Check if the user is new and add to the database
       if (userCredential._tokenResponse.isNewUser) {
-        setShowAddMoreInfo(true);
         const user = userCredential.user;
-
         addNewUserToDb(user);
+        setShowAddMoreInfo(true);
+
       }
       console.log("successfully logged in with google account");
 

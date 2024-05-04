@@ -684,3 +684,57 @@ app.delete("/api/books/:id", async (req, res) => {
   }
 });
 
+
+
+
+const getCopiesIdByTitle = async (bookTitle) => {
+  try {
+    const booksCollectionRef = collection(db, "books"); // Reference to the "books" collection
+    const querySnapshot = await getDocs(booksCollectionRef); // Get all documents in the collection
+
+    const matchingBook = querySnapshot.docs.find((doc) => doc.data().title === bookTitle); // Find the book that matches the title
+
+    if (matchingBook) {
+      return matchingBook.data().copiesID; // Return the copiesID array if a matching book is found
+    } else {
+      console.log("No book found with the title:", bookTitle);
+      return []; // Return an empty array if no matching book is found
+    }
+  } catch (error) {
+    console.error("Error fetching copies ID by title:", error);
+    return []; // Return an empty array in case of error
+  }
+};
+
+// Usage example
+(async () => {
+  const title = "Example Book Title";
+  const copiesIdArray = await getCopiesIdByTitle(title);
+  console.log(copiesIdArray); // Log or process the copies ID array as needed
+})();
+
+
+// Endpoint to get a copy by CopyID
+app.get("/api/book/getCopy", async (req, res) => {
+  const { copyID } = req.query; // Get the CopyID from query parameters
+
+  if (!copyID) {
+    return res.status(400).json({ success: false, message: "CopyID is required" });
+  }
+
+  try {
+    const copiesCollectionRef = collection(db, "copies"); // Reference to the "copies" collection
+    const q = query(copiesCollectionRef, where("copyID", "==", copyID)); // Query to find the matching copyID
+    const querySnapshot = await getDocs(q); // Execute the query
+
+    if (querySnapshot.empty) {
+      res.status(404).json({ success: false, message: "No matching copy found" });
+    } else {
+      const copyData = querySnapshot.docs.map(doc => doc.data())[0]; // Assuming only one match, get the data
+      res.status(200).json({ success: true, copy: copyData });
+    }
+  } catch (error) {
+    console.error("Error fetching copy by ID:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch copy by ID" });
+  }
+});

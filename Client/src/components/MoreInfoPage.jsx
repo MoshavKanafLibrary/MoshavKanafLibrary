@@ -1,44 +1,41 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import  UserContext  from "../contexts/UserContext";
-// axios.defaults.baseURL = 'http://localhost:3500';
-// axios.defaults.baseURL = 'http://localhost:10000';
+import UserContext from "../contexts/UserContext";
+import useUser from "../hooks/useUser";
 
-
-
-const MoreInfoPage = ({ userProp }) => {
+const MoreInfoPage = () => {
   const { setNavBarDisplayName } = useContext(UserContext);
-
-  const user = userProp;
+  const { user, isLoading } = useUser(); // Assuming `useUser` provides a loading state as well
   const [displayName, setDisplayName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // Monitor user data changes and perform actions accordingly
+    if (user && !isLoading) {
+      console.log("User is now available:", user);
+    }
+  }, [user, isLoading]);
+
   const validateAndNavigate = async (e) => {
     e.preventDefault();
-    if (displayName.length < 4) {
-      setErrorMessage("Display name must be at least 4 characters long.");
-      return;
-    }
-    if (displayName.length > 12) {
-      setErrorMessage("Display name must be shorter than 12 characters long.");
+    if (displayName.length < 4 || displayName.length > 12) {
+      setErrorMessage("Display name must be between 4 and 12 characters long.");
       return;
     }
     try {
-      console.log("test")
       const response = await axios.get(`/api/displaynames/${displayName}`);
-      console.log("test")
-
-      if (response.data.valid) {
+      if (response.data.valid && user && user.uid) {
         await axios.put(`/api/displaynames/${user.uid}`, { displayName });
         setNavBarDisplayName(displayName);
         navigate("/");
       } else {
-        setErrorMessage("Display name is already in use.");
+        setErrorMessage("Display name is already in use or invalid user data.");
       }
     } catch (error) {
       console.error("Error validating display name", error);
+      setErrorMessage(error.message || "Failed to validate display name");
     }
   };
 
@@ -51,18 +48,21 @@ const MoreInfoPage = ({ userProp }) => {
         <h1 className="text-2xl text-gray-50 font-semibold mx-auto text-center mb-3">
           More Information
         </h1>
-
         <div className="border-2 border-gray-600 rounded-md p-2 mb-2">
-          <div className="mb-3">
-            <label className="block text-gray-50 text-sm mb-2">
-              Your Email : {user.email}
-            </label>
-          </div>
-          <div className="mb-3">
-            <label className="block text-gray-50 text-sm mb-2">
-              Your ID : {user.uid}
-            </label>
-          </div>
+          {user && user.email && (
+            <div className="mb-3">
+              <label className="block text-gray-50 text-sm mb-2">
+                Your Email: {user.email}
+              </label>
+            </div>
+          )}
+          {user && user.uid && (
+            <div className="mb-3">
+              <label className="block text-gray-50 text-sm mb-2">
+                Your ID: {user.uid}
+              </label>
+            </div>
+          )}
           <div className="mb-3">
             <label className="block text-gray-50 text-sm mb-2">
               Choose Display Name
@@ -83,7 +83,7 @@ const MoreInfoPage = ({ userProp }) => {
         <div className="flex items-center justify-between m-auto">
           <button
             type="submit"
-            className=" bg-blue-500 hover:bg-blue-700 text-gray-50 font-bold py-2 px-4 mx-auto mb-4 rounded focus:outline-none focus:shadow-outline"
+            className="bg-blue-500 hover:bg-blue-700 text-gray-50 font-bold py-2 px-4 mx-auto mb-4 rounded focus:outline-none focus:shadow-outline"
           >
             Save
           </button>
@@ -98,4 +98,4 @@ const MoreInfoPage = ({ userProp }) => {
   );
 };
 
-export { MoreInfoPage } ;
+export { MoreInfoPage };
