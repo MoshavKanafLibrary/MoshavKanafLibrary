@@ -54,13 +54,6 @@ const BookDetailPage = () => {
     }
   };
   
-  
-  const handleUpdate = () => {
-    if (book) {
-      navigate(`/addOrUpdateBook/${book.title}`, { state: { bookData: { id: book._id, ...book } } });
-    }
-  };
-
 
   return (
     <>
@@ -81,29 +74,19 @@ const BookDetailPage = () => {
               <p className="text-sm text-gray-500 mt-2">by {book.author}</p>
             </div>
             <div className="mt-4 md:text-right absolute bottom-4 right-4">
-              {mode === 1 && (
-                <button 
-                  className="bg-green-700 text-white px-4 py-2 rounded-lg mr-2"
-                  onClick={handleUpdate}
-                >
-                  Update
-                </button>
-              )}
-              {mode === 0 && (
                 <button 
                   className="bg-gray-700 text-white hover:bg-blue-700 text-gray-50 font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline"
                   onClick={handleOrderNow}
                 >
                   Order now
                 </button>
-              )}
             </div>
 
           </div>
         </div>
       </div>
       
-  {mode === 0 && (
+
     <div recommendations>
       <div className={`container mx-auto px-4 py-8 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
         {books.length === 0 ? (
@@ -140,7 +123,7 @@ const BookDetailPage = () => {
         ))}
       </div>
     </div>
-       )}
+
    </>
   );
 };

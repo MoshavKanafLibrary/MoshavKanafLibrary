@@ -452,6 +452,32 @@ async function fetchBookTitles(bookName) {
   return null;
 }
 
+app.get("/api/books/getAllBooksData", async (req, res) => {
+  try {
+    console.log("Fetching all books data...");
+    const booksCollection = collection(db, "books");
+    const booksQuery = query(booksCollection);
+    const querySnapshot = await getDocs(booksQuery);
+
+    const books = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      title: doc.data().title,
+      author: doc.data().author,
+      classification: doc.data().classification,
+      copies: doc.data().copies,
+      expenditure: doc.data().expenditure,
+      locatorCode: doc.data().locatorCode,
+      titleType: doc.data().titleType
+    }));
+
+    console.log("Books fetched successfully:", books);
+    res.status(200).json({ success: true, books });
+  } catch (error) {
+    console.error("Error fetching all books:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch all books" });
+  }
+})
+
 
 // (async () => {
 //   const bookName = '1984';
@@ -788,3 +814,5 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to add user to waiting list: ${error.message || 'Unknown error'}` });
   }
 });
+
+

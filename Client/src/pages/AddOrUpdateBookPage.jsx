@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 
 const AddOrUpdateBookPage = () => {
   // State variables for form fields
@@ -18,7 +18,6 @@ const AddOrUpdateBookPage = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Retrieve bookData from location state
   const location = useLocation();
@@ -41,16 +40,6 @@ const AddOrUpdateBookPage = () => {
       setCopiesID(bookData.copiesID || []);
     }
   }, [bookData]);
-
-  const handleDeleteBook = async () => {
-    try {
-      await axios.delete(`/api/books/${bookData.id}`);
-      setSuccessMessage("Book deleted successfully");
-      navigate("/manager"); // Navigate back to ManagerPage
-    } catch (error) {
-      setError("Failed to delete book");
-    }
-  };
 
   const handleFormSubmit = async () => {
     setIsLoading(true);
@@ -88,7 +77,6 @@ const AddOrUpdateBookPage = () => {
       if (result.status === 200) {
         setSuccessMessage("The action was done successfully");
         setError("");
-
         // Clear form fields if in add mode
         if (!isEditMode) {
           setTitle("");
@@ -112,7 +100,6 @@ const AddOrUpdateBookPage = () => {
 
     setIsLoading(false);
   };
-
   
 
   return (
@@ -260,83 +247,37 @@ const AddOrUpdateBookPage = () => {
         </div>
 
         {/* Submission button */}
-        <div className="flex flex-col items-center mt-10">
-          <div className="flex items-center space-x-4">
-          {isEditMode && (
-              <button
-                className="bg-red-600 hover:bg-red-700 text-gray-50 font-bold py-3 px-6 rounded"
-                onClick={() => setShowDeleteConfirm(true)}
-              >
-                Delete Book
-              </button>
-            )}
-            {isLoading ? (
-              <button
-                className="bg-blue-400 text-gray-50 font-bold py-3 px-6 rounded"
-                disabled
-              >
-                <FaSpinner className="animate-spin inline-block h-7 w-7 text-white mr-2" />
-                Loading...
-              </button>
-            ) : (
-              <button
-                type="submit"
-                className="bg-green-600 hover:bg-blue-700 text-gray-50 font-bold py-3 px-6 rounded"
-              >
-                {isEditMode ? "Update Book" : "Add Book"}
-              </button>
-            )}
+        <div className="flex items-center justify-center mt-10 space-x-4">
+          <button
+            type="submit"
+            className="bg-green-600 hover:bg-blue-700 text-gray-50 font-bold py-3 px-6 rounded"
+          >
+            {isEditMode ? "Update Book" : "Add Book"}
+          </button>
 
-            {/* Button to go back to ManagerPage */}
-            <button
-              onClick={() => navigate("/manager")} // Navigate back to ManagerPage
-              className="bg-gray-700 hover:bg-gray-800 text-gray-50 font-bold py-3 px-6 rounded"
-            >
-              Go Back to ManagerPage
-            </button>
-
-            {/* Delete Button - only visible in update mode */}
-          </div>
-
-          {/* Error and success messages */}
-          {error && (
-            <p className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded text-center mt-6">
-              {error}
-            </p>
-          )}
-
-          {successMessage && (
-            <p className="bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded text-center mt-6">
-              {successMessage}
-            </p>
-          )}
+          {/* Button to go back to ManagerPage */}
+          <button
+            onClick={() => navigate("/manager")} // Navigate back to ManagerPage
+            className="bg-gray-700 hover:bg-gray-800 text-gray-50 font-bold py-3 px-6 rounded"
+          >
+            Go Back to ManagerPage
+          </button>
         </div>
 
-        {/* Delete confirmation pop-up */}
-        {showDeleteConfirm && (
-          <div className="fixed inset-0 flex items-center justify-center z-10 bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg p-8 text-center">
-              <p>Are you sure you want to delete this book?</p>
-              <div className="flex justify-center mt-4">
-                <button
-                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded mr-4"
-                  onClick={handleDeleteBook}
-                >
-                  Yes
-                </button>
-                <button
-                  className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded"
-                  onClick={() => setShowDeleteConfirm(false)}
-                >
-                  No
-                </button>
-              </div>
-            </div>
-          </div>
+        {/* Error and success messages */}
+        {error && (
+          <p className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded text-center mt-6">
+            {error}
+          </p>
+        )}
+
+        {successMessage && (
+          <p className="bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded text-center mt-6">
+            {successMessage}
+          </p>
         )}
       </form>
     </div>
   );
 };
-
 export default AddOrUpdateBookPage;

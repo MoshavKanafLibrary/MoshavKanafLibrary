@@ -10,6 +10,7 @@ import ProfilePage from "./pages/ProfilePage";
 import ContactPage from "./pages/ContactPage";
 import ManagerPage from "./pages/ManagerPage";
 import BookDetailPage from "./pages/BookDetailPage"
+import PresentBooksPage from "./pages/PresentBooksPage"
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/searchbook" element={<BooksPage />} />
+          <Route path="/presentbooks" element={<PresentBooksPage />} />
           <Route path="/addOrUpdatebook" element={<AddOrUpdateBookPage />} />
           <Route path="/addOrUpdatebook/:bookId?" element={<AddOrUpdateBookPage />} />
           <Route path="/profile" element={<ProfilePage />} />

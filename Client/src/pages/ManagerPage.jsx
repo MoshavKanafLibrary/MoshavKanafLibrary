@@ -30,7 +30,7 @@ const ManagerPage = () => {
   };
 
   const handleUpdateBook = async (e) => {
-    navigate("/searchBook", { state: { mode: 1 } });
+    navigate("/presentBooks", { state: { mode: 1 } });
   };
 
   const handleOrderBook = async (e) => {
