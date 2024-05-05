@@ -2,7 +2,7 @@ import express from 'express'; // Import express using ES module syntax
 import cors from 'cors'; // Import cors using ES module syntax
 import { db } from './db.js'
 import { collection, query, where, getDocs, addDoc, doc, updateDoc, setDoc, getDoc, limit, startAfter, orderBy, deleteDoc} from 'firebase/firestore/lite';
-import { getFirestore, getCountFromServer } from 'firebase/firestore';
+import { getFirestore, getCountFromServer, arrayUnion, Timestamp  } from 'firebase/firestore';
 import axios from 'axios';
 import { Agent } from 'https';
 import cheerio from 'cheerio'
@@ -736,5 +736,55 @@ app.get("/api/book/getCopy", async (req, res) => {
   } catch (error) {
     console.error("Error fetching copy by ID:", error);
     res.status(500).json({ success: false, message: "Failed to fetch copy by ID" });
+  }
+});
+
+
+
+
+app.post("/api/books/:id/waiting-list", async (req, res) => {
+  const { id } = req.params;
+  const { uid } = req.body;
+
+  if (!uid) {
+    return res.status(400).json({ success: false, message: "User ID is required" });
+  }
+
+  const bookRef = doc(db, "books", id);
+
+  try {
+    const docSnap = await getDoc(bookRef);
+    if (!docSnap.exists()) {
+      return res.status(404).json({ success: false, message: "Book not found" });
+    }
+
+    let bookData = docSnap.data();
+    const newEntry = {
+      uid: uid,
+      Time: new Date()  // Using JavaScript Date object directly
+    };
+
+    // Initialize waitingList if it does not exist
+    if (!bookData.waitingList) {
+      bookData.waitingList = [];
+    }
+
+    // Check if user already exists in the waiting list
+    const index = bookData.waitingList.findIndex(entry => entry.uid === uid);
+    if (index === -1) { // User not in the waiting list
+      bookData.waitingList.push(newEntry);
+    } else {
+      // Optionally update the existing entry if needed, or handle as an error
+      return res.status(409).json({ success: false, message: "User already in the waiting list" });
+    }
+
+    await updateDoc(bookRef, {
+      waitingList: bookData.waitingList
+    });
+
+    res.status(200).json({ success: true, message: "User added to waiting list" });
+  } catch (error) {
+    console.error("Detailed error:", error);
+    res.status(500).json({ success: false, message: `Failed to add user to waiting list: ${error.message || 'Unknown error'}` });
   }
 });

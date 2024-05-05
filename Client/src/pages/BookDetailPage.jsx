@@ -41,10 +41,19 @@ const BookDetailPage = () => {
     if (!user) {
       alert("You have to login"); // Show alert if user is not logged in
     } else {
-      navigate(`/order/${book.title}`);
+      console.log(`Adding user with UID: ${user.uid} to waiting list for book ID: ${book.id}`);
+      axios.post(`/api/books/${book.id}/waiting-list`, { uid: user.uid })
+        .then(response => {
+          console.log("Added to waiting list:", response.data);
+          alert("You have been added to the waiting list.");
+        })
+        .catch(error => {
+          console.error("Error adding to waiting list:", error.response ? error.response.data.message : error.message);
+          alert(`Failed to add to the waiting list: ${error.response ? error.response.data.message : "Server error"}`);
+        });
     }
   };
-
+  
   
   const handleUpdate = () => {
     if (book) {
