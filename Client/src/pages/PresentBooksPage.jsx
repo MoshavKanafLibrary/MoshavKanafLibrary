@@ -59,7 +59,7 @@ const PresentBooksPage = () => {
   };
 
   const handleUpdate = (book) => {
-    navigate(`/addOrUpdateBook/${book.title}`, { state: { bookData: { id: book._id, ...book } } });
+    navigate(`/addOrUpdateBook/${book.id}`, { state: { bookData: book } });
   };
 
   return (

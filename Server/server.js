@@ -465,6 +465,9 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
       author: doc.data().author,
       classification: doc.data().classification,
       copies: doc.data().copies,
+      copiesID: doc.data().copiesID,
+      summary: doc.data().summary,
+      imageURL: doc.data().imageURL,
       expenditure: doc.data().expenditure,
       locatorCode: doc.data().locatorCode,
       titleType: doc.data().titleType
