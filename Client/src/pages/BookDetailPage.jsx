@@ -48,7 +48,7 @@ const BookDetailPage = () => {
         })
         .catch(error => {
           console.error("Error adding to waiting list:", error.response ? error.response.data.message : error.message);
-          setSuccessMessage(` ${error.response ? error.response.data.message : "Server error"}`);
+          alert(`${error.response ? error.response.data.message : "Server error"}`);
         });
     }
   };
