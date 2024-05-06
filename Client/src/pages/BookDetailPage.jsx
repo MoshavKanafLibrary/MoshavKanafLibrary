@@ -10,7 +10,8 @@ const BookDetailPage = () => {
   const { book, mode } = state;
 
   const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true); // Add loading state
+  const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState('');
   const { user } = useUser();
 
   useEffect(() => {
@@ -39,20 +40,19 @@ const BookDetailPage = () => {
 
   const handleOrderNow = () => {
     if (!user) {
-      alert("You have to login"); // Show alert if user is not logged in
+      alert("You have to login");
     } else {
-      console.log(`Adding user with UID: ${user.uid} to waiting list for book ID: ${book.id}`);
       axios.post(`/api/books/${book.id}/waiting-list`, { uid: user.uid })
         .then(response => {
-          console.log("Added to waiting list:", response.data);
-          alert("You have been added to the waiting list.");
+          setSuccessMessage("You have been added to the waiting list");
         })
         .catch(error => {
           console.error("Error adding to waiting list:", error.response ? error.response.data.message : error.message);
-          alert(`Failed to add to the waiting list: ${error.response ? error.response.data.message : "Server error"}`);
+          setSuccessMessage(` ${error.response ? error.response.data.message : "Server error"}`);
         });
     }
   };
+
   
 
   return (
@@ -75,18 +75,22 @@ const BookDetailPage = () => {
             </div>
             <div className="mt-4 md:text-right absolute bottom-4 right-4">
                 <button 
-                  className="bg-gray-700 text-white hover:bg-blue-700 text-gray-50 font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline"
-                  onClick={handleOrderNow}
+                    className={user ? "bg-gray-700 text-white hover:bg-blue-700 text-gray-50 font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline" : "bg-gray-700 text-gray-50 font-bold py-3 px-6 rounded opacity-50"}
+                    onClick={handleOrderNow}
                 >
                   Order now
                 </button>
             </div>
+            {successMessage && (
+  <div className="absolute top-full left-1/2 -translate-x-1/2 w-full mt-2 px-4 py-0 bg-green-100 border border-green-500 text-green-800 text-sm rounded text-center">
+    {successMessage}
+  </div>
+)}
 
           </div>
         </div>
       </div>
       
-
     <div recommendations>
       <div className={`container mx-auto px-4 py-8 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
         {books.length === 0 ? (
