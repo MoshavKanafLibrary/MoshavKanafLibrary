@@ -8,6 +8,7 @@ const PresentBooksPage = () => {
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,7 +51,7 @@ const PresentBooksPage = () => {
             setBooks(updatedBooks);
             setFilteredBooks(updatedBooks);
             console.log('Book deleted successfully');
-            alert('The book was deleted successfully'); // Popup message
+            setSuccessMessage('The book was deleted successfully');
         } catch (error) {
             console.error('Error deleting the book:', error);
             alert('Failed to delete the book'); // Popup message for failure
@@ -72,6 +73,11 @@ const PresentBooksPage = () => {
 
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10">
         <h1 className="text-4xl font-bold text-center mb-8">Book List</h1>
+        {successMessage && (
+          <div className="text-center py-3 px-4 bg-green-200 text-green-800 font-bold rounded-lg">
+            {successMessage}
+          </div>
+        )}
         <input
           type="text"
           className="w-full p-2 mb-4 text-lg"
