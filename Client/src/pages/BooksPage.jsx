@@ -269,7 +269,8 @@ const BooksPage = () => {
                     </div>
                     <div className="h-1/5">
                       <h2 className="text-xl font-semibold text-white">{book.title}</h2>
-                      <p classmd ="text-gray-300">by {book.author}</p>
+                      <p className="text-gray-300">by <span className="text-gray-300">{book.author}</span></p>
+
                     </div>
                   </div>
                 ))}

@@ -27,9 +27,9 @@ const ManagerPage = () => {
   const buttonStyle = "flex items-center justify-center bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 text-black font-bold py-8 px-4 rounded focus:outline-none focus:shadow-outline hover:from-gray-400 hover:via-gray-300 hover:to-gray-200 space-x-4 w-96";
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-gray-50 relative">
+    <div className="flex flex-col items-center justify-center min-h-screen text-gray-50">
       {/* Outer Frame */}
-      <div className="absolute inset-0 bg-gray-400 bg-opacity-75 flex items-center justify-center">
+      <div className="absolute inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
         <div className="bg-gray-700 shadow-2xl rounded-lg md:px-20 px-8 pt-24 pb-24 w-full sm:w-3/4 lg:w-1/2">
           {/* Inner Frame */}
           <div className="bg-gray-800 shadow-md rounded-lg px-8 py-12">

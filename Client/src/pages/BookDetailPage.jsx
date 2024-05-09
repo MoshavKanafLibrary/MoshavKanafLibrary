@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa'; // Import FaSpinner from react-icons/fa
 import useUser from '../hooks/useUser';
-import ScrollArea from 'react-scrollbar';
 
 const BookDetailPage = () => {
   const { state } = useLocation();
