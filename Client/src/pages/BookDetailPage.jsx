@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa'; // Import FaSpinner from react-icons/fa
 import useUser from '../hooks/useUser';
+import ScrollArea from 'react-scrollbar';
 
 const BookDetailPage = () => {
   const { state } = useLocation();
@@ -54,7 +55,6 @@ const BookDetailPage = () => {
   };
 
   
-
   return (
     <>
       {loading && ( // Overlay with spinner if loading is true
@@ -62,36 +62,40 @@ const BookDetailPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className={`container mx-auto px-2 md:px-4 py-8 max-w-lg bg-gray-400 shadow-md rounded-lg relative mt-10 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
+      <div className={`container mx-auto px-2 md:px-4 py-8 max-w-xl bg-gray-400 shadow-md rounded-lg relative mt-10 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
         <h1 className="text-3xl md:text-4xl font-bold text-center text-black mb-6">{book.title}</h1>
         <div className="flex flex-col md:flex-row items-center md:justify-between">
-          <div className="">
+          <div className="w-full md:w-1/2 md:pr-8">
             <img src={book.imageURL} alt={book.title} className="w-full h-64 md:h-96 object-cover rounded-lg" />
           </div>
-          <div className="w-full md:w-1/2 md:pl-8 flex flex-col justify-between">
-            <div>
-              <p className="text-gray-700">{book.summary}</p>
-              <p className="text-sm text-gray-500 mt-2">by {book.author}</p>
-            </div>
-            <div className="mt-4 md:text-right absolute bottom-4 right-4">
-                <button 
-                    className={user ? "bg-gray-700 text-white hover:bg-blue-700 text-gray-50 font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline" : "bg-gray-700 text-gray-50 font-bold py-3 px-6 rounded opacity-50"}
-                    onClick={handleOrderNow}
-                >
-                  Order now
-                </button>
+          <div className="w-full md:w-1/2 md:pl-8">
+          <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200" style={{ scrollbarTrackColor: 'transparent' }}>
+  <p className="text-gray-700 text-right pr-2">{book.summary}</p>
+  <p className="text-sm text-gray-500 mt-2 text-right pr-2">{book.author}</p>
+</div>
+
+
+
+
+
+            <div className="mt-4 md:text-right">
+              <button 
+                className={user ? "bg-gray-700 text-white hover:bg-blue-700 text-gray-50 font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline" : "bg-gray-700 text-gray-50 font-bold py-3 px-6 rounded opacity-50"}
+                onClick={handleOrderNow}
+              >
+                Order now
+              </button>
             </div>
             {successMessage && (
-  <div className="absolute top-full left-1/2 -translate-x-1/2 w-full mt-2 px-4 py-0 bg-green-100 border border-green-500 text-green-800 text-sm rounded text-center">
-    {successMessage}
-  </div>
-)}
-
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-full mt-2 px-4 py-0 bg-green-100 border border-green-500 text-green-800 text-sm rounded text-center">
+                {successMessage}
+              </div>
+            )}
           </div>
         </div>
       </div>
-      
-    <div recommendations>
+        
+      {/* Recommendations Section */}
       <div className={`container mx-auto px-4 py-8 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
         {books.length === 0 ? (
           <p className="text-4xl font-bold text-center">Currently we don't have recommendations for you. You can assist the librarian :)</p>
@@ -104,7 +108,8 @@ const BookDetailPage = () => {
           </>
         )}
       </div>
-      
+        
+      {/* Display Recommendations */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
         {books.map((book, index) => (
           <div
@@ -126,10 +131,11 @@ const BookDetailPage = () => {
           </div>
         ))}
       </div>
-    </div>
-
-   </>
+    </>
   );
-};
+  
+  
+};  
+  
 
 export default BookDetailPage;
