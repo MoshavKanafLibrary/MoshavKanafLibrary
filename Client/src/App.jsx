@@ -3,6 +3,7 @@ import Homepage from "./pages/Homepage";
 import NotFoundPage from "./pages/NotFoundPage";
 import Navbar from "./components/Navbar"; // Import the Navbar component
 import SignUpPage from "./pages/SignUpPage";
+import WaitingListPage from "./pages/WaitingListPage";
 import LoginPage from "./pages/LoginPage";
 import BooksPage from "./pages/BooksPage";
 import AddOrUpdateBookPage from "./pages/AddOrUpdateBookPage";
@@ -28,6 +29,7 @@ function App() {
           <Route path="/presentbooks" element={<PresentBooksPage />} />
           <Route path="/addOrUpdatebook" element={<AddOrUpdateBookPage />} />
           <Route path="/addOrUpdatebook/:bookId?" element={<AddOrUpdateBookPage />} />
+          <Route path="/WaitingList" element={<WaitingListPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/contactus" element={<ContactPage />} />
           <Route path="/manager" element={<ManagerPage />} />

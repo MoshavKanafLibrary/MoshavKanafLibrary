@@ -52,11 +52,11 @@ const ManagerPage = () => {
                   </button>
                 </div>
                 <div className="flex flex-col space-y-8">
-                  <button className={buttonStyle} onClick={() => handleNavigate("/searchBook", { mode: 0 })}>
+                  <button className={buttonStyle} onClick={() => handleNavigate("/WaitingList", { mode: 0 })}>
                     <FaTasks className="text-3xl" />
                     <span className="text-xl">Borrow Requests</span>
                   </button>
-                  <button className={buttonStyle} onClick={() => handleNavigate("/searchBook", { mode: 0 })}>
+                  <button className={buttonStyle} onClick={() => handleNavigate("/WaitingList", { mode: 0 })}>
                     <FaBookReader className="text-3xl" />
                     <span className="text-xl">Create Borrow Request for user</span>
                   </button>

@@ -513,7 +513,8 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
       imageURL: doc.data().imageURL,
       expenditure: doc.data().expenditure,
       locatorCode: doc.data().locatorCode,
-      titleType: doc.data().titleType
+      titleType: doc.data().titleType,
+      waitingList: doc.data().waitingList
     }));
 
     console.log("Books fetched successfully:", books);
