@@ -101,9 +101,11 @@ const AddOrUpdateBookPage = () => {
     setIsLoading(false);
   };
   
+  const headerText = isEditMode ? "Update a book" : "Add a book";
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full">
+       <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">{headerText}</h1>
       <form
         className="bg-bg-navbar-custom shadow-2xl rounded-lg md:px-16 px-4 pt-10 pb-12 w-full sm:w-3/4 lg:w-1/2"
         onSubmit={(e) => {
