@@ -42,7 +42,6 @@ app.get('/', (req, res) => {
 app.get('/api', (req, res) => {
   res.json({ message: 'Hello from the server!' }); // Send a JSON response to the client
 });
-console.log("test")
 // Start the server
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server is listening on port 3000? Thanks`);
@@ -52,12 +51,6 @@ app.listen(process.env.PORT || 3000, () => {
 // get a user by his id
 app.get("/api/users/:uid", async (req, res) => {
   try {
-    console.log("test")
-    console.log("test")
-    console.log("test")
-    console.log("test")
-    console.log("test")
-    console.log("test")
 
     const { uid } = req.params;
 
@@ -75,6 +68,60 @@ app.get("/api/users/:uid", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+
+app.get('/api/users/:uid/historyBooks', async (req, res) => {
+  console.log("Endpoint Hit: /api/users/:uid/historyBooks");
+
+  const { uid } = req.params;
+  console.log("UID received:", uid);
+
+  if (!uid) {
+    console.log("No UID provided in URL parameters");
+    return res.status(400).json({ success: false, message: "User ID is required" });
+  }
+
+  try {
+    const userRef = doc(db, "users", uid);
+    const userSnapshot = await getDoc(userRef);
+    
+    if (!userSnapshot.exists()) {
+      console.log("No user found for UID:", uid);
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const userData = userSnapshot.data();
+    const historyBooks = userData.historyBooks || [];
+    console.log("Initial History Books found:", historyBooks.length);
+
+    // Fetch each book's title using the copyRef
+    const booksDetails = await Promise.all(historyBooks.map(async (historyBook) => {
+      const bookRef = historyBook.copyRef; // No need to call doc() again
+      const bookSnap = await getDoc(bookRef);
+      
+      if (bookSnap.exists()) {
+        const bookData = bookSnap.data();
+        return {
+          title: bookData.title,
+          readDate: historyBook.readDate
+        };
+      } else {
+        return null;  // Handle cases where the book might not exist
+      }
+    }));
+
+    // Filter out any null values (books that were not found)
+    const filteredBooksDetails = booksDetails.filter(book => book !== null);
+
+    console.log("Processed History Books:", filteredBooksDetails.length);
+    console.log(filteredBooksDetails)
+    return res.status(200).json({ success: true, historyBooks: filteredBooksDetails });
+  } catch (error) {
+    console.error('Error fetching user history books:', error);
+    return res.status(500).json({ success: false, message: `Error fetching data: ${error.message}` });
+  }
+});
+
 
 
 // // Handler for fetching user by UID
@@ -166,7 +213,8 @@ app.post("/api/users/signUp", async (req, res) => {
     await setDoc(userRef, {
       uid: uid,
       displayName: "",
-      random: random // assuming you want to insert the random number as well
+      random: random,
+      historyBooks: [] // assuming you want to insert the random number as well
     });
 
     // Respond with a success message
@@ -180,13 +228,11 @@ app.post("/api/users/signUp", async (req, res) => {
 
 app.get("/api/books/getAllBooks", async (req, res) => {
   try {
-    console.log("Here")
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
 
     const searchQuery = req.query.searchQuery || ""; // Search parameter
     const selectedCategories = req.query.categories ? req.query.categories.split(",") : []; // Category filter
-    console.log(req.query)
 
     const selectedAuthors = req.query.authors ? req.query.authors.split(",") : []; // Author filter
 
@@ -234,7 +280,6 @@ app.get("/api/books/getAllBooks", async (req, res) => {
     }));
 
     const totalBookCount = await fetchTotalBookCount(searchQuery, selectedCategories, selectedAuthors); // Total count with filters
-    console.log(totalBookCount)
     const totalPages = Math.ceil(totalBookCount / pageSize); // Ensure correct total pages
 
     res.status(200).json({
@@ -257,7 +302,6 @@ const fetchTotalBookCount = async (searchQuery = "", selectedCategories = [], se
     if (selectedCategories.length > 0) {
       booksQuery = query(booksQuery, where("category", "in", selectedCategories));
     }
-    console.log(selectedAuthors);
 
     // Apply author filter
     if (selectedAuthors.length > 0) {
@@ -429,7 +473,6 @@ async function extractProductId(searchResponseData) {
 }
 
 async function fetchBookTitles(bookName) {
-  console.log(bookName)
   const searchUrl = `https://www.e-vrit.co.il/Search/${encodeURIComponent(bookName)}`;
 
   try {
@@ -517,7 +560,6 @@ app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
       ...doc.data(),
     }));
 
-    console.log(books);
 
     // Send the response with the matching books
     res.json(books.slice(0,5));
@@ -728,7 +770,7 @@ const getCopiesIdByTitle = async (bookTitle) => {
     if (matchingBook) {
       return matchingBook.data().copiesID; // Return the copiesID array if a matching book is found
     } else {
-      console.log("No book found with the title:", bookTitle);
+      //console.log("No book found with the title:", bookTitle);
       return []; // Return an empty array if no matching book is found
     }
   } catch (error) {
