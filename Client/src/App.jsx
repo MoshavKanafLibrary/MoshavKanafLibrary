@@ -11,6 +11,7 @@ import ContactPage from "./pages/ContactPage";
 import ManagerPage from "./pages/ManagerPage";
 import BookDetailPage from "./pages/BookDetailPage"
 import PresentBooksPage from "./pages/PresentBooksPage"
+import ResetPasswordPage from "./pages/resetPasswordPage";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/contactus" element={<ContactPage />} />
           <Route path="/manager" element={<ManagerPage />} />
           <Route path="/book/:bookName" element={<BookDetailPage />} />
+          <Route path="/resetpassword" element={<ResetPasswordPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
