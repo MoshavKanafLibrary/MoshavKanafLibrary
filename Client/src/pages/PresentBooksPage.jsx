@@ -9,12 +9,13 @@ const PresentBooksPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const navigate = useNavigate();
 
   useEffect(() => {
     axios.get("/api/books/getAllBooksData")
       .then(response => {
-        console.log("Data received:", response.data);
         if (response.data.success && Array.isArray(response.data.books)) {
           setBooks(response.data.books);
           setFilteredBooks(response.data.books);
@@ -43,19 +44,26 @@ const PresentBooksPage = () => {
     setFilteredBooks(filtered);
   }, [searchQuery, books]);
 
+  const indexOfLastBook = currentPage * itemsPerPage;
+  const indexOfFirstBook = indexOfLastBook - itemsPerPage;
+  const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook);
+
+  const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   const handleDelete = async (bookId) => {
     if (window.confirm('Are you sure you want to delete this book?')) {
-        try {
-            await axios.delete(`/api/books/${bookId}`);
-            const updatedBooks = books.filter(book => book.id !== bookId);
-            setBooks(updatedBooks);
-            setFilteredBooks(updatedBooks);
-            console.log('Book deleted successfully');
-            setSuccessMessage('The book was deleted successfully');
-        } catch (error) {
-            console.error('Error deleting the book:', error);
-            alert('Failed to delete the book'); // Popup message for failure
-        }
+      try {
+          await axios.delete(`/api/books/${bookId}`);
+          const updatedBooks = books.filter(book => book.id !== bookId);
+          setBooks(updatedBooks);
+          setFilteredBooks(updatedBooks);
+          setSuccessMessage('The book was deleted successfully');
+      } catch (error) {
+          console.error('Error deleting the book:', error);
+          alert('Failed to delete the book');
+      }
     }
   };
 
@@ -70,9 +78,8 @@ const PresentBooksPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10">
-        <h1 className="text-4xl font-bold text-center mb-8">Book List</h1>
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 ">
+  <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">Our Book Collection</h1>
         {successMessage && (
           <div className="text-center py-3 px-4 bg-green-200 text-green-800 font-bold rounded-lg">
             {successMessage}
@@ -100,7 +107,7 @@ const PresentBooksPage = () => {
               </tr>
             </thead>
             <tbody className="text-gray-700">
-              {filteredBooks.length > 0 ? filteredBooks.map((book, index) => (
+              {currentBooks.length > 0 ? currentBooks.map((book, index) => (
                 <tr key={index} className="border-b border-gray-200 hover:bg-gray-100 relative">
                   <td className="py-4 px-6 text-left">{book.title}</td>
                   <td className="py-4 px-6 text-left">{book.author}</td>
@@ -122,16 +129,26 @@ const PresentBooksPage = () => {
             </tbody>
           </table>
         </div>
-        {/* Button to go back to ManagerPage, centered */}
-<div className="flex justify-center mt-4">
-  <button
-    onClick={() => navigate("/manager")} // Navigate back to ManagerPage
-    className="bg-gray-700 hover:bg-gray-800 text-gray-50 font-bold py-3 px-6 rounded"
-  >
-    Go Back to ManagerPage
-  </button>
-</div>
-
+        {/* Pagination controls */}
+        <div className="flex justify-center mt-4">
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => paginate(i + 1)}
+              className={`mx-1 px-4 py-2 rounded ${currentPage === i + 1 ? 'bg-gray-700 hover:bg-gray-800 text-white' : 'bg-gray-300 text-black'}`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </div>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={() => navigate("/manager")}
+            className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded"
+          >
+            Go Back to ManagerPage
+          </button>
+        </div>
       </div>
     </>
   );
