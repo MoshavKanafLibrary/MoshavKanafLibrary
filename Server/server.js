@@ -495,18 +495,18 @@ app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
     
     // Call the function to fetch titles for the given book name
     const titles = await fetchBookTitles(searchQuery);
-    
     // Remove duplicate titles and filter out the search query book name
     const uniqueTitles = Array.from(new Set(titles.filter(title => title !== searchQuery)));
 
     // Fetch books from the database that match the fetched titles
     const booksCollection = collection(db, "books");
+    console.log(booksCollection);
     let booksQuery = query(booksCollection, orderBy("title"));
     
     if (uniqueTitles.length > 0) {
       booksQuery = query(
         booksQuery,
-        where("title", "in", uniqueTitles.slice(0, 5)) // Limit to 5 unique titles
+        where("title", "in", uniqueTitles) // Limit to 5 unique titles
       );
     }
 
@@ -517,8 +517,10 @@ app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
       ...doc.data(),
     }));
 
+    console.log(books);
+
     // Send the response with the matching books
-    res.json(books);
+    res.json(books.slice(0,5));
   } catch (error) {
     console.error("Error fetching books:", error.message);
     res.status(500).json({ error: error.message });
