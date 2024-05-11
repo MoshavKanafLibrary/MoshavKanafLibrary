@@ -139,6 +139,15 @@ function LoginPage() {
                   Create an account.
                 </Link>
               </div>
+              <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-gray-600 rounded-md py-4">
+                <h2 className="text-gray-50 ">Forgot your password ?</h2>
+                <Link
+                  className="text-blue-500  rounded focus:outline-none focus:shadow-outline"
+                  to="/resetpassword"
+                >
+                  Reset your password now !
+                </Link>
+              </div>
 
               <div className=" mt-2"></div>
             </form>
