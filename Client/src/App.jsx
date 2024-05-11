@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Homepage from "./pages/Homepage";
 import NotFoundPage from "./pages/NotFoundPage";
 import Navbar from "./components/Navbar"; // Import the Navbar component
@@ -10,11 +11,20 @@ import AddOrUpdateBookPage from "./pages/AddOrUpdateBookPage";
 import ProfilePage from "./pages/ProfilePage";
 import ContactPage from "./pages/ContactPage";
 import ManagerPage from "./pages/ManagerPage";
-import BookDetailPage from "./pages/BookDetailPage"
-import PresentBooksPage from "./pages/PresentBooksPage"
+import BookDetailPage from "./pages/BookDetailPage";
+import PresentBooksPage from "./pages/PresentBooksPage";
 import ResetPasswordPage from "./pages/resetPasswordPage";
+import useUser from "./hooks/useUser"; // Import the useUser hook
 
 function App() {
+  const { user } = useUser();
+
+  // Function to check if the user is an admin
+  const isAdmin = () => {
+    console.log(user);
+    return user && user.isManager; // Assuming the isAdmin property is called isManager
+  };
+
   return (
     <BrowserRouter>
       <div className="relative z-20">
@@ -32,7 +42,7 @@ function App() {
           <Route path="/WaitingList" element={<WaitingListPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/contactus" element={<ContactPage />} />
-          <Route path="/manager" element={<ManagerPage />} />
+          {isAdmin() && <Route path="/manager" element={<ManagerPage />} />} {/* Render the ManagerPage route only if user is admin */}
           <Route path="/book/:bookName" element={<BookDetailPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
           <Route path="*" element={<NotFoundPage />} />

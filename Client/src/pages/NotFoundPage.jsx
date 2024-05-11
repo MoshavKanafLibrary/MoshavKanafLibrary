@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
+import NotFoundPageImage from '../assets/NotFoundPageImage.png'
 const NotFoundPage = () => {
   return (
     <div className="h-screen w-screen bg-gray-50 flex items-center">
@@ -22,7 +22,7 @@ const NotFoundPage = () => {
         </div>
         <div className="w-full lg:flex lg:justify-end lg:w-1/2 mx-5 my-12">
           <img
-            src={require("../assets/NotFoundPageImage.png")}
+            src={NotFoundPageImage}
             alt="Page not found"
             className=""
           />
