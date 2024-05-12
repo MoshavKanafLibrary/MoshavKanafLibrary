@@ -65,7 +65,6 @@ const WaitingListPage = () => {
     navigate('/BookBorrowDetails', { state: { bookTitle } });
   };
   
-
   return (
     <>
       {loading && (
@@ -80,12 +79,19 @@ const WaitingListPage = () => {
           placeholder="Search by name, date, or book title..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="mb-4 p-2 w-full"
+          className="mb-10 p-2 w-full"
         />
         <div className="flex flex-col space-y-2">
+          {/* Header Row */}
+          <div className="grid grid-cols-3 text-center font-bold bg-gray-600 p-4 rounded-lg text-white">
+            <div>Name</div>
+            <div>Request Date</div>
+            <div>Book Title</div>
+          </div>
+          {/* Entries */}
           {currentItems.map((entry, index) => (
             <div key={index}
-              className={`flex justify-between bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
+              className={`grid grid-cols-3 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
               onMouseEnter={() => setHoverIndex(index)}
               onMouseLeave={() => setHoverIndex(-1)}
               onClick={() => handleRowClick(entry.bookTitle)}
@@ -94,9 +100,9 @@ const WaitingListPage = () => {
                 transition: 'transform 0.2s'
               }}
             >
-              <div className="flex-1 pr-4">{entry.displayName}</div>
-              <div className="flex-1 pr-4">{entry.waitingDate}</div>
-              <div className="flex-1">{entry.bookTitle}</div>
+              <div>{entry.displayName}</div>
+              <div>{entry.waitingDate}</div>
+              <div>{entry.bookTitle}</div>
             </div>
           ))}
         </div>

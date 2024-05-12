@@ -7,10 +7,12 @@ const BookBorrowDetailsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [copies, setCopies] = useState([]);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);  // Defines the number of items per page
 
   const navigate = useNavigate();
   const location = useLocation();
-  const bookTitle = location.state?.bookTitle; // This should be passed from the WaitingListPage
+  const bookTitle = location.state?.bookTitle;
 
   useEffect(() => {
     const fetchCopies = async () => {
@@ -33,6 +35,13 @@ const BookBorrowDetailsPage = () => {
     }
   }, [bookTitle]);
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = copies.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = pageNumber => setCurrentPage(pageNumber);
+  const total_pages = Math.ceil(copies.length / itemsPerPage);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full">
       <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">Borrow Details for "{bookTitle}"</h1>
@@ -41,13 +50,32 @@ const BookBorrowDetailsPage = () => {
           <FaSpinner className="animate-spin text-6xl" />
         </div>
       ) : (
-        copies.length > 0 ? copies.map((copy, index) => (
-          <div key={index} className="bg-white p-4 w-full max-w-md rounded-lg shadow mb-4">
-            <div><strong>Title:</strong> {copy.title}</div>
-            <div><strong>Copy ID:</strong> {copy.copyID}</div>
-            <div><strong>Status:</strong> {copy.borrowedTo ? `Borrowed to ${copy.borrowedTo}` : "Available"}</div>
+        <>
+          {copies.length > 0 ? (
+            <div className="w-full px-4 flex flex-wrap justify-center gap-4">
+              {currentItems.map((copy, index) => (
+                <div key={index} className="bg-white p-4 rounded-lg shadow mb-4" style={{ width: 'calc(40% - 16px)' }}> {/* Adjusted width for each item */}
+                  <div><strong>Title:</strong> {copy.title}</div>
+                  <div><strong>Copy ID:</strong> {copy.copyID}</div>
+                  <div><strong>Status:</strong> {copy.borrowedTo ? `Borrowed to ${copy.borrowedTo}` : "Available"}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div>No copies available for this book.</div>
+          )}
+          <div className="flex justify-center mt-4">
+            {Array.from({ length: total_pages }, (_, index) => (
+              <button
+                key={index}
+                onClick={() => paginate(index + 1)}
+                className={`mx-2 px-4 py-2 rounded ${currentPage === index + 1 ? 'bg-gray-700 hover:bg-gray-800 text-white' : 'bg-gray-300'}`}
+              >
+                {index + 1}
+              </button>
+            ))}
           </div>
-        )) : <div>No copies available for this book.</div>
+        </>
       )}
       {error && <div className="text-red-500 p-3 rounded bg-gray-100 my-2">{error}</div>}
       <button onClick={() => navigate(-1)} className="mt-4 bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded">
