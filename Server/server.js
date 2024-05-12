@@ -864,3 +864,27 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
 });
 
 
+// Endpoint to get copies by book title
+app.get("/api/book/getCopiesByTitle", async (req, res) => {
+  const { title } = req.query; // Get the book title from query parameters
+
+  if (!title) {
+    return res.status(400).json({ success: false, message: "Title is required" });
+  }
+
+  try {
+    const copiesCollectionRef = collection(db, "copies"); // Reference to the "copies" collection
+    const q = query(copiesCollectionRef, where("title", "==", title)); // Query to find all copies with the matching title
+    const querySnapshot = await getDocs(q); // Execute the query
+
+    if (querySnapshot.empty) {
+      res.status(404).json({ success: false, message: "No copies found for the given title" });
+    } else {
+      const copiesData = querySnapshot.docs.map(doc => doc.data());
+      res.status(200).json({ success: true, copies: copiesData });
+    }
+  } catch (error) {
+    console.error("Error fetching copies by title:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch copies by title" });
+  }
+});

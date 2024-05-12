@@ -11,7 +11,7 @@ const WaitingListPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [hoverIndex, setHoverIndex] = useState(-1); // New state to track hover
+  const [hoverIndex, setHoverIndex] = useState(-1); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -61,10 +61,10 @@ const WaitingListPage = () => {
 
   const paginate = pageNumber => setCurrentPage(pageNumber);
 
-  // Function to navigate to a detailed page
-  const handleRowClick = (uid) => {
-    navigate(`/detail/${uid}`); // Navigate to a detail page for the selected entry
+  const handleRowClick = (bookTitle) => {
+    navigate('/BookBorrowDetails', { state: { bookTitle } });
   };
+  
 
   return (
     <>
@@ -88,7 +88,7 @@ const WaitingListPage = () => {
               className={`flex justify-between bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
               onMouseEnter={() => setHoverIndex(index)}
               onMouseLeave={() => setHoverIndex(-1)}
-              onClick={() => handleRowClick(entry.uid)}
+              onClick={() => handleRowClick(entry.bookTitle)}
               style={{
                 transform: hoverIndex === index ? 'translateX(10px)' : 'none',
                 transition: 'transform 0.2s'
