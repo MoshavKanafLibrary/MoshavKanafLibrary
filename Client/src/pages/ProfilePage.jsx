@@ -96,7 +96,7 @@ const ProfilePage = () => {
             </div>
 
             <div className="bg-gray-700 p-6 rounded-lg shadow-lg text-center mt-8">
-              <h3 className="mt-6 text-2xl text-white">What I Already Read?</h3>
+              <h3 className="mt-6 text-2xl text-white">What Have I Already Read?</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 {readBooks.map((book, index) => (
                   <div
