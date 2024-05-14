@@ -19,5 +19,8 @@
     "express": "^4.19.2",
     "firebase": "^10.11.1",
     "puppeteer": "^22.7.1"
+  },
+  "devDependencies": {
+    "vite": "^5.2.11"
   }
 }
