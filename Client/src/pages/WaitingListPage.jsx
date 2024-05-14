@@ -61,10 +61,10 @@ const WaitingListPage = () => {
 
   const paginate = pageNumber => setCurrentPage(pageNumber);
 
-  const handleRowClick = (bookTitle) => {
-    navigate('/BookBorrowDetails', { state: { bookTitle } });
+  const handleRowClick = (entry) => {
+    navigate('/BookBorrowDetails', { state: { bookTitle: entry.bookTitle, displayName: entry.displayName, uid: entry.uid } });
   };
-  
+
   return (
     <>
       {loading && (
@@ -73,7 +73,7 @@ const WaitingListPage = () => {
         </div>
       )}
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">Book Requests</h1>
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">Borrow Requests</h1>
         <input
           type="text"
           placeholder="Search by name, date, or book title..."
@@ -83,7 +83,8 @@ const WaitingListPage = () => {
         />
         <div className="flex flex-col space-y-2">
           {/* Header Row */}
-          <div className="grid grid-cols-3 text-center font-bold bg-gray-600 p-4 rounded-lg text-white">
+          <div className="grid grid-cols-4 text-center font-bold bg-gray-600 p-4 rounded-lg text-white">
+            <div>Uid</div>
             <div>Name</div>
             <div>Request Date</div>
             <div>Book Title</div>
@@ -91,15 +92,16 @@ const WaitingListPage = () => {
           {/* Entries */}
           {currentItems.map((entry, index) => (
             <div key={index}
-              className={`grid grid-cols-3 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
+              className={`grid grid-cols-4 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
               onMouseEnter={() => setHoverIndex(index)}
               onMouseLeave={() => setHoverIndex(-1)}
-              onClick={() => handleRowClick(entry.bookTitle)}
+              onClick={() => handleRowClick(entry)}
               style={{
                 transform: hoverIndex === index ? 'translateX(10px)' : 'none',
                 transition: 'transform 0.2s'
               }}
             >
+              <div>{entry.uid}</div>
               <div>{entry.displayName}</div>
               <div>{entry.waitingDate}</div>
               <div>{entry.bookTitle}</div>

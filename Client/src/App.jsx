@@ -14,6 +14,7 @@ import ManagerPage from "./pages/ManagerPage";
 import BookDetailPage from "./pages/BookDetailPage";
 import PresentBooksPage from "./pages/PresentBooksPage";
 import ResetPasswordPage from "./pages/resetPasswordPage";
+import AllBooksPage from "./pages/AllBooksPage";
 import BookBorrowDetailsPage from "./pages/BookBorrowDetailsPage";
 import useUser from "./hooks/useUser"; // Import the useUser hook
 
@@ -41,6 +42,7 @@ function App() {
           <Route path="/addOrUpdatebook" element={<AddOrUpdateBookPage />} />
           <Route path="/addOrUpdatebook/:bookId?" element={<AddOrUpdateBookPage />} />
           <Route path="/WaitingList" element={<WaitingListPage />} />
+          <Route path="/AllBooks" element={<AllBooksPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/contactus" element={<ContactPage />} />
           <Route path="/BookBorrowDetails/:bookId?" element={<BookBorrowDetailsPage />} />

@@ -8,11 +8,13 @@ const BookBorrowDetailsPage = () => {
   const [copies, setCopies] = useState([]);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(6);  // Defines the number of items per page
+  const [itemsPerPage] = useState(6); // Defines the number of items per page
 
   const navigate = useNavigate();
   const location = useLocation();
   const bookTitle = location.state?.bookTitle;
+  const displayName = location.state?.displayName;
+  const uid = location.state?.uid;
 
   useEffect(() => {
     const fetchCopies = async () => {
@@ -34,6 +36,38 @@ const BookBorrowDetailsPage = () => {
       fetchCopies();
     }
   }, [bookTitle]);
+
+  const handleBorrow = async (copyID) => {
+    try {
+      const updateBorrowResponse = await axios.put('/api/copies/updateBorrowedTo', { copyID, uid });
+      if (updateBorrowResponse.data.success) {
+        setCopies(prevCopies => prevCopies.map(copy => {
+          if (copy.copyID === copyID) {
+            return { ...copy, borrowedTo: displayName };
+          }
+          return copy;
+        }));
+
+        // Get book ID using book title
+        const bookResponse = await axios.get(`/api/books/names`);
+        const book = bookResponse.data.bookNames.find(book => book.title === bookTitle);
+        if (book) {
+          const deleteRequestResponse = await axios.delete(`/api/books/${book.id}/waiting-list`, { data: { uid } });
+          if (deleteRequestResponse.data.success) {
+            console.log("Borrow request deleted successfully");
+          } else {
+            setError("Failed to delete borrow request.");
+          }
+        } else {
+          setError("Book not found for removing from waiting list.");
+        }
+      } else {
+        setError("Failed to update borrowedTo field.");
+      }
+    } catch (error) {
+      setError(`Error updating borrowedTo field: ${error.response?.data?.message || error.message}`);
+    }
+  };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -58,6 +92,14 @@ const BookBorrowDetailsPage = () => {
                   <div><strong>Title:</strong> {copy.title}</div>
                   <div><strong>Copy ID:</strong> {copy.copyID}</div>
                   <div><strong>Status:</strong> {copy.borrowedTo ? `Borrowed to ${copy.borrowedTo}` : "Available"}</div>
+                  {!copy.borrowedTo && (
+                    <button
+                      className="mt-4 bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded"
+                      onClick={() => handleBorrow(copy.copyID)}
+                    >
+                      Borrow to {displayName}
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

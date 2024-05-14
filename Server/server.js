@@ -864,6 +864,7 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
 });
 
 
+
 // Endpoint to get copies by book title
 app.get("/api/book/getCopiesByTitle", async (req, res) => {
   const { title } = req.query; // Get the book title from query parameters
@@ -888,3 +889,84 @@ app.get("/api/book/getCopiesByTitle", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch copies by title" });
   }
 });
+
+
+// Endpoint to update the borrowedTo field in the copies collection with the user's display name
+app.put("/api/copies/updateBorrowedTo", async (req, res) => {
+  const { copyID, uid } = req.body; // Extract copyID and uid from the request body
+
+  if (!copyID || !uid) {
+    return res.status(400).json({ success: false, message: "CopyID and User ID are required" });
+  }
+
+  try {
+    // Reference to the user document
+    const userRef = doc(db, "users", uid);
+    const userSnapshot = await getDoc(userRef);
+
+    if (!userSnapshot.exists()) {
+      console.log(`User not found: uid=${uid}`);
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const userData = userSnapshot.data();
+    const displayName = userData.displayName;
+
+    // Query to find the specific copy document by copyID field
+    const copiesCollectionRef = collection(db, "copies");
+    const q = query(copiesCollectionRef, where("copyID", "==", copyID));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.log(`Copy not found: copyID=${copyID}`);
+      return res.status(404).json({ success: false, message: "Copy not found" });
+    }
+
+    // Assuming copyID is unique and there will be only one document
+    const copyDocRef = querySnapshot.docs[0].ref;
+
+    // Update the borrowedTo field with the user's display name
+    await updateDoc(copyDocRef, { borrowedTo: displayName });
+
+    res.status(200).json({ success: true, message: "BorrowedTo field updated successfully" });
+  } catch (error) {
+    console.error("Error updating borrowedTo field:", error);
+    res.status(500).json({ success: false, message: `Failed to update borrowedTo field: ${error.message || 'Unknown error'}` });
+  }
+});
+
+
+// Endpoint to delete a borrow request from the waiting list
+app.delete("/api/books/:id/waiting-list", async (req, res) => {
+  const { id } = req.params;
+  const { uid } = req.body;
+
+  if (!uid) {
+    return res.status(400).json({ success: false, message: "User ID is required" });
+  }
+
+  const bookRef = doc(db, "books", id);
+
+  try {
+    const docSnap = await getDoc(bookRef);
+    if (!docSnap.exists()) {
+      return res.status(404).json({ success: false, message: "Book not found" });
+    }
+
+    let bookData = docSnap.data();
+
+    // Filter out the entry with the given uid
+    const newWaitingList = bookData.waitingList.filter(entry => entry.uid !== uid);
+
+    // Update the document with the new waiting list
+    await updateDoc(bookRef, {
+      waitingList: newWaitingList
+    });
+
+    res.status(200).json({ success: true, message: "User removed from waiting list" });
+  } catch (error) {
+    console.error("Error removing user from waiting list:", error);
+    res.status(500).json({ success: false, message: `Failed to remove user from waiting list: ${error.message || 'Unknown error'}` });
+  }
+});
+
