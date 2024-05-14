@@ -108,12 +108,6 @@ const AllBooksPage = () => {
           ))}
         </div>
         <div className="flex justify-center mt-4">
-          <button
-            onClick={() => navigate("/manager")}
-            className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded"
-          >
-            Go Back to ManagerPage
-          </button>
         </div>
       </div>
     </>
