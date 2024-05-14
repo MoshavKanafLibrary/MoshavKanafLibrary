@@ -10,7 +10,6 @@ import BooksPage from "./pages/BooksPage";
 import AddOrUpdateBookPage from "./pages/AddOrUpdateBookPage";
 import ProfilePage from "./pages/ProfilePage";
 import ContactPage from "./pages/ContactPage";
-import ManagerPage from "./pages/ManagerPage";
 import BookDetailPage from "./pages/BookDetailPage";
 import PresentBooksPage from "./pages/PresentBooksPage";
 import ResetPasswordPage from "./pages/resetPasswordPage";
@@ -46,7 +45,6 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/contactus" element={<ContactPage />} />
           <Route path="/BookBorrowDetails/:bookId?" element={<BookBorrowDetailsPage />} />
-          {isAdmin() && <Route path="/manager" element={<ManagerPage />} />} {/* Render the ManagerPage route only if user is admin */}
           <Route path="/book/:bookName" element={<BookDetailPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
           <Route path="*" element={<NotFoundPage />} />
