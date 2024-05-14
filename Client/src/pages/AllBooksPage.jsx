@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import * as XLSX from 'xlsx';
 
 const AllBooksPage = () => {
   const [books, setBooks] = useState([]);
@@ -51,6 +52,16 @@ const AllBooksPage = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const exportToExcel = () => {
+    // Exclude the "waitingList" property from each book object
+    const filteredBooksWithoutWaitingList = filteredBooks.map(({ waitingList, ...rest }) => rest);
+
+    const worksheet = XLSX.utils.json_to_sheet(filteredBooksWithoutWaitingList);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Books');
+    XLSX.writeFile(workbook, 'books.xlsx');
+  };
+
   return (
     <>
       {loading && (
@@ -67,7 +78,7 @@ const AllBooksPage = () => {
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto mb-4">
           <table className="min-w-full bg-white rounded-lg shadow-lg">
             <thead className="bg-gray-800 text-white text-lg">
               <tr>
@@ -95,8 +106,7 @@ const AllBooksPage = () => {
             </tbody>
           </table>
         </div>
-        {/* Pagination controls */}
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center mb-4">
           {Array.from({ length: totalPages }, (_, i) => (
             <button
               key={i + 1}
@@ -107,13 +117,15 @@ const AllBooksPage = () => {
             </button>
           ))}
         </div>
-        <div className="flex justify-center mt-4">
-          <button
-            onClick={() => navigate("/manager")}
-            className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-6 rounded"
-          >
-            Go Back to ManagerPage
-          </button>
+        <div className="flex justify-center">
+          <div className="flex items-center">
+            <button
+              onClick={exportToExcel}
+              className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded"
+            >
+              Export to Excel
+            </button>
+          </div>
         </div>
       </div>
     </>

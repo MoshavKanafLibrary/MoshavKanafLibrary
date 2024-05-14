@@ -256,14 +256,6 @@ const AddOrUpdateBookPage = () => {
           >
             {isEditMode ? "Update Book" : "Add Book"}
           </button>
-
-          {/* Button to go back to ManagerPage */}
-          <button
-            onClick={() => navigate("/manager")} // Navigate back to ManagerPage
-            className="bg-gray-700 hover:bg-gray-800 text-gray-50 font-bold py-3 px-6 rounded"
-          >
-            Go Back to ManagerPage
-          </button>
         </div>
 
         {/* Error and success messages */}
