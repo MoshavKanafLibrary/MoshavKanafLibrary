@@ -251,14 +251,16 @@ app.get("/api/books/getAllBooks", async (req, res) => {
       booksQuery = query(booksQuery, where("author", "in", selectedAuthors));
     }
 
-    // Apply search query
-    if (searchQuery) {
-      booksQuery = query(
-        booksQuery,
-        where("title", ">=", searchQuery),
-        where("title", "<", searchQuery + "\uf8ff")
-      );
-    }
+// Apply search query
+if (searchQuery) {
+  const searchQueryLower = searchQuery.toLowerCase();
+  booksQuery = query(
+    booksQuery,
+    where("title_lowercase", ">=", searchQueryLower),
+    where("title_lowercase", "<", searchQueryLower + "\uf8ff")
+  );
+}
+
 
     // Apply pagination
     if (page === 1) {
@@ -292,6 +294,7 @@ app.get("/api/books/getAllBooks", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
 
 const fetchTotalBookCount = async (searchQuery = "", selectedCategories = [], selectedAuthors = []) => {
   try {

@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { FaSearch, FaSpinner} from 'react-icons/fa'; // Removed FaTimes
 import { Dialog, Transition } from '@headlessui/react';
 import {useNavigate, useLocation} from 'react-router-dom'
 import useUser from '../hooks/useUser'
+import { debounce } from 'lodash';
 
-// Import Axios
+// Import Axios 
 import axios from 'axios';
 
 const fetchAllBooks = async (page, pageSize, searchQuery = '', selectedCategories = [], selectedAuthors = []) => {
@@ -14,24 +15,17 @@ const fetchAllBooks = async (page, pageSize, searchQuery = '', selectedCategorie
         page,
         pageSize,
         searchQuery,
-        categories: selectedCategories.join(','), // Join array with commas
-        authors: selectedAuthors.join(','), // Join array with commas        authors: selectedAuthors,
+        categories: selectedCategories.join(','),
+        authors: selectedAuthors.join(','),
       },
     });
 
-    if (response.status === 200) {
-      return response.data;
-    } else {
-      console.error("Unexpected response:", response.statusText);
-      return { books: [], totalItems: 0 }; // Return empty on error
-    }
+    return response.status === 200 ? response.data : { books: [], totalItems: 0 };
   } catch (error) {
     console.error("Error fetching books:", error);
-    return { books: [], totalItems: 0 }; // Return empty on exception
+    return { books: [], totalItems: 0 };
   }
 };
-
-
 
 
 
@@ -41,7 +35,7 @@ const uniqueValues = (array, key) => {
 
 const BooksPage = () => {
   const [currentPage, setCurrentPage] = useState(1); // Current page number
-  const [pageSize] = useState(12); // Items per page
+  const [pageSize] = useState(6); // Items per page
   const [totalBookCount, setTotalBookCount] = useState(0); // Total count of books
   const [books, setBooks] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state
@@ -49,8 +43,6 @@ const BooksPage = () => {
   const [authors, setAuthors] = useState([]); // State for authors
   const { user } = useUser();
   const location = useLocation(); // Destructure location from useLocation hook
-
-
 
 
   const [initialBooks, setInitialBooks] = useState([]);
@@ -66,6 +58,20 @@ const BooksPage = () => {
   // const categories = uniqueValues(books, 'category');
   // const authors = uniqueValues(books, 'author');
   
+  const handleSearch = useCallback(debounce(async (query) => {
+    setIsLoading(true);
+    const booksData = await fetchAllBooks(currentPage, pageSize, query, selectedCategories, selectedAuthors);
+    setBooks(booksData.books);
+    setIsLoading(false);
+  }, 300), [currentPage, pageSize, selectedCategories, selectedAuthors]);
+
+  useEffect(() => {
+    handleSearch(searchQuery);
+  }, [searchQuery, handleSearch]);
+
+  const handleSearchInputChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
 
   const fetchAllCategoriesAndAuthors = async () => {
     const response = await axios.get('/api/books/getCategoriesAndAuthors');
@@ -83,20 +89,20 @@ const BooksPage = () => {
   }, []); // Fetch only when the component is mounted
  
   
-  useEffect(() => {
-    const fetchBooks = async () => {
-      setIsLoading(true);
+  // useEffect(() => {
+  //   const fetchBooks = async () => {
+  //     setIsLoading(true);
   
-      const booksData = await fetchAllBooks(currentPage, pageSize, searchQuery, selectedCategories, selectedAuthors);
+  //     const booksData = await fetchAllBooks(currentPage, pageSize, searchQuery, selectedCategories, selectedAuthors);
       
-      setBooks(booksData.books); // Update books with the fetched data
-      setTotalBookCount(booksData.totalItems); // Update the total book count
-      console.log(booksData)
-      setIsLoading(false);
-    };
+  //     setBooks(booksData.books); // Update books with the fetched data
+  //     setTotalBookCount(booksData.totalItems); // Update the total book count
+  //     console.log(booksData)
+  //     setIsLoading(false);
+  //   };
   
-    fetchBooks();
-  }, [currentPage, pageSize, searchQuery, selectedCategories, selectedAuthors]); // Re-fetch when parameters change
+  //   fetchBooks();
+  // }, [currentPage, pageSize, searchQuery, selectedCategories, selectedAuthors]); // Re-fetch when parameters change
   
   const goToPage = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -169,7 +175,7 @@ const BooksPage = () => {
 
   return (
     <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 overflow-x-hidden">
-      
+
       <div>
       {user ? ( // If user is logged in
         <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-black text-center">Our Books</h1>
@@ -244,12 +250,14 @@ const BooksPage = () => {
                 <FaSearch className="mr-2 text-black" />
                 <label className="text-black text-lg mr-2">Search:</label>
                 <input
-                  type="text"
-                  className="bg-gray-700 text-white px-3 py-2 rounded-lg"
-                  placeholder="Search by title or author"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+  type="text"
+  className="bg-gray-700 text-white px-3 py-2 rounded-lg"
+  placeholder="Search by title or author"
+  value={searchQuery}
+  onChange={handleSearchInputChange}  // Use the handleSearchInputChange function here
+/>
+
+
               </div>
             </div>
             <div className="container mx-auto px-4 py-8">
