@@ -38,7 +38,7 @@ import {
         password
       );
       const user = userCredential.user;
-      addNewUserToDb(user);
+      addNewUserToDb(user, email); // Pass the email here
       return { status: true };
     } catch (e) {
       return { status: false, message: e.message };

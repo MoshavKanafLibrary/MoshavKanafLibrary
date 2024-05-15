@@ -202,7 +202,7 @@ app.put("/api/displaynames/:uid", async (req, res) => {
 app.post("/api/users/signUp", async (req, res) => {
   try {
     console.log(req.body);
-    const { uid } = req.body;
+    const { uid, email } = req.body; // Extract email from request body
     const random = Math.floor(Math.random() * 1000000);
 
     // Reference to the "users" collection
@@ -212,6 +212,7 @@ app.post("/api/users/signUp", async (req, res) => {
     const userRef = doc(usersCollection, uid);
     await setDoc(userRef, {
       uid: uid,
+      email: email, // Add email here
       displayName: "",
       random: random,
       historyBooks: [] // assuming you want to insert the random number as well
@@ -225,6 +226,7 @@ app.post("/api/users/signUp", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
 
 app.get("/api/books/getAllBooks", async (req, res) => {
   try {
