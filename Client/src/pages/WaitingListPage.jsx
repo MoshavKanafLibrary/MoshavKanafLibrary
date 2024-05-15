@@ -27,7 +27,8 @@ const WaitingListPage = () => {
               ...userData,
               bookTitle: book.title,
               waitingDate: waitingEntry.Time ? format(new Date(waitingEntry.Time.seconds * 1000), "MMM dd, yyyy p") : 'Date unknown',
-              uid: waitingEntry.uid // Assuming each entry has a unique identifier
+              uid: waitingEntry.uid, // Assuming each entry has a unique identifier
+              email: userData.email // Added email
             };
           })).flat();
 
@@ -47,9 +48,10 @@ const WaitingListPage = () => {
   useEffect(() => {
     const lowerCaseQuery = searchQuery.toLowerCase();
     const filtered = waitingList.filter(entry =>
-      entry.displayName.toLowerCase().includes(lowerCaseQuery) ||
-      entry.bookTitle.toLowerCase().includes(lowerCaseQuery) ||
-      entry.waitingDate.toLowerCase().includes(lowerCaseQuery)
+      (entry.displayName?.toLowerCase() || '').includes(lowerCaseQuery) ||
+      (entry.email?.toLowerCase() || '').includes(lowerCaseQuery) ||
+      (entry.bookTitle?.toLowerCase() || '').includes(lowerCaseQuery) ||
+      (entry.waitingDate?.toLowerCase() || '').includes(lowerCaseQuery)
     );
     setFilteredWaitingList(filtered);
   }, [searchQuery, waitingList]);
@@ -62,7 +64,7 @@ const WaitingListPage = () => {
   const paginate = pageNumber => setCurrentPage(pageNumber);
 
   const handleRowClick = (entry) => {
-    navigate('/BookBorrowDetails', { state: { bookTitle: entry.bookTitle, displayName: entry.displayName, uid: entry.uid } });
+    navigate('/BookBorrowDetails', { state: { bookTitle: entry.bookTitle, displayName: entry.displayName, uid: entry.uid, email: entry.email } });
   };
 
   return (
@@ -76,23 +78,24 @@ const WaitingListPage = () => {
         <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">Borrow Requests</h1>
         <input
           type="text"
-          placeholder="Search by name, date, or book title..."
+          placeholder="Search by name, email, date, or book title..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="mb-10 p-2 w-full"
         />
         <div className="flex flex-col space-y-2">
           {/* Header Row */}
-          <div className="grid grid-cols-4 text-center font-bold bg-gray-600 p-4 rounded-lg text-white">
+          <div className="grid grid-cols-5 text-center font-bold bg-gray-600 p-4 rounded-lg text-white">
             <div>Uid</div>
             <div>Name</div>
+            <div>Email</div>
             <div>Request Date</div>
             <div>Book Title</div>
           </div>
           {/* Entries */}
           {currentItems.map((entry, index) => (
             <div key={index}
-              className={`grid grid-cols-4 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
+              className={`grid grid-cols-5 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
               onMouseEnter={() => setHoverIndex(index)}
               onMouseLeave={() => setHoverIndex(-1)}
               onClick={() => handleRowClick(entry)}
@@ -103,6 +106,7 @@ const WaitingListPage = () => {
             >
               <div>{entry.uid}</div>
               <div>{entry.displayName}</div>
+              <div>{entry.email}</div>
               <div>{entry.waitingDate}</div>
               <div>{entry.bookTitle}</div>
             </div>

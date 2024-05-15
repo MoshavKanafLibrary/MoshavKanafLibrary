@@ -215,6 +215,7 @@ app.post("/api/users/signUp", async (req, res) => {
       email: email, // Add email here
       displayName: "",
       random: random,
+      isManager: false,
       historyBooks: [] // assuming you want to insert the random number as well
     });
 
@@ -974,4 +975,3 @@ app.delete("/api/books/:id/waiting-list", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to remove user from waiting list: ${error.message || 'Unknown error'}` });
   }
 });
-
