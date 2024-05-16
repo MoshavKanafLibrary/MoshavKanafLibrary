@@ -1043,3 +1043,33 @@ app.put("/api/copies/returnCopy", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to update borrowedTo field: ${error.message || 'Unknown error'}` });
   }
 });
+
+// Handler for updating isManager field by UID
+app.put("/api/users/:uid/isManager", async (req, res) => {
+  try {
+    const { uid } = req.params; // Get the user ID from the URL parameter
+    const { isManager } = req.body; // Extract the isManager value from the request body
+
+    // Validate isManager value
+    if (typeof isManager !== "boolean") {
+      return res.status(400).json({ success: false, message: "isManager should be a boolean value" });
+    }
+
+    // Reference the user document by UID
+    const userRef = doc(db, "users", uid);
+
+    // Check if the user exists
+    const userSnapshot = await getDoc(userRef);
+    if (!userSnapshot.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Update the isManager field in the user document
+    await updateDoc(userRef, { isManager });
+
+    res.status(200).json({ success: true, message: "User's isManager status updated successfully" });
+  } catch (error) {
+    console.error("Error updating user's isManager status", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});

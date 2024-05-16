@@ -7,6 +7,7 @@ const AdminSidebar = () => {
   const [expandBooks, setExpandBooks] = useState(true);
   const [expandRequests, setExpandRequests] = useState(true);
   const [expandReports, setExpandReports] = useState(true);
+  const [expandPermissions, setExpandPermissions] = useState(true);
 
   const handleNavigate = (path, state = {}) => {
     navigate(path, { state });
@@ -73,6 +74,20 @@ const AdminSidebar = () => {
             <li className="flex items-center p-3 hover:bg-gray-600 rounded cursor-pointer" onClick={() => handleNavigate("/AllUsers", { mode: 0 })}>
               <FaBookReader className="text-2xl mr-3" />
               <span className="text-lg">User Reports</span>
+            </li>
+          </ul>
+        )}
+      </div>
+      <div className="p-6">
+        <div className="flex items-center justify-between cursor-pointer" onClick={() => setExpandPermissions(!expandPermissions)}>
+          <span className="font-semibold text-xl">Permissions</span>
+          {expandPermissions ? <FaChevronUp /> : <FaChevronDown />}
+        </div>
+        {expandPermissions && (
+          <ul className="flex flex-col space-y-3 mt-3">
+            <li className="flex items-center p-3 hover:bg-gray-600 rounded cursor-pointer" onClick={() => handleNavigate("/Permissions", { mode: 0 })}>
+              <FaPrint className="text-2xl mr-3" />
+              <span className="text-lg">Users Permissions</span>
             </li>
           </ul>
         )}
