@@ -991,3 +991,55 @@ app.get("/api/users", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+
+// Endpoint to get all borrowed copies
+app.get("/api/copies/borrowed", async (req, res) => {
+  try {
+    const copiesCollection = collection(db, "copies"); // Reference to the "copies" collection
+    const q = query(copiesCollection, where("borrowedTo", "!=", null)); // Query to find all copies with borrowedTo not null
+    const querySnapshot = await getDocs(q); // Execute the query
+
+    if (querySnapshot.empty) {
+      res.status(404).json({ success: false, message: "No borrowed copies found" });
+    } else {
+      const borrowedCopies = querySnapshot.docs.map(doc => doc.data());
+      res.status(200).json({ success: true, borrowedCopies });
+    }
+  } catch (error) {
+    console.error("Error fetching borrowed copies:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch borrowed copies" });
+  }
+});
+
+// Endpoint to update the borrowedTo field to null in the copies collection
+app.put("/api/copies/returnCopy", async (req, res) => {
+  const { copyID } = req.body; // Extract copyID from the request body
+
+  if (!copyID) {
+    return res.status(400).json({ success: false, message: "CopyID is required" });
+  }
+
+  try {
+    // Query to find the specific copy document by copyID field
+    const copiesCollectionRef = collection(db, "copies");
+    const q = query(copiesCollectionRef, where("copyID", "==", copyID));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.log(`Copy not found: copyID=${copyID}`);
+      return res.status(404).json({ success: false, message: "Copy not found" });
+    }
+
+    // Assuming copyID is unique and there will be only one document
+    const copyDocRef = querySnapshot.docs[0].ref;
+
+    // Update the borrowedTo field to null
+    await updateDoc(copyDocRef, { borrowedTo: null });
+
+    res.status(200).json({ success: true, message: "BorrowedTo field updated to null successfully" });
+  } catch (error) {
+    console.error("Error updating borrowedTo field to null:", error);
+    res.status(500).json({ success: false, message: `Failed to update borrowedTo field: ${error.message || 'Unknown error'}` });
+  }
+});

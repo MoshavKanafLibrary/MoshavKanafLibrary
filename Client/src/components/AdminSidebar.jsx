@@ -52,6 +52,10 @@ const AdminSidebar = () => {
               <FaBookReader className="text-2xl mr-3" />
               <span className="text-lg">Create Borrow Request</span>
             </li>
+            <li className="flex items-center p-3 hover:bg-gray-600 rounded cursor-pointer" onClick={() => handleNavigate("/BorrowedCopies", { mode: 0 })}>
+              <FaTasks className="text-2xl mr-3" />
+              <span className="text-lg">Return Requests</span>
+            </li>
           </ul>
         )}
       </div>
