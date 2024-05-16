@@ -15,6 +15,7 @@ import PresentBooksPage from "./pages/PresentBooksPage";
 import ResetPasswordPage from "./pages/resetPasswordPage";
 import AllBooksPage from "./pages/AllBooksPage";
 import BookBorrowDetailsPage from "./pages/BookBorrowDetailsPage";
+import AllUsersPage from "./pages/AllUsersPage";
 import useUser from "./hooks/useUser"; // Import the useUser hook
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
           <Route path="/addOrUpdatebook" element={<AddOrUpdateBookPage />} />
           <Route path="/addOrUpdatebook/:bookId?" element={<AddOrUpdateBookPage />} />
           <Route path="/WaitingList" element={<WaitingListPage />} />
+          <Route path="/AllUsers" element={<AllUsersPage />} />
           <Route path="/AllBooks" element={<AllBooksPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/contactus" element={<ContactPage />} />

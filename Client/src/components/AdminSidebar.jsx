@@ -66,6 +66,10 @@ const AdminSidebar = () => {
               <FaPrint className="text-2xl mr-3" />
               <span className="text-lg">Books Reports</span>
             </li>
+            <li className="flex items-center p-3 hover:bg-gray-600 rounded cursor-pointer" onClick={() => handleNavigate("/AllUsers", { mode: 0 })}>
+              <FaBookReader className="text-2xl mr-3" />
+              <span className="text-lg">User Reports</span>
+            </li>
           </ul>
         )}
       </div>
