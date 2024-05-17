@@ -7,7 +7,7 @@ import useUser from '../hooks/useUser';
 const BookDetailPage = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const { book, mode } = state;
+  const { book } = state;
 
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,18 +37,24 @@ const BookDetailPage = () => {
       });
   }, [book, navigate]);
 
-  const handleOrderNow = () => {
+  const handleOrderNow = async () => {
     if (!user) {
       alert("You have to login");
     } else {
-      axios.post(`/api/books/${book.id}/waiting-list`, { uid: user.uid })
-        .then(response => {
-          setSuccessMessage("You have been added to the waiting list");
-        })
-        .catch(error => {
-          console.error("Error adding to waiting list:", error.response ? error.response.data.message : error.message);
-          alert(`${error.response ? error.response.data.message : "Server error"}`);
-        });
+      try {
+        // Add user to the waiting list
+        await axios.post(`/api/books/${book.id}/waiting-list`, { uid: user.uid });
+
+        // Add entry to the user's borrowBooks-list
+        await axios.post(`/api/users/${user.uid}/borrow-books-list`, { title: book.title });
+        setSuccessMessage("You have been added to the waiting list and borrow books list updated successfully");
+        setTimeout(() => {
+          setSuccessMessage('');
+        }, 3000); // Clear the success message after 3 seconds
+      } catch (error) {
+        console.error("Error handling order:", error.response ? error.response.data.message : error.message);
+        alert(`${error.response ? error.response.data.message : "Server error"}`);
+      }
     }
   };
 
@@ -81,7 +87,7 @@ const BookDetailPage = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Recommendations Section */}
       <div className="container mx-auto px-4 py-8">
         {loading ? (

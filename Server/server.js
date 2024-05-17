@@ -1005,3 +1005,116 @@ app.put("/api/users/:uid/isManager", async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
+
+app.post("/api/users/:uid/borrow-books-list", async (req, res) => {
+  const { uid } = req.params;
+  const { title } = req.body;
+
+  if (!title) {
+    return res.status(400).json({ success: false, message: "Book title is required" });
+  }
+
+  const userRef = doc(db, "users", uid);
+
+  try {
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    let userData = userSnap.data();
+
+    // Initialize borrowBooks-list if it does not exist
+    if (!userData.borrowBooksList) {
+      userData.borrowBooksList = {};
+    }
+
+    // Add the book entry to the user's borrowBooks-list
+    userData.borrowBooksList[title] = {
+      status: 'pending',
+      startDate: null,
+      endDate: null
+    };
+
+    // Update the user's borrowBooks-list
+    await updateDoc(userRef, {
+      borrowBooksList: userData.borrowBooksList
+    });
+
+    res.status(200).json({ success: true, message: "Borrow books list updated successfully" });
+  } catch (error) {
+    console.error("Detailed error:", error);
+    res.status(500).json({ success: false, message: `Failed to update borrow books list: ${error.message || 'Unknown error'}` });
+  }
+});
+
+// Endpoint to update the status from 'pending' to 'accepted' and set the start and end times
+app.put("/api/users/:uid/borrow-books-list/update-status", async (req, res) => {
+  const { uid } = req.params;
+  const { title } = req.body;
+
+  if (!title) {
+    return res.status(400).json({ success: false, message: "Book title is required" });
+  }
+
+  const userRef = doc(db, "users", uid);
+
+  try {
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    let userData = userSnap.data();
+
+    // Check if the borrowBooksList exists and the book entry is present
+    if (!userData.borrowBooksList || !userData.borrowBooksList[title]) {
+      return res.status(404).json({ success: false, message: "Book entry not found in borrowBooks-list" });
+    }
+
+    // Update the book entry's status to 'accepted' and set the start and end times
+    userData.borrowBooksList[title].status = 'accepted';
+    userData.borrowBooksList[title].startDate = new Date();
+    userData.borrowBooksList[title].endDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 2 weeks later
+
+    // Update the user's borrowBooks-list
+    await updateDoc(userRef, {
+      borrowBooksList: userData.borrowBooksList
+    });
+
+    res.status(200).json({ success: true, message: "Borrow books list updated successfully with new status and times" });
+  } catch (error) {
+    console.error("Error updating borrow books list:", error);
+    res.status(500).json({ success: false, message: `Failed to update borrow books list: ${error.message || 'Unknown error'}` });
+  }
+});
+
+
+// Endpoint to fetch all borrowBooks-list for a specific user
+app.get("/api/users/:uid/present-borrow-books-list", async (req, res) => {
+  const { uid } = req.params;
+
+  const userRef = doc(db, "users", uid);
+
+  try {
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const userData = userSnap.data();
+
+    // Check if the borrowBooksList exists
+    if (!userData.borrowBooksList) {
+      return res.status(404).json({ success: false, message: "No borrow books list found for the user" });
+    }
+
+    res.status(200).json({ success: true, borrowBooksList: userData.borrowBooksList });
+  } catch (error) {
+    console.error("Error fetching borrow books list:", error);
+    res.status(500).json({ success: false, message: `Failed to fetch borrow books list: ${error.message || 'Unknown error'}` });
+  }
+});
+
+

@@ -39,7 +39,7 @@ const BookBorrowDetailsPage = () => {
 
   const handleBorrow = async (copyID) => {
     try {
-      const updateBorrowResponse = await axios.put('/api/copies/updateBorrowedTo', { copyID, uid });
+      const updateBorrowResponse = await axios.put('/api/copies/updateBorrowedTo', { copyID, uid, title: bookTitle });
       if (updateBorrowResponse.data.success) {
         setCopies(prevCopies => prevCopies.map(copy => {
           if (copy.copyID === copyID) {
@@ -48,18 +48,12 @@ const BookBorrowDetailsPage = () => {
           return copy;
         }));
 
-        // Get book ID using book title
-        const bookResponse = await axios.get(`/api/books/names`);
-        const book = bookResponse.data.bookNames.find(book => book.title === bookTitle);
-        if (book) {
-          const deleteRequestResponse = await axios.delete(`/api/books/${book.id}/waiting-list`, { data: { uid } });
-          if (deleteRequestResponse.data.success) {
-            console.log("Borrow request deleted successfully");
-          } else {
-            setError("Failed to delete borrow request.");
-          }
+        // Update the status in the user's borrowBooks-list
+        const updateStatusResponse = await axios.put(`/api/users/${uid}/borrow-books-list/update-status`, { title: bookTitle });
+        if (updateStatusResponse.data.success) {
+          console.log("Borrow books list status updated successfully");
         } else {
-          setError("Book not found for removing from waiting list.");
+          setError("Failed to update borrow books list status.");
         }
       } else {
         setError("Failed to update borrowedTo field.");
