@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaSpinner } from 'react-icons/fa'; // Import FaSpinner from react-icons/fa
+import { FaSpinner } from 'react-icons/fa';
 import useUser from '../hooks/useUser';
 
 const BookDetailPage = () => {
@@ -19,7 +19,6 @@ const BookDetailPage = () => {
       navigate('/'); // Redirect to homepage if book data is not available
       return;
     }
-    setLoading(true);
 
     // Make an API call to fetch books from the server
     axios.get('/api/books/getBooksMatchingTitles', {
@@ -53,32 +52,21 @@ const BookDetailPage = () => {
     }
   };
 
-  
   return (
     <>
-      {loading && ( // Overlay with spinner if loading is true
-        <div className="fixed top-0 left-0 w-full h-full bg-black opacity-50 flex justify-center items-center z-50">
-          <FaSpinner className="animate-spin text-white text-6xl" />
-        </div>
-      )}
-      <div className={`container mx-auto px-2 md:px-4 py-8 max-w-xl bg-gray-400 shadow-md rounded-lg relative mt-10 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
+      <div className="container mx-auto px-2 md:px-4 py-8 max-w-xl bg-gray-400 shadow-md rounded-lg relative mt-10">
         <h1 className="text-3xl md:text-4xl font-bold text-center text-black mb-6">{book.title}</h1>
         <div className="flex flex-col md:flex-row items-center md:justify-between">
           <div className="w-full md:w-1/2 md:pr-8">
             <img src={book.imageURL} alt={book.title} className="w-full h-64 md:h-96 object-cover rounded-lg" />
           </div>
           <div className="w-full md:w-1/2 md:pl-8">
-          <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200" style={{ scrollbarTrackColor: 'transparent' }}>
-  <p className="text-gray-700 text-right pr-2">{book.summary}</p>
-  <p className="text-sm text-gray-500 mt-2 text-right pr-2">{book.author}</p>
-</div>
-
-
-
-
-
+            <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200" style={{ scrollbarTrackColor: 'transparent' }}>
+              <p className="text-gray-700 text-right pr-2">{book.summary}</p>
+              <p className="text-sm text-gray-500 mt-2 text-right pr-2">{book.author}</p>
+            </div>
             <div className="mt-4 md:text-right">
-              <button 
+              <button
                 className={user ? "bg-gray-700 text-white hover:bg-blue-700 text-gray-50 font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline" : "bg-gray-700 text-gray-50 font-bold py-3 px-6 rounded opacity-50"}
                 onClick={handleOrderNow}
               >
@@ -93,48 +81,49 @@ const BookDetailPage = () => {
           </div>
         </div>
       </div>
-        
+      
       {/* Recommendations Section */}
-      <div className={`container mx-auto px-4 py-8 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
-        {books.length === 0 ? (
-          <p className="text-4xl font-bold text-center">Currently we don't have recommendations for you. You can assist the librarian :)</p>
+      <div className="container mx-auto px-4 py-8">
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <FaSpinner className="animate-spin text-4xl text-gray-700" />
+            <p className="text-xl font-semibold text-gray-700 ml-4">We're looking for the best books for you...</p>
+          </div>
         ) : (
           <>
-            <h2 className="text-3xl font-bold mb-4 text-center">You might also want to read...</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-              {/* Your book display logic goes here */}
-            </div>
+            {books.length === 0 ? (
+              <p className="text-4xl font-bold text-center">We currently don't have any recommendations for you, but you can always assist the librarian!</p>
+            ) : (
+              <>
+                <h2 className="text-3xl font-bold mb-4 text-center">You might also want to read...</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+                  {books.map((book, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-700 shadow-xl rounded-lg p-4 text-center h-96 w-56 mx-auto cursor-pointer"
+                      onClick={() => navigate(`/book/${book.title}`, { state: { book } })}
+                    >
+                      <div className="h-4/5 w-full">
+                        <img
+                          src={book.imageURL}
+                          alt={book.title}
+                          className="h-full w-full object-cover rounded-lg"
+                        />
+                      </div>
+                      <div className="h-1/5">
+                        <h2 className="text-xl font-semibold text-white">{book.title}</h2>
+                        <p className="text-gray-300">by {book.author}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
-        
-      {/* Display Recommendations */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-        {books.map((book, index) => (
-          <div
-            key={index}
-            className="bg-gray-700 shadow-xl rounded-lg p-4 text-center h-96 w-56 mx-auto cursor-pointer"
-            onClick={() => navigate(`/book/${book.title}`, { state: { book } })}
-          >
-            <div className="h-4/5 w-full">
-              <img
-                src={book.imageURL}
-                alt={book.title}
-                className="h-full w-full object-cover rounded-lg"
-              />
-            </div>
-            <div className="h-1/5">
-              <h2 className="text-xl font-semibold text-white">{book.title}</h2>
-              <p className="text-gray-300">by {book.author}</p>
-            </div>
-          </div>
-        ))}
-      </div>
     </>
   );
-  
-  
-};  
-  
+};
 
 export default BookDetailPage;
