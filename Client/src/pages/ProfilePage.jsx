@@ -58,6 +58,43 @@ const ProfilePage = () => {
     }
   }, [user]);
 
+  const handleCancel = async (title) => {
+    if (!window.confirm("Are you sure you want to cancel the borrow request?")) {
+      return;
+    }
+
+    try {
+      // Get book ID using book title
+      const bookResponse = await axios.get(`/api/books/names`);
+      const book = bookResponse.data.bookNames.find(book => book.title === title);
+
+      if (book) {
+        // Remove the user from the waiting list by book ID
+        const deleteRequestResponse = await axios.delete(`/api/books/${book.id}/waiting-list`, { data: { uid: user.uid } });
+        if (deleteRequestResponse.data.success) {
+          console.log("Borrow request deleted successfully");
+
+          // Delete the book entry from the borrowBooks-list
+          const deleteBorrowListResponse = await axios.delete(`/api/users/${user.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title } });
+          if (deleteBorrowListResponse.data.success) {
+            console.log("Book entry deleted from borrowBooks-list successfully");
+
+            // Update the state to remove the canceled book
+            setBorrowedBooks(prevBooks => prevBooks.filter(book => book.title !== title));
+          } else {
+            console.error("Failed to delete book entry from borrowBooks-list");
+          }
+        } else {
+          console.error("Failed to delete borrow request");
+        }
+      } else {
+        console.error("Book not found");
+      }
+    } catch (error) {
+      console.error(`Error canceling borrow request: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
   return (
     <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 overflow-x-hidden">
       <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-black text-center">Profile</h1>
@@ -77,9 +114,11 @@ const ProfilePage = () => {
                     const isExpired = new Date(book.dueDate) < new Date();
                     const dateColor = book.status === 'pending'
                       ? 'bg-yellow-500'
-                      : isExpired
-                        ? 'bg-red-500'
-                        : 'bg-green-500';
+                      : book.status === 'accepted'
+                        ? 'bg-green-500'
+                        : isExpired
+                          ? 'bg-red-500'
+                          : 'bg-gray-500';
 
                     return (
                       <div
@@ -91,6 +130,14 @@ const ProfilePage = () => {
                           Due Date: {book.dueDate}
                         </p>
                         <p className="text-gray-300">Status: {book.status === 'pending' ? 'Pending' : 'Accepted'}</p>
+                        {book.status === 'pending' && (
+                          <button
+                            className="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                            onClick={() => handleCancel(book.title)}
+                          >
+                            Cancel
+                          </button>
+                        )}
                       </div>
                     );
                   })

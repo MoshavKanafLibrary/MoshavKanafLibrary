@@ -1118,3 +1118,42 @@ app.get("/api/users/:uid/present-borrow-books-list", async (req, res) => {
 });
 
 
+// Endpoint to delete a specific book from the borrowBooks-list for a specific user
+app.delete("/api/users/:uid/borrow-books-list/deletebookfromborrowlist", async (req, res) => {
+  const { uid } = req.params;
+  const { title } = req.body;
+
+  if (!title) {
+    return res.status(400).json({ success: false, message: "Book title is required" });
+  }
+
+  const userRef = doc(db, "users", uid);
+
+  try {
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    let userData = userSnap.data();
+
+    // Check if the borrowBooksList exists and the book entry is present
+    if (!userData.borrowBooksList || !userData.borrowBooksList[title]) {
+      return res.status(404).json({ success: false, message: "Book entry not found in borrowBooks-list" });
+    }
+
+    // Delete the book entry from the borrowBooks-list
+    delete userData.borrowBooksList[title];
+
+    // Update the user's borrowBooks-list
+    await updateDoc(userRef, {
+      borrowBooksList: userData.borrowBooksList
+    });
+
+    res.status(200).json({ success: true, message: "Book entry deleted from borrowBooks-list successfully" });
+  } catch (error) {
+    console.error("Error deleting book entry from borrowBooks-list:", error);
+    res.status(500).json({ success: false, message: `Failed to delete book entry from borrowBooks-list: ${error.message || 'Unknown error'}` });
+  }
+});
+
