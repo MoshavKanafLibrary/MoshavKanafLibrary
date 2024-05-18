@@ -18,6 +18,7 @@ import BookBorrowDetailsPage from "./pages/BookBorrowDetailsPage";
 import AllUsersPage from "./pages/AllUsersPage";
 import BorrowedCopiesPage from "./pages/BorrowedCopiesPage";
 import PermissionsPage from "./pages/PermissionsPage";
+import CreateRequestForUserPage from "./pages/CreateRequestForUserPage";
 import useUser from "./hooks/useUser"; // Import the useUser hook
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
           <Route path="/WaitingList" element={<WaitingListPage />} />
           <Route path="/AllUsers" element={<AllUsersPage />} />
           <Route path="/AllBooks" element={<AllBooksPage />} />
+          <Route path="/CreateRequestForUser" element={<CreateRequestForUserPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/Permissions" element={<PermissionsPage />} />
           <Route path="/contactus" element={<ContactPage />} />
