@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSpinner } from 'react-icons/fa'; // Import FaSpinner from react-icons/fa
+import { FaSpinner } from 'react-icons/fa';
 import axios from 'axios';
 import useUser from '../hooks/useUser';
 
@@ -7,7 +7,7 @@ const ProfilePage = () => {
   const { user } = useUser();
   const [borrowedBooks, setBorrowedBooks] = useState([]);
   const [readBooks, setReadBooks] = useState([]);
-  const [loading, setLoading] = useState(true); // State for loading status
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserHistoryBooks = async () => {
@@ -48,7 +48,7 @@ const ProfilePage = () => {
       } catch (error) {
         console.error('Error fetching borrowed books:', error);
       } finally {
-        setLoading(false); // Set loading to false when both data fetching operations are complete
+        setLoading(false);
       }
     };
 
@@ -64,22 +64,18 @@ const ProfilePage = () => {
     }
 
     try {
-      // Get book ID using book title
       const bookResponse = await axios.get(`/api/books/names`);
       const book = bookResponse.data.bookNames.find(book => book.title === title);
 
       if (book) {
-        // Remove the user from the waiting list by book ID
         const deleteRequestResponse = await axios.delete(`/api/books/${book.id}/waiting-list`, { data: { uid: user.uid } });
         if (deleteRequestResponse.data.success) {
           console.log("Borrow request deleted successfully");
 
-          // Delete the book entry from the borrowBooks-list
           const deleteBorrowListResponse = await axios.delete(`/api/users/${user.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title } });
           if (deleteBorrowListResponse.data.success) {
             console.log("Book entry deleted from borrowBooks-list successfully");
 
-            // Update the state to remove the canceled book
             setBorrowedBooks(prevBooks => prevBooks.filter(book => book.title !== title));
           } else {
             console.error("Failed to delete book entry from borrowBooks-list");
@@ -100,9 +96,9 @@ const ProfilePage = () => {
       <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-black text-center">Profile</h1>
 
       <div className="container mx-auto px-4 py-8">
-        {loading ? ( // Conditional rendering based on loading state
+        {loading ? (
           <div className="flex justify-center items-center h-screen">
-            <FaSpinner className="animate-spin text-6xl text-gray-800" /> {/* Adjust size */}
+            <FaSpinner className="animate-spin text-6xl text-gray-800" />
           </div>
         ) : (
           <div>
