@@ -1157,3 +1157,41 @@ app.delete("/api/users/:uid/borrow-books-list/deletebookfromborrowlist", async (
   }
 });
 
+// Endpoint to add a returned book to the user's history
+app.put('/api/users/:uid/addToHistory', async (req, res) => {
+  const { uid } = req.params;
+  const { copyID, title } = req.body;
+
+  if (!uid || !copyID || !title) {
+    return res.status(400).json({ success: false, message: "User ID, Copy ID, and Title are required" });
+  }
+
+  try {
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const userData = userSnap.data();
+    const historyBooks = userData.historyBooks || [];
+
+    // Add the new book to the history
+    historyBooks.push({
+      copyID: copyID,
+      title: title,
+      readDate: new Date()  // Use the current date as the read date
+    });
+
+    // Update the user's document with the new history
+    await updateDoc(userRef, { historyBooks });
+
+    return res.status(200).json({ success: true, message: "Book added to history successfully" });
+  } catch (error) {
+    console.error("Error adding book to history:", error);
+    return res.status(500).json({ success: false, message: `Failed to add book to history: ${error.message}` });
+  }
+});
+
+

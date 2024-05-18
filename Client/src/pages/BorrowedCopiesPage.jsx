@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
+import useUser from '../hooks/useUser'; // Import the custom hook to get the user
 
 const BorrowedCopiesPage = () => {
+  const { user } = useUser(); // Get the user object
   const [borrowedCopies, setBorrowedCopies] = useState([]);
   const [filteredCopies, setFilteredCopies] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,7 +49,12 @@ const BorrowedCopiesPage = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  const returnCopy = async (copyID) => {
+  const returnCopy = async (copyID, title) => {
+    if (!user) {
+      setErrorMessage("User is not logged in.");
+      return;
+    }
+
     const confirmed = window.confirm("Are you sure you want to return this book?");
     if (confirmed) {
       try {
@@ -57,6 +64,18 @@ const BorrowedCopiesPage = () => {
           setBorrowedCopies(prevCopies => prevCopies.filter(copy => copy.copyID !== copyID));
           setFilteredCopies(prevCopies => prevCopies.filter(copy => copy.copyID !== copyID));
           setSuccessMessage("Book returned successfully.");
+
+          // Add the returned book to the user's history
+          await axios.put(`/api/users/${user.uid}/addToHistory`, { copyID, title });
+
+          // Delete the book entry from the borrowBooks-list
+          const deleteBorrowListResponse = await axios.delete(`/api/users/${user.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title } });
+          if (deleteBorrowListResponse.data.success) {
+            console.log("Book entry deleted from borrowBooks-list successfully");
+          } else {
+            setErrorMessage("Failed to delete book entry from borrowBooks-list.");
+          }
+
           setTimeout(() => setSuccessMessage(''), 3000);
         } else {
           setErrorMessage("Failed to update borrowedTo field.");
@@ -114,7 +133,7 @@ const BorrowedCopiesPage = () => {
                   <td className="py-4 px-6 text-left">{copy.copyID}</td>
                   <td className="py-4 px-6 text-left">
                     <button
-                      onClick={() => returnCopy(copy.copyID)}
+                      onClick={() => returnCopy(copy.copyID, copy.title)}
                       className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                     >
                       Return
