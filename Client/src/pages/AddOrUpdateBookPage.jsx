@@ -75,7 +75,7 @@ const AddOrUpdateBookPage = () => {
       }
 
       if (result.status === 200) {
-        setSuccessMessage("The action was done successfully");
+        setSuccessMessage(isEditMode ? "Book updated successfully" : "Book added successfully");
         setError("");
         // Clear form fields if in add mode
         if (!isEditMode) {
@@ -100,7 +100,7 @@ const AddOrUpdateBookPage = () => {
 
     setIsLoading(false);
   };
-  
+
   const headerText = isEditMode ? "Update a book" : "Add a book";
 
   return (
@@ -274,4 +274,5 @@ const AddOrUpdateBookPage = () => {
     </div>
   );
 };
+
 export default AddOrUpdateBookPage;

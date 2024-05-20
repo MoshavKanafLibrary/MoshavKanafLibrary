@@ -47,10 +47,10 @@ const BookDetailPage = () => {
 
         // Add entry to the user's borrowBooks-list
         await axios.post(`/api/users/${user.uid}/borrow-books-list`, { title: book.title });
-        setSuccessMessage("You have been added to the waiting list and borrow books list updated successfully");
+        setSuccessMessage("Your order was placed successfully.\nWe'll notify you as soon as your book is ready for pickup!");
         setTimeout(() => {
           setSuccessMessage('');
-        }, 3000); // Clear the success message after 3 seconds
+        }, 6000); // Clear the success message after 3 seconds
       } catch (error) {
         console.error("Error handling order:", error.response ? error.response.data.message : error.message);
         alert(`${error.response ? error.response.data.message : "Server error"}`);
@@ -79,17 +79,17 @@ const BookDetailPage = () => {
                 Order now
               </button>
             </div>
-            {successMessage && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-full mt-2 px-4 py-0 bg-green-100 border border-green-500 text-green-800 text-sm rounded text-center">
-                {successMessage}
-              </div>
-            )}
           </div>
         </div>
+        {successMessage && (
+          <div className="mt-4 px-4 py-2 bg-green-100 border border-green-500 text-green-800 text-xl rounded text-center whitespace-pre-line">
+            {successMessage}
+          </div>
+        )}
       </div>
 
       {/* Recommendations Section */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 mt-8">
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <FaSpinner className="animate-spin text-4xl text-gray-700" />
