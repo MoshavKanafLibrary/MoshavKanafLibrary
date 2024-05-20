@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaSpinner } from "react-icons/fa";
+import { FaSpinner, FaBell } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const BookBorrowDetailsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [copies, setCopies] = useState([]);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6); // Defines the number of items per page
 
@@ -32,8 +33,6 @@ const BookBorrowDetailsPage = () => {
       }
     };
 
-
-    
     if (bookTitle) {
       fetchCopies();
     }
@@ -81,7 +80,24 @@ const BookBorrowDetailsPage = () => {
       setError(`Error updating borrowedTo field: ${error.response?.data?.message || error.message}`);
     }
   };
-  
+
+  const handleNotify = async () => {
+    try {
+      const response = await axios.post(`/api/users/${uid}/notifications`, {
+        message: `The book "${bookTitle}" is ready for borrowing.`
+      });
+      if (response.data.success) {
+        setSuccessMessage("Notification sent successfully");
+        setError(""); // Clear any previous error messages
+      } else {
+        setError("Failed to send notification.");
+        setSuccessMessage(""); // Clear any previous success messages
+      }
+    } catch (error) {
+      setError(`Error sending notification: ${error.response?.data?.message || error.message}`);
+      setSuccessMessage(""); // Clear any previous success messages
+    }
+  };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -102,17 +118,26 @@ const BookBorrowDetailsPage = () => {
           {copies.length > 0 ? (
             <div className="w-full px-4 flex flex-wrap justify-center gap-4">
               {currentItems.map((copy, index) => (
-                <div key={index} className="bg-white p-4 rounded-lg shadow mb-4" style={{ width: 'calc(40% - 16px)' }}> {/* Adjusted width for each item */}
+                <div key={index} className="bg-white p-4 rounded-lg shadow mb-4" style={{ width: 'calc(40% - 16px)' }}>
                   <div><strong>Title:</strong> {copy.title}</div>
                   <div><strong>Copy ID:</strong> {copy.copyID}</div>
                   <div><strong>Status:</strong> {copy.borrowedTo ? `Borrowed to ${copy.borrowedTo}` : "Available"}</div>
                   {!copy.borrowedTo && (
-                    <button
-                      className="mt-4 bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded"
-                      onClick={() => handleBorrow(copy.copyID)}
-                    >
-                      Borrow to {displayName}
-                    </button>
+                    <div className="flex flex-col">
+                      <button
+                        className="flex items-center justify-center mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded max-w-xs"
+                        onClick={handleNotify}
+                      >
+                        <FaBell className="mr-2" />
+                        Notify {displayName}!
+                      </button>
+                      <button
+                        className="mt-4 bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded max-w-xs"
+                        onClick={() => handleBorrow(copy.copyID)}
+                      >
+                        Borrow to {displayName}
+                      </button>
+                    </div>
                   )}
                 </div>
               ))}
@@ -134,6 +159,7 @@ const BookBorrowDetailsPage = () => {
         </>
       )}
       {error && <div className="text-red-500 p-3 rounded bg-gray-100 my-2">{error}</div>}
+      {successMessage && <div className="text-green-500 p-3 rounded bg-gray-100 my-2">{successMessage}</div>}
       <button onClick={() => navigate(-1)} className="mt-4 bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded">
         Go Back
       </button>

@@ -1186,3 +1186,97 @@ app.put('/api/users/:uid/addToHistory', async (req, res) => {
 });
 
 
+// Handler for adding a notification for a user
+app.post("/api/users/:uid/notifications", async (req, res) => {
+  const { uid } = req.params;
+  const { message } = req.body;
+
+  if (!message) {
+    return res.status(400).json({ success: false, message: "Notification message is required" });
+  }
+
+  try {
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const userData = userSnap.data();
+    let notifications = userData.notifications || [];
+
+    // Add the new notification
+    notifications.push({
+      message: message,
+      date: new Date(),  // Use the current date
+      isRead: false      // Set the notification as unread
+    });
+
+    // Ensure only the last 10 notifications are kept
+    if (notifications.length > 10) {
+      notifications = notifications.slice(-10);
+    }
+
+    // Update the user's document with the new notification
+    await updateDoc(userRef, { notifications });
+
+    return res.status(200).json({ success: true, message: "Notification added successfully" });
+  } catch (error) {
+    console.error("Error adding notification:", error);
+    return res.status(500).json({ success: false, message: `Failed to add notification: ${error.message}` });
+  }
+});
+
+
+// Handler for getting notifications for a user
+app.get("/api/users/:uid/notifications", async (req, res) => {
+  const { uid } = req.params;
+
+  try {
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const userData = userSnap.data();
+    const notifications = userData.notifications || [];
+
+    return res.status(200).json({ success: true, notifications });
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    return res.status(500).json({ success: false, message: `Failed to fetch notifications: ${error.message}` });
+  }
+});
+
+
+// Handler for marking notifications as read
+app.put("/api/users/:uid/notifications/markAsRead", async (req, res) => {
+  const { uid } = req.params;
+
+  try {
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const userData = userSnap.data();
+    const notifications = userData.notifications || [];
+
+    const updatedNotifications = notifications.map(notification => ({
+      ...notification,
+      isRead: true,
+    }));
+
+    await updateDoc(userRef, { notifications: updatedNotifications });
+
+    res.status(200).json({ success: true, message: "Notifications marked as read" });
+  } catch (error) {
+    console.error("Error marking notifications as read:", error);
+    res.status(500).json({ success: false, message: `Failed to mark notifications as read: ${error.message}` });
+  }
+});

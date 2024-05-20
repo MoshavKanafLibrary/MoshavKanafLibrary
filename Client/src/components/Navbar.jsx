@@ -7,12 +7,16 @@ import axios from "axios";
 import UserContext from "../contexts/UserContext";
 import { GiBookmarklet } from "react-icons/gi";
 import AdminSidebar from "./AdminSidebar"; // Ensure the import path is correct
+import { FaBell } from "react-icons/fa";
 
 const NavBar = () => {
   const { navBarDisplayName } = useContext(UserContext);
   const { user } = useUser();
   const [userDetails, setUserDetails] = useState({ displayName: "" });
   const [showAdminSidebar, setShowAdminSidebar] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,10 +31,47 @@ const NavBar = () => {
     fetchData();
   }, [user]);
 
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (!user) return;
+      try {
+        const response = await axios.get(`/api/users/${user.uid}/notifications`);
+        if (response.data.success) {
+          setNotifications(response.data.notifications);
+          const unread = response.data.notifications.filter(notif => !notif.isRead).length;
+          setUnreadCount(unread);
+        } else {
+          console.error("Failed to fetch notifications");
+        }
+      } catch (error) {
+        console.error("Error fetching notifications", error);
+      }
+    };
+    fetchNotifications();
+  }, [user]);
+
   const isAdmin = user && user.isManager; // Check if the user is an admin
 
   const toggleAdminSidebar = () => {
     setShowAdminSidebar(!showAdminSidebar);
+  };
+
+  const toggleNotifications = async () => {
+    if (!showNotifications) {
+      // Mark all notifications as read when opening the dropdown
+      try {
+        await axios.put(`/api/users/${user.uid}/notifications/markAsRead`);
+        const updatedNotifications = notifications.map(notification => ({
+          ...notification,
+          isRead: true,
+        }));
+        setNotifications(updatedNotifications);
+        setUnreadCount(0); // Reset unread count
+      } catch (error) {
+        console.error("Failed to mark notifications as read", error);
+      }
+    }
+    setShowNotifications(!showNotifications);
   };
 
   const registeredUserNavLinks = [
@@ -76,6 +117,39 @@ const NavBar = () => {
               <NavHeaders navBarLinks={registeredUserNavLinks} />
             ) : (
               <NavHeaders navBarLinks={unRegisteredUserNavLinks} />
+            )}
+
+            {user && (
+              <div className="relative ml-4">
+                <div className="relative">
+                  <FaBell
+                    size={24}
+                    className="text-white cursor-pointer"
+                    onClick={toggleNotifications}
+                  />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-0 right-0 inline-block w-4 h-4 bg-red-600 text-white text-xs font-bold rounded-full text-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </div>
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-64 max-h-80 bg-white border border-gray-300 rounded-lg shadow-lg overflow-y-auto z-20">
+                    {notifications.length === 0 ? (
+                      <div className="p-4 text-gray-700">No notifications</div>
+                    ) : (
+                      notifications.slice().reverse().map((notification, index) => (
+                        <div
+                          key={index}
+                          className={`p-4 text-gray-700 border-b border-gray-200 ${notification.isRead ? '' : 'bg-red-100'}`}
+                        >
+                          {notification.message}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
             )}
 
             {user ? (
