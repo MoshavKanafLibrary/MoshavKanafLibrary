@@ -10,6 +10,10 @@ import fs from 'fs';
 import puppeteer from 'puppeteer';
 import { fileURLToPath } from "url";
 import path from "path";
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1278,5 +1282,54 @@ app.put("/api/users/:uid/notifications/markAsRead", async (req, res) => {
   } catch (error) {
     console.error("Error marking notifications as read:", error);
     res.status(500).json({ success: false, message: `Failed to mark notifications as read: ${error.message}` });
+  }
+});
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.office365.com',
+  port: 587,
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.AUTH_EMAIL,
+    pass: process.env.AUTH_PASS,
+  },
+});
+
+app.post('/api/users/:uid/send-email', async (req, res) => {
+  const { uid } = req.params;
+  const { message } = req.body;
+
+  if (!message) {
+    return res.status(400).json({ success: false, message: 'Message is required' });
+  }
+
+  try {
+    const userRef = doc(db, 'users', uid);
+    const userSnapshot = await getDoc(userRef);
+
+    if (!userSnapshot.exists()) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const user = userSnapshot.data();
+    const mailOptions = {
+      from: process.env.AUTH_EMAIL,
+      to: user.email,
+      subject: 'Book Borrow Notification',
+      text: message,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+        return res.status(500).json({ success: false, message: `Failed to send email: ${error.message}` });
+      } else {
+        console.log('Email sent:', info.response);
+        return res.status(200).json({ success: true, message: 'Email sent successfully' });
+      }
+    });
+  } catch (error) {
+    console.error('Error in send-email endpoint:', error);
+    return res.status(500).json({ success: false, message: `Failed to send email: ${error.message}` });
   }
 });

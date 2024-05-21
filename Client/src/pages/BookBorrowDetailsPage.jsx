@@ -83,10 +83,13 @@ const BookBorrowDetailsPage = () => {
 
   const handleNotify = async () => {
     try {
-      const response = await axios.post(`/api/users/${uid}/notifications`, {
+      const response1 = await axios.post(`/api/users/${uid}/notifications`, {
         message: `The book "${bookTitle}" is ready for borrowing.`
       });
-      if (response.data.success) {
+      const response2 = await axios.post(`/api/users/${uid}/send-email`, {
+        message: `The book "${bookTitle}" is ready for borrowing.`
+      });
+      if ((response1.data.success) || (response1.data.success)) {
         setSuccessMessage("Notification sent successfully");
         setError(""); // Clear any previous error messages
       } else {
@@ -98,6 +101,8 @@ const BookBorrowDetailsPage = () => {
       setSuccessMessage(""); // Clear any previous success messages
     }
   };
+  
+  
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
