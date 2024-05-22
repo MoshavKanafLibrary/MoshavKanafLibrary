@@ -53,7 +53,7 @@ const CreateRequestForUserPage = () => {
       // Add entry to the user's borrowBooks-list
       await axios.post(`/api/users/${selectedUser.uid}/borrow-books-list`, { title: selectedBook.title });
 
-      setSuccessMessage("User has been added to the waiting list and borrow books list updated successfully");
+      setSuccessMessage("The book was ordered successfully");
       setTimeout(() => {
         setSuccessMessage('');
       }, 3000); // Clear the success message after 3 seconds
@@ -72,42 +72,44 @@ const CreateRequestForUserPage = () => {
       )}
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10">
         <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">Create Request for User</h1>
-        <div className="flex justify-between mb-4">
-          <div className="w-1/2 pr-2">
-            <label className="block text-lg font-medium mb-2">Select User:</label>
-            <select
-              className="w-full p-2 mb-4 text-lg"
-              value={selectedUser ? selectedUser.uid : ''}
-              onChange={e => {
-                const user = users.find(u => u.uid === e.target.value);
-                setSelectedUser(user);
-              }}
-            >
-              <option value="" disabled>Select a user</option>
-              {users.map(user => (
-                <option key={user.uid} value={user.uid}>
-                  {user.email} - {user.displayName || 'No Display Name'}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="w-1/2 pl-2">
-            <label className="block text-lg font-medium mb-2">Select Book:</label>
-            <select
-              className="w-full p-2 mb-4 text-lg"
-              value={selectedBook ? selectedBook.id : ''}
-              onChange={e => {
-                const book = books.find(b => b.id === e.target.value);
-                setSelectedBook(book);
-              }}
-            >
-              <option value="" disabled>Select a book</option>
-              {books.map(book => (
-                <option key={book.id} value={book.id}>
-                  {book.title} - {book.author}
-                </option>
-              ))}
-            </select>
+        <div className="bg-gray-600 border-4 border-gray-300 rounded-lg p-6 mb-4">
+          <div className="flex justify-between mb-4">
+            <div className="border-2 bg-gray-700 rounded-lg p-4 w-1/2 pr-2">
+              <label className="block text-gray-50 text-lg font-medium mb-2">Select User:</label>
+              <select
+                className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom shadow border rounded text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+                value={selectedUser ? selectedUser.uid : ''}
+                onChange={e => {
+                  const user = users.find(u => u.uid === e.target.value);
+                  setSelectedUser(user);
+                }}
+              >
+                <option value="" disabled>Select a user</option>
+                {users.map(user => (
+                  <option key={user.uid} value={user.uid}>
+                    {user.email} - {user.displayName || 'No Display Name'}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="border-2 bg-gray-700 rounded-lg p-4 w-1/2 pl-2">
+              <label className="block text-gray-50 text-lg font-medium mb-2">Select Book:</label>
+              <select
+                className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom shadow border rounded text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+                value={selectedBook ? selectedBook.id : ''}
+                onChange={e => {
+                  const book = books.find(b => b.id === e.target.value);
+                  setSelectedBook(book);
+                }}
+              >
+                <option value="" disabled>Select a book</option>
+                {books.map(book => (
+                  <option key={book.id} value={book.id}>
+                    {book.title} - {book.author}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
         <div className="flex justify-center">
@@ -119,7 +121,7 @@ const CreateRequestForUserPage = () => {
           </button>
         </div>
         {successMessage && (
-          <div className="mt-4 px-4 py-2 bg-green-100 border border-green-500 text-green-800 text-sm rounded text-center">
+          <div className="mt-4 px-6 py-3 bg-green-100 border border-green-500 text-green-800 text-lg font-bold rounded text-center">
             {successMessage}
           </div>
         )}

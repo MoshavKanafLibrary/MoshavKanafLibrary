@@ -3,6 +3,7 @@ import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
+import { FaTimes } from 'react-icons/fa';
 
 const WaitingListPage = () => {
   const [loading, setLoading] = useState(true);
@@ -12,6 +13,8 @@ const WaitingListPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [hoverIndex, setHoverIndex] = useState(-1); 
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const [deleteEntry, setDeleteEntry] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,7 +31,8 @@ const WaitingListPage = () => {
               bookTitle: book.title,
               waitingDate: waitingEntry.Time ? format(new Date(waitingEntry.Time.seconds * 1000), "MMM dd, yyyy p") : 'Date unknown',
               uid: waitingEntry.uid, // Assuming each entry has a unique identifier
-              email: userData.email // Added email
+              email: userData.email, // Added email
+              bookId: book.id // Added book ID for delete request
             };
           })).flat();
 
@@ -67,6 +71,27 @@ const WaitingListPage = () => {
     navigate('/BookBorrowDetails', { state: { bookTitle: entry.bookTitle, displayName: entry.displayName, uid: entry.uid, email: entry.email } });
   };
 
+  const handleDeleteClick = (entry) => {
+    setDeleteEntry(entry);
+    setShowConfirmPopup(true);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteEntry) {
+      try {
+        await axios.delete(`/api/books/${deleteEntry.bookId}/waiting-list`, { data: { uid: deleteEntry.uid } });
+        await axios.delete(`/api/users/${deleteEntry.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title: deleteEntry.bookTitle } });
+        setWaitingList(prevList => prevList.filter(entry => entry.uid !== deleteEntry.uid));
+        setFilteredWaitingList(prevList => prevList.filter(entry => entry.uid !== deleteEntry.uid));
+      } catch (error) {
+        console.error("Error deleting request:", error);
+      } finally {
+        setShowConfirmPopup(false);
+        setDeleteEntry(null);
+      }
+    }
+  };
+
   return (
     <>
       {loading && (
@@ -95,7 +120,7 @@ const WaitingListPage = () => {
           {/* Entries */}
           {currentItems.map((entry, index) => (
             <div key={index}
-              className={`grid grid-cols-5 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
+              className={`grid grid-cols-5 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer relative ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
               onMouseEnter={() => setHoverIndex(index)}
               onMouseLeave={() => setHoverIndex(-1)}
               onClick={() => handleRowClick(entry)}
@@ -109,6 +134,13 @@ const WaitingListPage = () => {
               <div>{entry.email}</div>
               <div>{entry.waitingDate}</div>
               <div>{entry.bookTitle}</div>
+              <FaTimes 
+                className="absolute top-0 right-0 m-2 text-red-600 cursor-pointer" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClick(entry);
+                }} 
+              />
             </div>
           ))}
         </div>
@@ -123,9 +155,31 @@ const WaitingListPage = () => {
             </button>
           ))}
         </div>
-        <div className="flex justify-center mt-4">
-        </div>
       </div>
+
+      {/* Confirmation Popup */}
+      {showConfirmPopup && (
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-4">Confirm Delete</h2>
+            <p>Are you sure you want to delete this request?</p>
+            <div className="mt-6 flex justify-end">
+              <button 
+                onClick={() => setShowConfirmPopup(false)}
+                className="mr-4 px-4 py-2 bg-gray-300 rounded"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

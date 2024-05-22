@@ -8,6 +8,8 @@ const ProfilePage = () => {
   const [borrowedBooks, setBorrowedBooks] = useState([]);
   const [readBooks, setReadBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const [deleteEntry, setDeleteEntry] = useState(null);
 
   useEffect(() => {
     const fetchUserHistoryBooks = async () => {
@@ -59,35 +61,41 @@ const ProfilePage = () => {
   }, [user]);
 
   const handleCancel = async (title) => {
-    if (!window.confirm("Are you sure you want to cancel the borrow request?")) {
-      return;
-    }
+    setDeleteEntry(title);
+    setShowConfirmPopup(true);
+  };
 
-    try {
-      const bookResponse = await axios.get(`/api/books/names`);
-      const book = bookResponse.data.bookNames.find(book => book.title === title);
+  const confirmDelete = async () => {
+    if (deleteEntry) {
+      try {
+        const bookResponse = await axios.get(`/api/books/names`);
+        const book = bookResponse.data.bookNames.find(book => book.title === deleteEntry);
 
-      if (book) {
-        const deleteRequestResponse = await axios.delete(`/api/books/${book.id}/waiting-list`, { data: { uid: user.uid } });
-        if (deleteRequestResponse.data.success) {
-          console.log("Borrow request deleted successfully");
+        if (book) {
+          const deleteRequestResponse = await axios.delete(`/api/books/${book.id}/waiting-list`, { data: { uid: user.uid } });
+          if (deleteRequestResponse.data.success) {
+            console.log("Borrow request deleted successfully");
 
-          const deleteBorrowListResponse = await axios.delete(`/api/users/${user.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title } });
-          if (deleteBorrowListResponse.data.success) {
-            console.log("Book entry deleted from borrowBooks-list successfully");
+            const deleteBorrowListResponse = await axios.delete(`/api/users/${user.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title: deleteEntry } });
+            if (deleteBorrowListResponse.data.success) {
+              console.log("Book entry deleted from borrowBooks-list successfully");
 
-            setBorrowedBooks(prevBooks => prevBooks.filter(book => book.title !== title));
+              setBorrowedBooks(prevBooks => prevBooks.filter(book => book.title !== deleteEntry));
+            } else {
+              console.error("Failed to delete book entry from borrowBooks-list");
+            }
           } else {
-            console.error("Failed to delete book entry from borrowBooks-list");
+            console.error("Failed to delete borrow request");
           }
         } else {
-          console.error("Failed to delete borrow request");
+          console.error("Book not found");
         }
-      } else {
-        console.error("Book not found");
+      } catch (error) {
+        console.error(`Error canceling borrow request: ${error.response?.data?.message || error.message}`);
+      } finally {
+        setShowConfirmPopup(false);
+        setDeleteEntry(null);
       }
-    } catch (error) {
-      console.error(`Error canceling borrow request: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -164,6 +172,30 @@ const ProfilePage = () => {
           </div>
         )}
       </div>
+
+      {/* Confirmation Popup */}
+      {showConfirmPopup && (
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-8 rounded-lg shadow-lg">
+            <h2 className="text-2xl font-bold mb-4">Confirm Delete</h2>
+            <p>Are you sure you want to delete this borrow request?</p>
+            <div className="mt-6 flex justify-end">
+              <button 
+                onClick={() => setShowConfirmPopup(false)}
+                className="mr-4 px-4 py-2 bg-gray-300 rounded"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -128,21 +128,12 @@ const BookBorrowDetailsPage = () => {
                   <div><strong>Copy ID:</strong> {copy.copyID}</div>
                   <div><strong>Status:</strong> {copy.borrowedTo ? `Borrowed to ${copy.borrowedTo}` : "Available"}</div>
                   {!copy.borrowedTo && (
-                    <div className="flex flex-col">
-                      <button
-                        className="flex items-center justify-center mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded max-w-xs"
-                        onClick={handleNotify}
-                      >
-                        <FaBell className="mr-2" />
-                        Notify {displayName}!
-                      </button>
-                      <button
-                        className="mt-4 bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded max-w-xs"
-                        onClick={() => handleBorrow(copy.copyID)}
-                      >
-                        Borrow to {displayName}
-                      </button>
-                    </div>
+                    <button
+                      className="mt-4 bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded max-w-xs"
+                      onClick={() => handleBorrow(copy.copyID)}
+                    >
+                      Borrow to {displayName}
+                    </button>
                   )}
                 </div>
               ))}
@@ -161,6 +152,13 @@ const BookBorrowDetailsPage = () => {
               </button>
             ))}
           </div>
+          <button
+            className="flex items-center justify-center mt-8 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded"
+            onClick={handleNotify}
+          >
+            <FaBell className="mr-2" />
+            Notify {displayName} that the book is ready to pickup!
+          </button>
         </>
       )}
       {error && <div className="text-red-500 p-3 rounded bg-gray-100 my-2">{error}</div>}
