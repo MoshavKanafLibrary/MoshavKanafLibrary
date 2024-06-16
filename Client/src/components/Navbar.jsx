@@ -80,9 +80,8 @@ const NavBar = () => {
   };
 
   const registeredUserNavLinks = [
-    { name: "Contact Us", path: "/contactus" },
-    { name: "My profile", path: "/profile" },
-    isAdmin && { name: "Admin Panel", onClick: toggleAdminSidebar }, // Add Admin Panel button if user is an admin
+    { name: "Contact Us", path: "/contactus" }
+    // "Admin Panel" link is removed and handled by the icon
   ].filter(Boolean); // Filter out undefined values
 
   const unRegisteredUserNavLinks = [
@@ -90,10 +89,12 @@ const NavBar = () => {
     { name: "Login", path: "/login" },
     { name: "Signup", path: "/signup" },
   ];
+
   const registeredDropDownLinks = [
     { name: "My Profile", path: "/profile" },
     { name: "Basic Info", path: "/contactus" },
   ];
+
   const unRegisteredDropDownLinks = [];
 
   return (
@@ -182,11 +183,11 @@ const NavBar = () => {
               />
             )}
 
-            {/* Add Admin Panel button for mobile */}
+            {/* Use the Admin Icon for both mobile and desktop if the user is an admin */}
             {isAdmin && (
               <button
                 onClick={toggleAdminSidebar}
-                className="text-gray-200 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium lg:hidden"
+                className="text-gray-200 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium"
               >
                 <FaUserShield size={24} />
               </button>
