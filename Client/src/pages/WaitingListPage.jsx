@@ -108,17 +108,17 @@ const WaitingListPage = () => {
         </div>
       )}
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">Borrow Requests</h1>
+        <h1 className="text-3xl md:text-5xl font-extrabold text-center mb-8 tracking-wide">Borrow Requests</h1>
         <input
           type="text"
           placeholder="Search by name, email, date, or book title..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="mb-10 p-2 w-full"
+          className="mb-10 p-2 w-full border rounded-md"
         />
         <div className="flex flex-col space-y-2">
           {/* Header Row */}
-          <div className="grid grid-cols-5 text-center font-bold bg-gray-600 p-4 rounded-lg text-white">
+          <div className="hidden sm:grid sm:grid-cols-5 text-center font-bold bg-gray-600 p-4 rounded-lg text-white">
             <div>Uid</div>
             <div>Name</div>
             <div>Email</div>
@@ -129,7 +129,7 @@ const WaitingListPage = () => {
           {currentItems.length > 0 ? (
             currentItems.map((entry, index) => (
               <div key={index}
-                className={`grid grid-cols-5 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer relative ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
+                className={`grid grid-cols-1 sm:grid-cols-5 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer relative ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
                 onMouseEnter={() => setHoverIndex(index)}
                 onMouseLeave={() => setHoverIndex(-1)}
                 onClick={() => handleRowClick(entry)}
@@ -138,11 +138,11 @@ const WaitingListPage = () => {
                   transition: 'transform 0.2s'
                 }}
               >
-                <div>{entry.uid}</div>
-                <div>{entry.displayName}</div>
-                <div>{entry.email}</div>
-                <div>{entry.waitingDate}</div>
-                <div>{entry.bookTitle}</div>
+                <div className="sm:block">{entry.uid}</div>
+                <div className="sm:block">{entry.displayName}</div>
+                <div className="sm:block">{entry.email}</div>
+                <div className="sm:block">{entry.waitingDate}</div>
+                <div className="sm:block">{entry.bookTitle}</div>
                 <FaTimes
                   className="absolute top-0 right-0 m-2 text-red-600 cursor-pointer"
                   onClick={(e) => {
@@ -156,12 +156,12 @@ const WaitingListPage = () => {
             <div className="text-center py-4">No requests found</div>
           )}
         </div>
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center mt-4 space-x-1">
           {Array.from({ length: totalPages }, (_, index) => (
             <button
               key={index}
               onClick={() => paginate(index + 1)}
-              className={`mx-1 px-4 py-2 rounded ${currentPage === index + 1 ? 'bg-gray-700 hover:bg-gray-800 text-white' : 'bg-gray-300 text-black'}`}
+              className={`px-2 py-1 rounded ${currentPage === index + 1 ? 'bg-gray-700 hover:bg-gray-800 text-white' : 'bg-gray-300 text-black'}`}
             >
               {index + 1}
             </button>
@@ -172,13 +172,13 @@ const WaitingListPage = () => {
       {/* Confirmation Popup */}
       {showConfirmPopup && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4">Confirm Delete</h2>
+          <div className="bg-white p-4 sm:p-8 rounded-lg shadow-lg max-w-sm w-full mx-2">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4">Confirm Delete</h2>
             <p>Are you sure you want to delete this request?</p>
             <div className="mt-6 flex justify-end">
               <button 
                 onClick={() => setShowConfirmPopup(false)}
-                className="mr-4 px-4 py-2 bg-gray-300 rounded"
+                className="mr-2 px-4 py-2 bg-gray-300 rounded"
               >
                 Cancel
               </button>
