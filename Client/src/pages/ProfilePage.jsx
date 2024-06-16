@@ -245,7 +245,7 @@ const ProfilePage = () => {
                             </button>
                           </div>
                         ) : (
-                          <p className="text-green-500 mt-4">You have rated this book: {ratings[book.title]}</p>
+                          <p className="text-green-500 mt-4">You have rated this book</p>
                         )
                       )}
                     </div>

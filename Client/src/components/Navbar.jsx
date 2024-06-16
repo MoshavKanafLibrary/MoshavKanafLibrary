@@ -6,8 +6,8 @@ import NavHeaders from "./NavHeaders";
 import axios from "axios";
 import UserContext from "../contexts/UserContext";
 import { GiBookmarklet } from "react-icons/gi";
-import AdminSidebar from "./AdminSidebar"; // Ensure the import path is correct
-import { FaBell } from "react-icons/fa";
+import AdminSidebar from "./AdminSidebar";
+import { FaBell, FaBars, FaTimes, FaUserShield } from "react-icons/fa";
 
 const NavBar = () => {
   const { navBarDisplayName } = useContext(UserContext);
@@ -17,6 +17,7 @@ const NavBar = () => {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [navOpen, setNavOpen] = useState(false); // For toggling nav links
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,6 +75,10 @@ const NavBar = () => {
     setShowNotifications(!showNotifications);
   };
 
+  const toggleNav = () => {
+    setNavOpen(!navOpen);
+  };
+
   const registeredUserNavLinks = [
     { name: "Contact Us", path: "/contactus" },
     { name: "My profile", path: "/profile" },
@@ -112,7 +117,16 @@ const NavBar = () => {
             </div>
           </div>
 
-          <div className="flex items-center">
+          <div className="flex items-center lg:hidden">
+            <button
+              onClick={toggleNav}
+              className="text-gray-200 focus:outline-none"
+            >
+              {navOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+            </button>
+          </div>
+
+          <div className={`lg:flex lg:items-center ${navOpen ? "block" : "hidden"}`}>
             {user ? (
               <NavHeaders navBarLinks={registeredUserNavLinks} />
             ) : (
@@ -167,10 +181,20 @@ const NavBar = () => {
                 user={user}
               />
             )}
+
+            {/* Add Admin Panel button for mobile */}
+            {isAdmin && (
+              <button
+                onClick={toggleAdminSidebar}
+                className="text-gray-200 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium lg:hidden"
+              >
+                <FaUserShield size={24} />
+              </button>
+            )}
           </div>
         </div>
       </nav>
-      {showAdminSidebar && <AdminSidebar />}
+      {showAdminSidebar && <AdminSidebar isVisible={showAdminSidebar} toggleSidebar={toggleAdminSidebar} />}
     </>
   );
 };
