@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaSpinner } from 'react-icons/fa';
+import { FaSpinner, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
-import { FaTimes } from 'react-icons/fa';
 
 const WaitingListPage = () => {
   const [loading, setLoading] = useState(true);
@@ -12,7 +11,7 @@ const WaitingListPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [hoverIndex, setHoverIndex] = useState(-1); 
+  const [hoverIndex, setHoverIndex] = useState(-1);
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [deleteEntry, setDeleteEntry] = useState(null);
   const navigate = useNavigate();
@@ -22,23 +21,32 @@ const WaitingListPage = () => {
       setLoading(true);
       try {
         const { data: booksData } = await axios.get("/api/books/getAllBooksData");
-        const waitingListUsersPromises = booksData.books
-          .filter(book => book.waitingList && book.waitingList.length > 0)
-          .map(book => book.waitingList.map(async waitingEntry => {
-            const { data: userData } = await axios.get(`/api/users/${waitingEntry.uid}`);
-            return {
-              ...userData,
-              bookTitle: book.title,
-              waitingDate: waitingEntry.Time ? format(new Date(waitingEntry.Time.seconds * 1000), "MMM dd, yyyy p") : 'Date unknown',
-              uid: waitingEntry.uid, // Assuming each entry has a unique identifier
-              email: userData.email, // Added email
-              bookId: book.id // Added book ID for delete request
-            };
-          })).flat();
+        if (booksData.success) {
+          const waitingListUsersPromises = booksData.books
+            .filter(book => book.waitingList && book.waitingList.length > 0)
+            .flatMap(book => book.waitingList.map(async waitingEntry => {
+              try {
+                const { data: userData } = await axios.get(`/api/users/${waitingEntry.uid}`);
+                return {
+                  ...userData,
+                  bookTitle: book.title,
+                  waitingDate: waitingEntry.Time ? format(new Date(waitingEntry.Time.seconds * 1000), "MMM dd, yyyy p") : 'Date unknown',
+                  uid: waitingEntry.uid,
+                  email: userData.email,
+                  bookId: book.id
+                };
+              } catch (userError) {
+                console.error(`Error fetching user data for UID ${waitingEntry.uid}:`, userError);
+                return null; // Skip this entry if user data fetch fails
+              }
+            }));
 
-        const waitingListUsers = await Promise.all(waitingListUsersPromises);
-        setWaitingList(waitingListUsers);
-        setFilteredWaitingList(waitingListUsers);
+          const waitingListUsers = (await Promise.all(waitingListUsersPromises)).filter(Boolean); // Filter out null values
+          setWaitingList(waitingListUsers);
+          setFilteredWaitingList(waitingListUsers);
+        } else {
+          console.error("Error fetching books data:", booksData);
+        }
       } catch (error) {
         console.error("Error fetching waiting list data:", error);
       } finally {
@@ -118,31 +126,35 @@ const WaitingListPage = () => {
             <div>Book Title</div>
           </div>
           {/* Entries */}
-          {currentItems.map((entry, index) => (
-            <div key={index}
-              className={`grid grid-cols-5 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer relative ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
-              onMouseEnter={() => setHoverIndex(index)}
-              onMouseLeave={() => setHoverIndex(-1)}
-              onClick={() => handleRowClick(entry)}
-              style={{
-                transform: hoverIndex === index ? 'translateX(10px)' : 'none',
-                transition: 'transform 0.2s'
-              }}
-            >
-              <div>{entry.uid}</div>
-              <div>{entry.displayName}</div>
-              <div>{entry.email}</div>
-              <div>{entry.waitingDate}</div>
-              <div>{entry.bookTitle}</div>
-              <FaTimes 
-                className="absolute top-0 right-0 m-2 text-red-600 cursor-pointer" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteClick(entry);
-                }} 
-              />
-            </div>
-          ))}
+          {currentItems.length > 0 ? (
+            currentItems.map((entry, index) => (
+              <div key={index}
+                className={`grid grid-cols-5 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer relative ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
+                onMouseEnter={() => setHoverIndex(index)}
+                onMouseLeave={() => setHoverIndex(-1)}
+                onClick={() => handleRowClick(entry)}
+                style={{
+                  transform: hoverIndex === index ? 'translateX(10px)' : 'none',
+                  transition: 'transform 0.2s'
+                }}
+              >
+                <div>{entry.uid}</div>
+                <div>{entry.displayName}</div>
+                <div>{entry.email}</div>
+                <div>{entry.waitingDate}</div>
+                <div>{entry.bookTitle}</div>
+                <FaTimes
+                  className="absolute top-0 right-0 m-2 text-red-600 cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteClick(entry);
+                  }}
+                />
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-4">No requests found</div>
+          )}
         </div>
         <div className="flex justify-center mt-4">
           {Array.from({ length: totalPages }, (_, index) => (
