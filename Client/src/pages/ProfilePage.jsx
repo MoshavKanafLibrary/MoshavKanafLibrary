@@ -10,6 +10,9 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [deleteEntry, setDeleteEntry] = useState(null);
+  const [ratings, setRatings] = useState({});
+  const [hasRated, setHasRated] = useState({});
+  const [ratingLoading, setRatingLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserHistoryBooks = async () => {
@@ -26,8 +29,30 @@ const ProfilePage = () => {
           readDate: new Date(book.readDate.seconds * 1000).toLocaleDateString()
         }));
         setReadBooks(books);
+
+        // Fetch ratings in parallel after basic details are set
+        fetchRatings(books);
       } catch (error) {
         console.error('Error fetching history books:', error);
+      }
+    };
+
+    const fetchRatings = async (books) => {
+      try {
+        const ratingStatus = {};
+        for (const book of books) {
+          const bookResponse = await axios.get(`/api/books/names`);
+          const bookDetails = bookResponse.data.bookNames.find(b => b.title === book.title);
+          if (bookDetails) {
+            const ratingResponse = await axios.get(`/api/books/${bookDetails.id}/rating-status`, { params: { uid: user.uid } });
+            ratingStatus[book.title] = ratingResponse.data.hasRated;
+          }
+        }
+        setHasRated(ratingStatus);
+      } catch (error) {
+        console.error('Error fetching ratings:', error);
+      } finally {
+        setRatingLoading(false);
       }
     };
 
@@ -99,6 +124,38 @@ const ProfilePage = () => {
     }
   };
 
+  const handleRatingChange = (title, rating) => {
+    setRatings({ ...ratings, [title]: rating });
+  };
+
+  const submitRating = async (title) => {
+    const rating = ratings[title];
+    if (!rating || rating < 1 || rating > 5) {
+      alert("Please provide a valid rating between 1 and 5.");
+      return;
+    }
+
+    try {
+      const bookResponse = await axios.get(`/api/books/names`);
+      const book = bookResponse.data.bookNames.find(book => book.title === title);
+      
+      if (book) {
+        const response = await axios.post(`/api/books/${book.id}/rate`, { rating, uid: user.uid });
+        if (response.data.success) {
+          console.log(`Rating for ${title} submitted successfully`);
+          setHasRated({ ...hasRated, [title]: true });
+          alert(`Thank you for rating ${title}. Average rating is now ${response.data.averageRating}`);
+        } else {
+          console.error("Failed to submit rating");
+        }
+      } else {
+        console.error("Book not found for rating");
+      }
+    } catch (error) {
+      console.error(`Error submitting rating: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
   return (
     <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 overflow-x-hidden">
       <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-black text-center">Profile</h1>
@@ -162,6 +219,35 @@ const ProfilePage = () => {
                     >
                       <h4 className="text-xl text-white">{book.title}</h4>
                       <p className="text-gray-300">Read Date: {book.readDate}</p>
+
+                      {/* Loading Indicator for Ratings */}
+                      {ratingLoading ? (
+                        <FaSpinner className="animate-spin text-2xl text-gray-300 mt-4" />
+                      ) : (
+                        !hasRated[book.title] ? (
+                          <div className="mt-4">
+                            <label className="text-white">Rate this book:</label>
+                            <select
+                              className="ml-2 bg-gray-200 p-1 rounded"
+                              value={ratings[book.title] || ""}
+                              onChange={(e) => handleRatingChange(book.title, parseInt(e.target.value))}
+                            >
+                              <option value="">Select a rating</option>
+                              {[1, 2, 3, 4, 5].map(value => (
+                                <option key={value} value={value}>{value}</option>
+                              ))}
+                            </select>
+                            <button
+                              className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-4 rounded"
+                              onClick={() => submitRating(book.title)}
+                            >
+                              Submit
+                            </button>
+                          </div>
+                        ) : (
+                          <p className="text-green-500 mt-4">You have rated this book: {ratings[book.title]}</p>
+                        )
+                      )}
                     </div>
                   ))
                 ) : (

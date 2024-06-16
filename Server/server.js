@@ -447,7 +447,8 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
       expenditure: doc.data().expenditure,
       locatorCode: doc.data().locatorCode,
       titleType: doc.data().titleType,
-      waitingList: doc.data().waitingList
+      waitingList: doc.data().waitingList,
+      averageRating: doc.data().averageRating
     }));
 
     console.log("Books fetched successfully:", books);
@@ -1333,3 +1334,88 @@ app.post('/api/users/:uid/send-email', async (req, res) => {
     return res.status(500).json({ success: false, message: `Failed to send email: ${error.message}` });
   }
 });
+
+
+// Endpoint to rate a book
+app.post("/api/books/:id/rate", async (req, res) => {
+  const { id } = req.params;
+  const { uid, rating } = req.body;
+
+  if (!uid || !rating) {
+    return res.status(400).json({ success: false, message: "User ID and rating are required" });
+  }
+
+  const bookRef = doc(db, "books", id);
+
+  try {
+    const docSnap = await getDoc(bookRef);
+    if (!docSnap.exists()) {
+      return res.status(404).json({ success: false, message: "Book not found" });
+    }
+
+    let bookData = docSnap.data();
+    
+    // Initialize ratings array if it does not exist
+    if (!bookData.ratings) {
+      bookData.ratings = [];
+    }
+
+    // Check if the user has already rated this book
+    const existingRatingIndex = bookData.ratings.findIndex(entry => entry.uid === uid);
+    if (existingRatingIndex !== -1) {
+      return res.status(409).json({ success: false, message: "User has already rated this book" });
+    }
+
+    // Add the new rating
+    const newRating = {
+      uid: uid,
+      rating: rating,
+      ratedAt: new Date() // Timestamp for when the rating was made
+    };
+    bookData.ratings.push(newRating);
+
+    // Calculate the new average rating
+    const totalRatings = bookData.ratings.reduce((acc, r) => acc + r.rating, 0);
+    const averageRating = totalRatings / bookData.ratings.length;
+
+    // Update the document with the new ratings and average rating
+    await updateDoc(bookRef, {
+      ratings: bookData.ratings,
+      averageRating: averageRating
+    });
+
+    res.status(200).json({ success: true, averageRating: averageRating });
+  } catch (error) {
+    console.error("Error rating the book:", error);
+    res.status(500).json({ success: false, message: `Failed to rate the book: ${error.message}` });
+  }
+});
+
+
+// Endpoint to check if a user has already rated a book
+app.get("/api/books/:id/rating-status", async (req, res) => {
+  const { id } = req.params;
+  const { uid } = req.query;
+
+  if (!uid) {
+    return res.status(400).json({ success: false, message: "User ID is required" });
+  }
+
+  try {
+    const bookRef = doc(db, "books", id);
+    const docSnap = await getDoc(bookRef);
+
+    if (!docSnap.exists()) {
+      return res.status(404).json({ success: false, message: "Book not found" });
+    }
+
+    const bookData = docSnap.data();
+    const hasRated = bookData.ratings ? bookData.ratings.some(r => r.uid === uid) : false;
+
+    res.status(200).json({ success: true, hasRated });
+  } catch (error) {
+    console.error("Error checking rating status:", error);
+    res.status(500).json({ success: false, message: `Failed to check rating status: ${error.message}` });
+  }
+});
+

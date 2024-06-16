@@ -31,13 +31,16 @@ const BooksPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [authors, setAuthors] = useState([]);
+  const [ratingCategories, setRatingCategories] = useState(['1-2', '3-4', '4-5']); // Define rating categories
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedAuthors, setSelectedAuthors] = useState([]);
+  const [selectedRatings, setSelectedRatings] = useState([]); // State to hold selected rating categories
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const filterRef = useRef(null);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showAuthorDropdown, setShowAuthorDropdown] = useState(false);
+  const [showRatingDropdown, setShowRatingDropdown] = useState(false); // State for showing rating dropdown
   const [selectedBook, setSelectedBook] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -77,16 +80,25 @@ const BooksPage = () => {
     setShowFilterDropdown(!showFilterDropdown);
     setShowCategoryDropdown(false);
     setShowAuthorDropdown(false);
+    setShowRatingDropdown(false);
   };
 
   const toggleCategoryDropdown = () => {
     setShowCategoryDropdown(!showCategoryDropdown);
     setShowAuthorDropdown(false);
+    setShowRatingDropdown(false);
   };
 
   const toggleAuthorDropdown = () => {
     setShowAuthorDropdown(!showAuthorDropdown);
     setShowCategoryDropdown(false);
+    setShowRatingDropdown(false);
+  };
+
+  const toggleRatingDropdown = () => {
+    setShowRatingDropdown(!showRatingDropdown);
+    setShowCategoryDropdown(false);
+    setShowAuthorDropdown(false);
   };
 
   const handleMultiSelect = (value, setState, selectedItems) => {
@@ -110,11 +122,20 @@ const BooksPage = () => {
     };
   }, []);
 
+  const matchesRating = (book) => {
+    if (selectedRatings.length === 0) return true;
+    return selectedRatings.some((ratingCategory) => {
+      const [min, max] = ratingCategory.split('-').map(Number);
+      return book.averageRating >= min && book.averageRating <= max;
+    });
+  };
+
   const filteredBooks = books.filter((book) => {
     const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) || book.author.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(book.category);
     const matchesAuthor = selectedAuthors.length === 0 || selectedAuthors.includes(book.author);
-    return matchesSearch && matchesCategory && matchesAuthor;
+    const matchesRatings = matchesRating(book); // New rating filter logic
+    return matchesSearch && matchesCategory && matchesAuthor && matchesRatings;
   });
 
   const paginatedBooks = filteredBooks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -193,6 +214,27 @@ const BooksPage = () => {
                                 onChange={() => handleMultiSelect(author, setSelectedAuthors, selectedAuthors)}
                               />
                               <span className="text-white">{author}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                      <button
+                        className="bg-gray-600 text-white px-4 py-2 rounded-lg"
+                        onClick={toggleRatingDropdown}
+                      >
+                        Ratings
+                      </button>
+                      {showRatingDropdown && (
+                        <div className="flex flex-col space-y-2">
+                          {ratingCategories.map((ratingCategory) => (
+                            <label key={ratingCategory} className="flex items-center">
+                              <input
+                                type="checkbox"
+                                className="mr-2"
+                                checked={selectedRatings.includes(ratingCategory)}
+                                onChange={() => handleMultiSelect(ratingCategory, setSelectedRatings, selectedRatings)}
+                              />
+                              <span className="text-white">{ratingCategory}</span>
                             </label>
                           ))}
                         </div>
