@@ -144,7 +144,6 @@ const ProfilePage = () => {
         if (response.data.success) {
           console.log(`Rating for ${title} submitted successfully`);
           setHasRated({ ...hasRated, [title]: true });
-          alert(`Thank you for rating ${title}. Average rating is now ${response.data.averageRating}`);
         } else {
           console.error("Failed to submit rating");
         }
