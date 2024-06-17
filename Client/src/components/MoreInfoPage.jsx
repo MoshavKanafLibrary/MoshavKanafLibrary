@@ -20,18 +20,28 @@ const MoreInfoPage = () => {
 
   const validateAndNavigate = async (e) => {
     e.preventDefault();
+    setErrorMessage(""); // Clear any existing errors
+
+    // Check if displayName is empty or does not meet length requirements
     if (displayName.length < 4 || displayName.length > 12) {
       setErrorMessage("Display name must be between 4 and 12 characters long.");
       return;
     }
+
+    // Validate that the displayName is unique
     try {
       const response = await axios.get(`/api/displaynames/${displayName}`);
-      if (response.data.valid && user && user.uid) {
-        await axios.put(`/api/displaynames/${user.uid}`, { displayName });
-        setNavBarDisplayName(displayName);
-        navigate("/");
+      if (response.data.valid) {
+        // Display name is unique, proceed to update
+        if (user && user.uid) {
+          await axios.put(`/api/users/${user.uid}/displayname`, { displayName });
+          setNavBarDisplayName(displayName);
+          navigate("/"); // Redirect to home page or another page
+        } else {
+          setErrorMessage("Invalid user data.");
+        }
       } else {
-        setErrorMessage("Display name is already in use or invalid user data.");
+        setErrorMessage("Display name is already in use. Please choose another one.");
       }
     } catch (error) {
       console.error("Error validating display name", error);
