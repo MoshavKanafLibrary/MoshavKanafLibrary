@@ -825,7 +825,7 @@ app.get("/api/book/getCopiesByTitle", async (req, res) => {
 });
 
 
-// Endpoint to update the borrowedTo field in the copies collection with the user's display name
+// Endpoint to update the borrowedTo field in the copies collection with the user's display name and UID
 app.put("/api/copies/updateBorrowedTo", async (req, res) => {
   const { copyID, uid } = req.body; // Extract copyID and uid from the request body
 
@@ -859,8 +859,27 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
     // Assuming copyID is unique and there will be only one document
     const copyDocRef = querySnapshot.docs[0].ref;
 
-    // Update the borrowedTo field with the user's display name
-    await updateDoc(copyDocRef, { borrowedTo: displayName });
+    // Construct the new entry for the borrowedTo field
+    const newBorrowedEntry = { displayName, uid };
+
+    // Fetch the existing borrowedTo field, if it exists
+    const copySnapshot = await getDoc(copyDocRef);
+    const copyData = copySnapshot.data();
+    let borrowedToList = copyData.borrowedTo || [];
+
+    // Check if the user already exists in the borrowedTo list
+    const existingEntryIndex = borrowedToList.findIndex(entry => entry.uid === uid);
+
+    if (existingEntryIndex !== -1) {
+      // If the user already exists in the list, update their displayName
+      borrowedToList[existingEntryIndex].displayName = displayName;
+    } else {
+      // Otherwise, add the new entry to the list
+      borrowedToList.push(newBorrowedEntry);
+    }
+
+    // Update the borrowedTo field with the updated list
+    await updateDoc(copyDocRef, { borrowedTo: borrowedToList });
 
     res.status(200).json({ success: true, message: "BorrowedTo field updated successfully" });
   } catch (error) {
@@ -868,6 +887,7 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to update borrowedTo field: ${error.message || 'Unknown error'}` });
   }
 });
+
 
 
 // Endpoint to delete a borrow request from the waiting list
