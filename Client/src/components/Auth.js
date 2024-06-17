@@ -30,20 +30,20 @@ import {
     }
   }
   
-  export async function signUp(auth, email, password) {
+  export async function signUp(auth, email, password, displayName) {
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      addNewUserToDb(user, email); // Pass the email here
-      return { status: true };
+  
+      // Add user to Firestore with display name
+      await addNewUserToDb(user, email, displayName);
+  
+      return { status: true, user };
     } catch (e) {
       return { status: false, message: e.message };
     }
   }
+  
   
   export async function changePassword(user, newPassword) {
     try {
