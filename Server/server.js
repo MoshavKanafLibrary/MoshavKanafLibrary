@@ -1491,3 +1491,23 @@ app.get("/api/requests", async (req, res) => {
 });
 
 
+// Handler for deleting a request by ID
+app.delete("/api/requests/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const requestRef = doc(db, "requests", id);
+    const requestSnap = await getDoc(requestRef);
+
+    if (!requestSnap.exists()) {
+      return res.status(404).json({ success: false, message: "Request not found" });
+    }
+
+    await deleteDoc(requestRef);
+
+    return res.status(200).json({ success: true, message: "Request deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting request:", error);
+    return res.status(500).json({ success: false, message: `Failed to delete request: ${error.message}` });
+  }
+});

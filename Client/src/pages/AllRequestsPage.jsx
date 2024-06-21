@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaSpinner } from "react-icons/fa";
+import { FaSpinner, FaTrash, FaBell } from "react-icons/fa";
 
 const AllRequestsPage = () => {
   const [requests, setRequests] = useState([]);
@@ -9,6 +9,7 @@ const AllRequestsPage = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -49,6 +50,44 @@ const AllRequestsPage = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const deleteRequest = async (id) => {
+    try {
+      setLoading(true);
+      const response = await axios.delete(`/api/requests/${id}`);
+      if (response.data.success) {
+        setRequests(requests.filter(request => request.id !== id));
+        setFilteredRequests(filteredRequests.filter(request => request.id !== id));
+        setSuccessMessage("Request deleted successfully.");
+      } else {
+        console.error("Failed to delete request:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error deleting request:", error);
+    } finally {
+      setLoading(false);
+      setTimeout(() => setSuccessMessage(''), 3000); // Clear message after 3 seconds
+    }
+  };
+
+  const notifyUser = async (uid) => {
+    try {
+      setLoading(true);
+      const response = await axios.post(`/api/users/${uid}/notifications`, {
+        message: "Thank you for your book request!",
+      });
+      if (response.data.success) {
+        setSuccessMessage("User notified successfully.");
+      } else {
+        console.error("Failed to send notification:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error sending notification:", error);
+    } finally {
+      setLoading(false);
+      setTimeout(() => setSuccessMessage(''), 3000); // Clear message after 3 seconds
+    }
+  };
+
   return (
     <>
       {loading && (
@@ -57,6 +96,11 @@ const AllRequestsPage = () => {
         </div>
       )}
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10">
+        {successMessage && (
+          <div className="mb-4 p-4 text-center text-white bg-green-500 rounded-lg">
+            {successMessage}
+          </div>
+        )}
         <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">All User Requests</h1>
         <input
           type="text"
@@ -73,6 +117,7 @@ const AllRequestsPage = () => {
                 <th className="py-4 px-6 text-left">Username</th>
                 <th className="py-4 px-6 text-left">Request</th>
                 <th className="py-4 px-6 text-left">Timestamp</th>
+                <th className="py-4 px-6 text-left">Actions</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
@@ -84,8 +129,22 @@ const AllRequestsPage = () => {
                   <td className="py-4 px-6 text-left">
                     {new Date(request.timestamp.seconds * 1000).toLocaleString()}
                   </td>
+                  <td className="py-4 px-6 text-left flex space-x-2">
+                    <button
+                      onClick={() => notifyUser(request.uid)}
+                      className="text-blue-500 hover:text-blue-700"
+                    >
+                      <FaBell />
+                    </button>
+                    <button
+                      onClick={() => deleteRequest(request.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
                 </tr>
-              )) : <tr><td colSpan="4" className="text-center py-4">No requests found</td></tr>}
+              )) : <tr><td colSpan="5" className="text-center py-4">No requests found</td></tr>}
             </tbody>
           </table>
         </div>
