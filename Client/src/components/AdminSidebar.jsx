@@ -72,6 +72,10 @@ const AdminSidebar = ({ isVisible, toggleSidebar }) => {
                 <FaTasks className="text-base sm:text-xl mr-2 sm:mr-2" />
                 <span className="text-sm sm:text-base">Return Requests</span>
               </li>
+              <li className="flex items-center p-2 sm:p-2 hover:bg-gray-600 rounded cursor-pointer" onClick={() => handleNavigate("/all-requests", { mode: 0 })}>
+                <FaTasks className="text-base sm:text-xl mr-2 sm:mr-2" />
+                <span className="text-sm sm:text-base">User Requests</span>
+              </li>
             </ul>
           )}
         </div>

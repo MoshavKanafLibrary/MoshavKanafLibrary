@@ -8,6 +8,7 @@ import WaitingListPage from "./pages/WaitingListPage";
 import LoginPage from "./pages/LoginPage";
 import BooksPage from "./pages/BooksPage";
 import AddOrUpdateBookPage from "./pages/AddOrUpdateBookPage";
+import UserRequestsPage from "./pages/UserRequestsPage"; 
 import ProfilePage from "./pages/ProfilePage";
 import ContactPage from "./pages/ContactPage";
 import BookDetailPage from "./pages/BookDetailPage";
@@ -21,6 +22,8 @@ import PermissionsPage from "./pages/PermissionsPage";
 import CreateRequestForUserPage from "./pages/CreateRequestForUserPage";
 import useUser from "./hooks/useUser"; // Import the useUser hook
 import BorrowedCopiesReportPage from "./pages/BorrowedCopiesReportPage";
+import AllRequestsPage from "./pages/AllRequestsPage";
+ 
 
 function App() {
   const { user } = useUser();
@@ -47,6 +50,7 @@ function App() {
           <Route path="/addOrUpdatebook/:bookId?" element={<AddOrUpdateBookPage />} />
           <Route path="/WaitingList" element={<WaitingListPage />} />
           <Route path="/BorrowedCopiesReport" element={<BorrowedCopiesReportPage />} />
+          <Route path="/user-requests" element={<UserRequestsPage />} />
           <Route path="/AllUsers" element={<AllUsersPage />} />
           <Route path="/AllBooks" element={<AllBooksPage />} />
           <Route path="/CreateRequestForUser" element={<CreateRequestForUserPage />} />
@@ -54,6 +58,7 @@ function App() {
           <Route path="/Permissions" element={<PermissionsPage />} />
           <Route path="/contactus" element={<ContactPage />} />
           <Route path="/BorrowedCopies" element={<BorrowedCopiesPage />} />
+          <Route path="/all-requests" element={<AllRequestsPage />} />
           <Route path="/BookBorrowDetails/:bookId?" element={<BookBorrowDetailsPage />} />
           <Route path="/book/:bookName" element={<BookDetailPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
