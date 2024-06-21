@@ -20,6 +20,7 @@ import BorrowedCopiesPage from "./pages/BorrowedCopiesPage";
 import PermissionsPage from "./pages/PermissionsPage";
 import CreateRequestForUserPage from "./pages/CreateRequestForUserPage";
 import useUser from "./hooks/useUser"; // Import the useUser hook
+import BorrowedCopiesReportPage from "./pages/BorrowedCopiesReportPage";
 
 function App() {
   const { user } = useUser();
@@ -45,6 +46,7 @@ function App() {
           <Route path="/addOrUpdatebook" element={<AddOrUpdateBookPage />} />
           <Route path="/addOrUpdatebook/:bookId?" element={<AddOrUpdateBookPage />} />
           <Route path="/WaitingList" element={<WaitingListPage />} />
+          <Route path="/BorrowedCopiesReport" element={<BorrowedCopiesReportPage />} />
           <Route path="/AllUsers" element={<AllUsersPage />} />
           <Route path="/AllBooks" element={<AllBooksPage />} />
           <Route path="/CreateRequestForUser" element={<CreateRequestForUserPage />} />
@@ -55,6 +57,7 @@ function App() {
           <Route path="/BookBorrowDetails/:bookId?" element={<BookBorrowDetailsPage />} />
           <Route path="/book/:bookName" element={<BookDetailPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
+          
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
