@@ -12,6 +12,8 @@ const BookDetailPage = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
+  const [reviews, setReviews] = useState([]);
+  const [reviewText, setReviewText] = useState('');
   const { user } = useUser();
 
   useEffect(() => {
@@ -20,20 +22,31 @@ const BookDetailPage = () => {
       return;
     }
 
-    // Make an API call to fetch books from the server
+    // Fetch books with matching titles
     axios.get('/api/books/getBooksMatchingTitles', {
       params: { bookName: book.title }
     })
       .then(response => {
-        // If the request is successful, update the books array with the received data
         setBooks(response.data);
-        setLoading(false); // Set loading to false when data is fetched
+        setLoading(false);
         console.log("Books loaded from the server:", response.data);
       })
       .catch(error => {
-        // Handle any errors that occur during the request
-        setLoading(false); // Set loading to false in case of error
+        setLoading(false);
         console.error("Error fetching books:", error.message);
+      });
+
+    // Fetch reviews for the book
+    axios.get(`/api/books/${book.id}/reviews`)
+      .then(response => {
+        const reviewsWithParsedDates = response.data.reviews.map(review => ({
+          ...review,
+          reviewedAt: new Date(review.reviewedAt.seconds * 1000) // Convert Firestore Timestamp to JS Date
+        }));
+        setReviews(reviewsWithParsedDates);
+      })
+      .catch(error => {
+        console.error("Error fetching reviews:", error.message);
       });
   }, [book, navigate]);
 
@@ -42,19 +55,50 @@ const BookDetailPage = () => {
       alert("You have to login");
     } else {
       try {
-        // Add user to the waiting list
         await axios.post(`/api/books/${book.id}/waiting-list`, { uid: user.uid });
-
-        // Add entry to the user's borrowBooks-list
         await axios.post(`/api/users/${user.uid}/borrow-books-list`, { title: book.title });
         setSuccessMessage("Your order was placed successfully.\nWe'll notify you as soon as your book is ready for pickup!");
         setTimeout(() => {
           setSuccessMessage('');
-        }, 6000); // Clear the success message after 3 seconds
+        }, 6000); // Clear the success message after 6 seconds
       } catch (error) {
         console.error("Error handling order:", error.response ? error.response.data.message : error.message);
         alert(`${error.response ? error.response.data.message : "Server error"}`);
       }
+    }
+  };
+
+  const handleReviewSubmit = async () => {
+    if (!user) {
+      alert("You have to login to submit a review.");
+      return;
+    }
+    if (!reviewText.trim()) {
+      alert("Review text cannot be empty.");
+      return;
+    }
+
+    try {
+      await axios.post(`/api/books/${book.id}/reviews`, {
+        uid: user.uid,
+        displayName: user.displayName,
+        review: reviewText.trim(),
+        reviewedAt: new Date() // Use JavaScript Date for the new review
+      });
+      setSuccessMessage("Review submitted successfully!");
+      setReviews([...reviews, {
+        uid: user.uid,
+        displayName: user.displayName,
+        review: reviewText.trim(),
+        reviewedAt: new Date() // Add new review with current date
+      }]);
+      setReviewText('');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000); // Clear the success message after 3 seconds
+    } catch (error) {
+      console.error("Error submitting review:", error.response ? error.response.data.message : error.message);
+      alert(`${error.response ? error.response.data.message : "Server error"}`);
     }
   };
 
@@ -85,6 +129,46 @@ const BookDetailPage = () => {
           <div className="mt-4 px-4 py-2 bg-green-100 border border-green-500 text-green-800 text-xl rounded text-center whitespace-pre-line">
             {successMessage}
           </div>
+        )}
+      </div>
+
+      {/* Reviews Section */}
+      <div className="container mx-auto px-4 py-8 max-w-xl bg-gray-300 shadow-md rounded-lg mt-8">
+        <h2 className="text-2xl font-bold mb-4 text-center">User Reviews</h2>
+        <div className="mb-4">
+          {user ? (
+            <div className="flex flex-col space-y-4">
+              <textarea
+                className="w-full p-2 border rounded"
+                placeholder="Write your review..."
+                value={reviewText}
+                onChange={e => setReviewText(e.target.value)}
+              />
+              <button
+                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+                onClick={handleReviewSubmit}
+              >
+                Submit Review
+              </button>
+            </div>
+          ) : (
+            <p className="text-center text-gray-700">You need to log in to submit a review.</p>
+          )}
+        </div>
+        {reviews.length > 0 ? (
+          <div className="space-y-4">
+            {reviews.map((review, index) => (
+              <div key={index} className="bg-white p-4 rounded shadow-md">
+                <p className="font-bold">{review.displayName}</p>
+                <p className="text-gray-600">{review.review}</p>
+                <p className="text-sm text-gray-500 mt-2">
+                  {new Date(review.reviewedAt).toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-700">No reviews yet. Be the first to review!</p>
         )}
       </div>
 

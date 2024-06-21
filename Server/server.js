@@ -15,6 +15,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
@@ -1509,5 +1510,70 @@ app.delete("/api/requests/:id", async (req, res) => {
   } catch (error) {
     console.error("Error deleting request:", error);
     return res.status(500).json({ success: false, message: `Failed to delete request: ${error.message}` });
+  }
+});
+// Handler for adding a review to a book
+app.post("/api/books/:id/reviews", async (req, res) => {
+  const { id } = req.params;
+  const { uid, displayName, review } = req.body;
+
+  if (!uid || !displayName || !review) {
+    return res.status(400).json({ success: false, message: "User ID, display name, and review text are required" });
+  }
+
+  const bookRef = doc(db, "books", id);
+
+  try {
+    const docSnap = await getDoc(bookRef);
+    if (!docSnap.exists()) {
+      return res.status(404).json({ success: false, message: "Book not found" });
+    }
+
+    let bookData = docSnap.data();
+    
+    // Initialize reviews array if it does not exist
+    if (!bookData.reviews) {
+      bookData.reviews = [];
+    }
+
+    // Add the new review
+    const newReview = {
+      uid,
+      displayName,
+      review,
+      reviewedAt: new Date() // Timestamp for when the review was made
+    };
+
+    bookData.reviews.push(newReview);
+
+    // Update the document with the new reviews
+    await updateDoc(bookRef, { reviews: bookData.reviews });
+
+    res.status(200).json({ success: true, message: "Review added successfully" });
+  } catch (error) {
+    console.error("Error adding review:", error);
+    res.status(500).json({ success: false, message: `Failed to add review: ${error.message}` });
+  }
+});
+
+// Handler for fetching all reviews for a book
+app.get("/api/books/:id/reviews", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const bookRef = doc(db, "books", id);
+    const docSnap = await getDoc(bookRef);
+
+    if (!docSnap.exists()) {
+      return res.status(404).json({ success: false, message: "Book not found" });
+    }
+
+    const bookData = docSnap.data();
+    const reviews = bookData.reviews ? bookData.reviews.reverse() : [];
+
+    res.status(200).json({ success: true, reviews });
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+    res.status(500).json({ success: false, message: `Failed to fetch reviews: ${error.message}` });
   }
 });
