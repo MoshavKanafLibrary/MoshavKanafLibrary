@@ -147,6 +147,26 @@ const BooksPage = () => {
     navigate(`/book/${book.title}`, { state: { book, mode: modeValue } });
   };
 
+  const getStars = (rating) => {
+    if (rating === null) {
+      return 'N/A';
+    }
+    const goldStars = Math.floor(rating); // Number of gold stars
+    const grayStars = 5 - goldStars; // Number of gray stars
+  
+    return (
+      <span className="text-yellow-500 inline-block">
+        {'★'.repeat(goldStars)}
+        <span className="text-gray-500">
+          {'☆'.repeat(grayStars)}
+        </span>
+      </span>
+    );
+  };
+  
+  
+  
+  
   const goToPage = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
@@ -271,9 +291,14 @@ const BooksPage = () => {
                       />
                     </div>
                     <div className="h-1/5">
-                      <h2 className="text-xl font-semibold text-white">{book.title}</h2>
-                      <p className="text-gray-300">by <span className="text-gray-300">{book.author}</span></p>
-                    </div>
+  <h2 className="text-xl font-semibold text-white">{book.title}</h2>
+  <p className="text-gray-300">by <span className="text-gray-300">{book.author}</span></p>
+  <p className="text-gray-300"><span className="text-gray-300">{book.averageRating === 'N/A' ? 'N/A' : getStars(book.averageRating)}</span></p>
+</div>
+
+
+
+
                   </div>
                 ))}
               </div>
