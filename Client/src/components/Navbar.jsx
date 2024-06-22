@@ -80,19 +80,19 @@ const NavBar = () => {
   };
 
   const registeredUserNavLinks = [
-    { name: "Contact Us", path: "/contactus" }
-    // "Admin Panel" link is removed and handled by the icon
+    { name: "Contact Us", path: "/contactus" },
+    { name: "Create Book Request", path: "/user-requests" } // Add the link here
   ].filter(Boolean); // Filter out undefined values
 
   const unRegisteredUserNavLinks = [
     { name: "Info", path: "/contactus" },
     { name: "Login", path: "/login" },
-    { name: "Signup", path: "/signup" },
+    { name: "Signup", path: "/signup" }
   ];
 
   const registeredDropDownLinks = [
     { name: "My Profile", path: "/profile" },
-    { name: "Basic Info", path: "/contactus" },
+    { name: "Basic Info", path: "/contactus" }
   ];
 
   const unRegisteredDropDownLinks = [];

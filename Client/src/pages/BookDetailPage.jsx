@@ -12,6 +12,8 @@ const BookDetailPage = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
+  const [reviews, setReviews] = useState([]);
+  const [reviewText, setReviewText] = useState('');
   const { user } = useUser();
 
   useEffect(() => {
@@ -20,20 +22,31 @@ const BookDetailPage = () => {
       return;
     }
 
-    // Make an API call to fetch books from the server
+    // Fetch books with matching titles
     axios.get('/api/books/getBooksMatchingTitles', {
       params: { bookName: book.title }
     })
       .then(response => {
-        // If the request is successful, update the books array with the received data
         setBooks(response.data);
-        setLoading(false); // Set loading to false when data is fetched
+        setLoading(false);
         console.log("Books loaded from the server:", response.data);
       })
       .catch(error => {
-        // Handle any errors that occur during the request
-        setLoading(false); // Set loading to false in case of error
+        setLoading(false);
         console.error("Error fetching books:", error.message);
+      });
+
+    // Fetch reviews for the book
+    axios.get(`/api/books/${book.id}/reviews`)
+      .then(response => {
+        const reviewsWithParsedDates = response.data.reviews.map(review => ({
+          ...review,
+          reviewedAt: new Date(review.reviewedAt.seconds * 1000) // Convert Firestore Timestamp to JS Date
+        }));
+        setReviews(reviewsWithParsedDates);
+      })
+      .catch(error => {
+        console.error("Error fetching reviews:", error.message);
       });
   }, [book, navigate]);
 
@@ -42,15 +55,12 @@ const BookDetailPage = () => {
       alert("You have to login");
     } else {
       try {
-        // Add user to the waiting list
         await axios.post(`/api/books/${book.id}/waiting-list`, { uid: user.uid });
-
-        // Add entry to the user's borrowBooks-list
         await axios.post(`/api/users/${user.uid}/borrow-books-list`, { title: book.title });
         setSuccessMessage("Your order was placed successfully.\nWe'll notify you as soon as your book is ready for pickup!");
         setTimeout(() => {
           setSuccessMessage('');
-        }, 6000); // Clear the success message after 3 seconds
+        }, 6000); // Clear the success message after 6 seconds
       } catch (error) {
         console.error("Error handling order:", error.response ? error.response.data.message : error.message);
         alert(`${error.response ? error.response.data.message : "Server error"}`);
@@ -58,22 +68,99 @@ const BookDetailPage = () => {
     }
   };
 
+  const handleReviewSubmit = async () => {
+    if (!user) {
+      alert("You have to login to submit a review.");
+      return;
+    }
+    if (!reviewText.trim()) {
+      alert("Review text cannot be empty.");
+      return;
+    }
+
+    try {
+      await axios.post(`/api/books/${book.id}/reviews`, {
+        uid: user.uid,
+        displayName: user.displayName,
+        review: reviewText.trim(),
+        reviewedAt: new Date() // Use JavaScript Date for the new review
+      });
+      setSuccessMessage("Review submitted successfully!");
+      setReviews([...reviews, {
+        uid: user.uid,
+        displayName: user.displayName,
+        review: reviewText.trim(),
+        reviewedAt: new Date() // Add new review with current date
+      }]);
+      setReviewText('');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000); // Clear the success message after 3 seconds
+    } catch (error) {
+      console.error("Error submitting review:", error.response ? error.response.data.message : error.message);
+      alert(`${error.response ? error.response.data.message : "Server error"}`);
+    }
+  };
+
   return (
-    <>
-      <div className="container mx-auto px-2 md:px-4 py-8 max-w-xl bg-gray-400 shadow-md rounded-lg relative mt-10">
-        <h1 className="text-3xl md:text-4xl font-bold text-center text-black mb-6">{book.title}</h1>
+    <div className="container mx-auto px-2 md:px-4 py-8 mt-10 flex flex-col lg:flex-row lg:space-x-8 space-y-8 lg:space-y-0">
+      {/* Reviews Section */}
+      <div className="lg:w-1/4 bg-gray-400 shadow-md rounded-lg p-4 max-h-[450px] overflow-y-auto order-2 lg:order-1">
+        <h2 className="text-xl font-bold mb-4 text-center lg:text-left">User Reviews</h2>
+        <div className="mb-4">
+          {user ? (
+            <div className="flex flex-col space-y-4">
+              <textarea
+                className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                placeholder="Write your review..."
+                value={reviewText}
+                onChange={e => setReviewText(e.target.value)}
+              />
+              <button
+                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none"
+                onClick={handleReviewSubmit}
+              >
+                Submit Review
+              </button>
+            </div>
+          ) : (
+            <p className="text-center text-gray-700">You need to log in to submit a review.</p>
+          )}
+        </div>
+        {reviews.length > 0 ? (
+          <div className="space-y-4">
+            {reviews.map((review, index) => (
+              <div key={index} className="bg-gray-50 p-3 rounded-lg shadow-md">
+                <p className="font-semibold">{review.displayName}</p>
+                <p className="text-gray-600">{review.review}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {new Date(review.reviewedAt).toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-gray-700">No reviews yet. Be the first to review!</p>
+        )}
+      </div>
+
+      {/* Book Details Section */}
+      <div className="lg:flex-1 bg-gray-400 shadow-md rounded-lg p-6 order-1 lg:order-2">
+        <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-6">{book.title}</h1>
         <div className="flex flex-col md:flex-row items-center md:justify-between">
           <div className="w-full md:w-1/2 md:pr-8">
-            <img src={book.imageURL} alt={book.title} className="w-full h-64 md:h-96 object-cover rounded-lg" />
+            <div className="h-64 md:h-96 w-full flex items-center justify-center overflow-hidden rounded-lg bg-gray-200">
+              <img src={book.imageURL} alt={book.title} className="max-h-full max-w-full object-contain" />
+            </div>
           </div>
           <div className="w-full md:w-1/2 md:pl-8">
-            <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200" style={{ scrollbarTrackColor: 'transparent' }}>
-              <p className="text-gray-700 text-right pr-2">{book.summary}</p>
-              <p className="text-sm text-gray-500 mt-2 text-right pr-2">{book.author}</p>
+            <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-200 p-2" style={{ scrollbarTrackColor: 'transparent' }}>
+              <p className="text-gray-700 text-right">{book.summary}</p>
+              <p className="text-sm text-gray-500 mt-2 text-right">{book.author}</p>
             </div>
             <div className="mt-4 md:text-right">
               <button
-                className={user ? "bg-gray-700 text-white hover:bg-blue-700 text-gray-50 font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline" : "bg-gray-700 text-gray-50 font-bold py-3 px-6 rounded opacity-50"}
+                className={user ? "bg-blue-600 text-white hover:bg-blue-700 font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline" : "bg-blue-300 text-gray-50 font-bold py-3 px-6 rounded opacity-50"}
                 onClick={handleOrderNow}
               >
                 Order now
@@ -89,7 +176,8 @@ const BookDetailPage = () => {
       </div>
 
       {/* Recommendations Section */}
-      <div className="container mx-auto px-4 py-8 mt-8">
+      <div className="lg:w-1/4 bg-gray-400 shadow-md rounded-lg p-4 order-3">
+        <h2 className="text-xl font-bold mb-4 text-center lg:text-left">Recommendations</h2>
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <FaSpinner className="animate-spin text-4xl text-gray-700" />
@@ -100,35 +188,30 @@ const BookDetailPage = () => {
             {books.length === 0 ? (
               <p className="text-4xl font-bold text-center">We currently don't have any recommendations for you, but you can always assist the librarian!</p>
             ) : (
-              <>
-                <h2 className="text-3xl font-bold mb-4 text-center">You might also want to read...</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
-                  {books.map((book, index) => (
-                    <div
-                      key={index}
-                      className="bg-gray-700 shadow-xl rounded-lg p-4 text-center h-96 w-56 mx-auto cursor-pointer"
-                      onClick={() => navigate(`/book/${book.title}`, { state: { book } })}
-                    >
-                      <div className="h-4/5 w-full">
-                        <img
-                          src={book.imageURL}
-                          alt={book.title}
-                          className="h-full w-full object-cover rounded-lg"
-                        />
-                      </div>
-                      <div className="h-1/5">
-                        <h2 className="text-xl font-semibold text-white">{book.title}</h2>
-                        <p className="text-gray-300">by {book.author}</p>
-                      </div>
+              <div className="grid grid-cols-1 gap-4">
+                {books.map((book, index) => (
+                  <div
+                    key={index}
+                    className="bg-white shadow-md rounded-lg p-4 cursor-pointer"
+                    onClick={() => navigate(`/book/${book.title}`, { state: { book } })}
+                  >
+                    <div className="h-40 w-full flex items-center justify-center overflow-hidden rounded-lg mb-2 bg-gray-200">
+                      <img
+                        src={book.imageURL}
+                        alt={book.title}
+                        className="max-h-full max-w-full object-contain"
+                      />
                     </div>
-                  ))}
-                </div>
-              </>
+                    <h2 className="text-xl font-semibold text-gray-900">{book.title}</h2>
+                    <p className="text-gray-600">by {book.author}</p>
+                  </div>
+                ))}
+              </div>
             )}
           </>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

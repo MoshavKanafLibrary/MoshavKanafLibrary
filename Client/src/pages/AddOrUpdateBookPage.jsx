@@ -77,6 +77,7 @@ const AddOrUpdateBookPage = () => {
       if (result.status === 200) {
         setSuccessMessage(isEditMode ? "Book updated successfully" : "Book added successfully");
         setError("");
+
         // Clear form fields if in add mode
         if (!isEditMode) {
           setTitle("");
@@ -89,6 +90,11 @@ const AddOrUpdateBookPage = () => {
           setSummary("");
           setCopies(0);
           setCopiesID([]);
+          
+          // Notify all users about the new book
+          if (!isEditMode) {
+            await notifyAllUsers(title);
+          }
         }
       } else {
         setError(`Failed to ${isEditMode ? 'update' : 'add'} the book: ${result.data.message}`);
@@ -101,25 +107,45 @@ const AddOrUpdateBookPage = () => {
     setIsLoading(false);
   };
 
+  const notifyAllUsers = async (bookTitle) => {
+    try {
+      // Fetch all users
+      const usersResponse = await axios.get('/api/users');
+      const users = usersResponse.data.users;
+
+      // Send notification to each user
+      const notificationPromises = users.map(user =>
+        axios.post(`/api/users/${user.id}/notifications`, {
+          message: `A new book titled "${bookTitle}" has been added to the library. Check it out now!`
+        })
+      );
+
+      await Promise.all(notificationPromises);
+      console.log("Users notified successfully about the new book.");
+    } catch (error) {
+      console.error(`Error notifying users: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
   const headerText = isEditMode ? "Update a book" : "Add a book";
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full">
-       <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">{headerText}</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-br from-gray-200 via-gray-400 to-gray-200 text-gray-50">
+      <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-black">{headerText}</h1>
       <form
-        className="bg-bg-navbar-custom shadow-2xl rounded-lg md:px-16 px-4 pt-10 pb-12 w-full sm:w-3/4 lg:w-1/2"
+        className="bg-gray-900 shadow-2xl rounded-lg md:px-16 px-4 pt-10 pb-12 w-full sm:w-3/4 lg:w-1/2"
         onSubmit={(e) => {
           e.preventDefault();
           handleFormSubmit();
         }}
       >
         {/* Form fields */}
-        {/* Title */}
-        <div className="border-2 bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="border-2 border-gray-700 rounded-lg p-4 mb-4">
+          {/* Title */}
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">Title</label>
             <input
-              className="bg-bg-navbar-custom shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="Enter book title"
               value={title}
@@ -131,7 +157,7 @@ const AddOrUpdateBookPage = () => {
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">Author's Name</label>
             <input
-              className="bg-bg-navbar-custom shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="Enter author's name"
               value={author}
@@ -143,7 +169,7 @@ const AddOrUpdateBookPage = () => {
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">Image URL</label>
             <input
-              className="bg-bg-navbar-custom shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="Enter Image URL"
               value={imageURL}
@@ -152,10 +178,10 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           {/* Expenditure */}
-          <div class="mb-4">
-            <label class="block text-gray-50 text-md mb-2">Expenditure</label>
+          <div className="mb-4">
+            <label className="block text-gray-50 text-md mb-2">Expenditure</label>
             <input
-              class="bg-bg-navbar-custom shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="Enter expenditure"
               value={expenditure}
@@ -164,10 +190,10 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           {/* Title Type */}
-          <div class="mb-4">
-            <label class="block text-gray-50 text-md mb-2">Title Type</label>
+          <div className="mb-4">
+            <label className="block text-gray-50 text-md mb-2">Title Type</label>
             <select
-              class="bg-bg-navbar-custom shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               value={titleType}
               onChange={(e) => setTitleType(e.target.value)}
             >
@@ -178,10 +204,10 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           {/* Locator Code */}
-          <div class="mb-4">
-            <label class="block text-gray-50 text-md mb-2">Locator Code</label>
+          <div className="mb-4">
+            <label className="block text-gray-50 text-md mb-2">Locator Code</label>
             <input
-              class="bg-bg-navbar-custom shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="Enter locator code"
               value={locatorCode}
@@ -190,10 +216,10 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           {/* Classification */}
-          <div class="mb-4">
-            <label class="block text-gray-50 text-md mb-2">Classification</label>
+          <div className="mb-4">
+            <label className="block text-gray-50 text-md mb-2">Classification</label>
             <input
-              class="bg-bg-navbar-custom shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               placeholder="Enter classification"
               value={classification}
               onChange={(e) => setClassification(e.target.value)}
@@ -201,10 +227,10 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           {/* Summary */}
-          <div class="mb-4">
-            <label class="block text-gray-50 text-md mb-2">Summary</label>
+          <div className="mb-4">
+            <label className="block text-gray-50 text-md mb-2">Summary</label>
             <input
-              class="bg-bg-navbar-custom shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               placeholder="Enter summary"
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
@@ -212,9 +238,10 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           {/* Copies */}
-          <div class="mb-4">
-            <label class="block text-gray-50 text-md mb-2">Copies</label>
+          <div className="mb-4">
+            <label className="block text-gray-50 text-md mb-2">Copies</label>
             <input
+              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               type="number"
               placeholder="Enter number of copies"
               value={copies}
@@ -228,12 +255,12 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           {/* Copy IDs */}
-          <div class="mb-4">
-            <label class="block text-gray-50 text-md mb-2">Copy IDs</label>
+          <div className="mb-4">
+            <label className="block text-gray-50 text-md mb-2">Copy IDs</label>
             {Array.from({ length: copies }, (_, index) => (
               <input
                 key={index}
-                class="bg-bg-navbar-custom shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+                className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
                 type="text"
                 placeholder={`Enter ID for copy ${index + 1}`}
                 value={copiesID[index]}
@@ -252,7 +279,7 @@ const AddOrUpdateBookPage = () => {
         <div className="flex items-center justify-center mt-10 space-x-4">
           <button
             type="submit"
-            className="bg-green-600 hover:bg-blue-700 text-gray-50 font-bold py-3 px-6 rounded"
+            className="bg-green-600 hover:bg-green-700 text-gray-50 font-bold py-3 px-6 rounded"
           >
             {isEditMode ? "Update Book" : "Add Book"}
           </button>

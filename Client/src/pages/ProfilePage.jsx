@@ -106,6 +106,9 @@ const ProfilePage = () => {
               console.log("Book entry deleted from borrowBooks-list successfully");
 
               setBorrowedBooks(prevBooks => prevBooks.filter(book => book.title !== deleteEntry));
+
+              // Notify managers
+              await notifyManagers(deleteEntry);
             } else {
               console.error("Failed to delete book entry from borrowBooks-list");
             }
@@ -121,6 +124,26 @@ const ProfilePage = () => {
         setShowConfirmPopup(false);
         setDeleteEntry(null);
       }
+    }
+  };
+
+  const notifyManagers = async (bookTitle) => {
+    try {
+      // Fetch all users to find managers
+      const usersResponse = await axios.get('/api/users');
+      const managers = usersResponse.data.users.filter(user => user.isManager);
+
+      // Send notification to each manager
+      const notificationPromises = managers.map(manager =>
+        axios.post(`/api/users/${manager.id}/notifications`, {
+          message: `User ${user.displayName} has canceled the borrow request for the book titled "${bookTitle}".`
+        })
+      );
+
+      await Promise.all(notificationPromises);
+      console.log("Managers notified successfully.");
+    } catch (error) {
+      console.error(`Error notifying managers: ${error.response?.data?.message || error.message}`);
     }
   };
 

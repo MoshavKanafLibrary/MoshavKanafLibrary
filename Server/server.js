@@ -15,6 +15,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
@@ -1439,3 +1440,140 @@ app.get("/api/books/:id/rating-status", async (req, res) => {
   }
 });
 
+// Endpoint to create a new user request
+app.post("/api/requests", async (req, res) => {
+  try {
+    const { uid, username, requestText } = req.body;
+
+    if (!uid || !username || !requestText) {
+      return res.status(400).json({ success: false, message: "User ID, username, and request text are required" });
+    }
+
+    // Reference to the "requests" collection
+    const requestsCollectionRef = collection(db, "requests");
+
+    // Create a new document in the "requests" collection
+    await addDoc(requestsCollectionRef, {
+      uid,
+      username,
+      requestText,
+      timestamp: new Date() // Optional: add a timestamp for when the request was made
+    });
+
+    res.status(201).json({ success: true, message: "Request submitted successfully" });
+  } catch (error) {
+    console.error("Error creating user request:", error);
+    res.status(500).json({ success: false, message: "Failed to submit request" });
+  }
+});
+
+// Endpoint to get all user requests
+app.get("/api/requests", async (req, res) => {
+  try {
+    // Reference to the "requests" collection
+    const requestsCollectionRef = collection(db, "requests");
+    
+    // Get all documents in the "requests" collection
+    const querySnapshot = await getDocs(requestsCollectionRef);
+    const requests = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    if (requests.length === 0) {
+      return res.status(404).json({ success: false, message: "No requests found" });
+    }
+
+    res.status(200).json({ success: true, requests });
+  } catch (error) {
+    console.error("Error fetching user requests:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch requests" });
+  }
+});
+
+
+// Handler for deleting a request by ID
+app.delete("/api/requests/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const requestRef = doc(db, "requests", id);
+    const requestSnap = await getDoc(requestRef);
+
+    if (!requestSnap.exists()) {
+      return res.status(404).json({ success: false, message: "Request not found" });
+    }
+
+    await deleteDoc(requestRef);
+
+    return res.status(200).json({ success: true, message: "Request deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting request:", error);
+    return res.status(500).json({ success: false, message: `Failed to delete request: ${error.message}` });
+  }
+});
+// Handler for adding a review to a book
+app.post("/api/books/:id/reviews", async (req, res) => {
+  const { id } = req.params;
+  const { uid, displayName, review } = req.body;
+
+  if (!uid || !displayName || !review) {
+    return res.status(400).json({ success: false, message: "User ID, display name, and review text are required" });
+  }
+
+  const bookRef = doc(db, "books", id);
+
+  try {
+    const docSnap = await getDoc(bookRef);
+    if (!docSnap.exists()) {
+      return res.status(404).json({ success: false, message: "Book not found" });
+    }
+
+    let bookData = docSnap.data();
+    
+    // Initialize reviews array if it does not exist
+    if (!bookData.reviews) {
+      bookData.reviews = [];
+    }
+
+    // Add the new review
+    const newReview = {
+      uid,
+      displayName,
+      review,
+      reviewedAt: new Date() // Timestamp for when the review was made
+    };
+
+    bookData.reviews.push(newReview);
+
+    // Update the document with the new reviews
+    await updateDoc(bookRef, { reviews: bookData.reviews });
+
+    res.status(200).json({ success: true, message: "Review added successfully" });
+  } catch (error) {
+    console.error("Error adding review:", error);
+    res.status(500).json({ success: false, message: `Failed to add review: ${error.message}` });
+  }
+});
+
+// Handler for fetching all reviews for a book
+app.get("/api/books/:id/reviews", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const bookRef = doc(db, "books", id);
+    const docSnap = await getDoc(bookRef);
+
+    if (!docSnap.exists()) {
+      return res.status(404).json({ success: false, message: "Book not found" });
+    }
+
+    const bookData = docSnap.data();
+    const reviews = bookData.reviews ? bookData.reviews.reverse() : [];
+
+    res.status(200).json({ success: true, reviews });
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+    res.status(500).json({ success: false, message: `Failed to fetch reviews: ${error.message}` });
+  }
+});
