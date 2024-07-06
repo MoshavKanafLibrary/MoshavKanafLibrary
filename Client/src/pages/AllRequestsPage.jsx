@@ -57,7 +57,7 @@ const AllRequestsPage = () => {
       if (response.data.success) {
         setRequests(requests.filter(request => request.id !== id));
         setFilteredRequests(filteredRequests.filter(request => request.id !== id));
-        setSuccessMessage("Request deleted successfully.");
+        setSuccessMessage("הבקשה נמחקה בהצלחה.");
       } else {
         console.error("Failed to delete request:", response.data.message);
       }
@@ -73,10 +73,10 @@ const AllRequestsPage = () => {
     try {
       setLoading(true);
       const response = await axios.post(`/api/users/${uid}/notifications`, {
-        message: "Thank you for your book request!",
+        message: "תודה על בקשת הספר שלך!",
       });
       if (response.data.success) {
-        setSuccessMessage("User notified successfully.");
+        setSuccessMessage("המשתמש קיבל התראה בהצלחה.");
       } else {
         console.error("Failed to send notification:", response.data.message);
       }
@@ -95,17 +95,17 @@ const AllRequestsPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10">
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
         {successMessage && (
           <div className="mb-4 p-4 text-center text-white bg-green-500 rounded-lg">
             {successMessage}
           </div>
         )}
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">All User Requests</h1>
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">כל הבקשות של המשתמשים</h1>
         <input
           type="text"
           className="w-full p-2 mb-4 text-lg"
-          placeholder="Search requests..."
+          placeholder="חפש בקשות..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
@@ -113,23 +113,23 @@ const AllRequestsPage = () => {
           <table className="min-w-full bg-white rounded-lg shadow-lg">
             <thead className="bg-gray-800 text-white text-lg">
               <tr>
-                <th className="py-4 px-6 text-left">UID</th>
-                <th className="py-4 px-6 text-left">Username</th>
-                <th className="py-4 px-6 text-left">Request</th>
-                <th className="py-4 px-6 text-left">Timestamp</th>
-                <th className="py-4 px-6 text-left">Actions</th>
+                <th className="py-4 px-6 text-right">UID</th>
+                <th className="py-4 px-6 text-right">שם משתמש</th>
+                <th className="py-4 px-6 text-right">בקשה</th>
+                <th className="py-4 px-6 text-right">חותמת זמן</th>
+                <th className="py-4 px-6 text-right">פעולות</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
               {currentRequests.length > 0 ? currentRequests.map((request, index) => (
                 <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
-                  <td className="py-4 px-6 text-left">{request.uid}</td>
-                  <td className="py-4 px-6 text-left">{request.username}</td>
-                  <td className="py-4 px-6 text-left">{request.requestText}</td>
-                  <td className="py-4 px-6 text-left">
+                  <td className="py-4 px-6 text-right">{request.uid}</td>
+                  <td className="py-4 px-6 text-right">{request.username}</td>
+                  <td className="py-4 px-6 text-right">{request.requestText}</td>
+                  <td className="py-4 px-6 text-right">
                     {new Date(request.timestamp.seconds * 1000).toLocaleString()}
                   </td>
-                  <td className="py-4 px-6 text-left flex space-x-2">
+                  <td className="py-4 px-6 text-right flex space-x-2">
                     <button
                       onClick={() => notifyUser(request.uid)}
                       className="text-blue-500 hover:text-blue-700"
@@ -144,7 +144,7 @@ const AllRequestsPage = () => {
                     </button>
                   </td>
                 </tr>
-              )) : <tr><td colSpan="5" className="text-center py-4">No requests found</td></tr>}
+              )) : <tr><td colSpan="5" className="text-center py-4">לא נמצאו בקשות</td></tr>}
             </tbody>
           </table>
         </div>

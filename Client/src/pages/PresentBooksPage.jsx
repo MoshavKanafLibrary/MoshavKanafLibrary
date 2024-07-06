@@ -53,16 +53,16 @@ const PresentBooksPage = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleDelete = async (bookId) => {
-    if (window.confirm('Are you sure you want to delete this book?')) {
+    if (window.confirm('האם אתה בטוח שברצונך למחוק את הספר?')) {
       try {
           await axios.delete(`/api/books/${bookId}`);
           const updatedBooks = books.filter(book => book.id !== bookId);
           setBooks(updatedBooks);
           setFilteredBooks(updatedBooks);
-          setSuccessMessage('The book was deleted successfully');
+          setSuccessMessage('הספר נמחק בהצלחה');
       } catch (error) {
-          console.error('Error deleting the book:', error);
-          alert('Failed to delete the book');
+          console.error('שגיאה במחיקת הספר:', error);
+          alert('נכשל במחיקת הספר');
       }
     }
   };
@@ -78,8 +78,8 @@ const PresentBooksPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 ">
-  <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">Our Book Collection</h1>
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 " dir="rtl">
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">אוסף הספרים שלנו</h1>
         {successMessage && (
           <div className="text-center py-3 px-4 bg-green-200 text-green-800 font-bold rounded-lg">
             {successMessage}
@@ -88,7 +88,7 @@ const PresentBooksPage = () => {
         <input
           type="text"
           className="w-full p-2 mb-4 text-lg"
-          placeholder="Search books..."
+          placeholder="חפש ספרים..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
@@ -96,27 +96,27 @@ const PresentBooksPage = () => {
           <table className="min-w-full bg-white rounded-lg shadow-lg">
             <thead className="bg-gray-800 text-white text-lg">
               <tr>
-                <th className="py-4 px-6 text-left">Title</th>
-                <th className="py-4 px-6 text-left">Author</th>
-                <th className="py-4 px-6 text-left">Classification</th>
-                <th className="py-4 px-6 text-left">Copies</th>
-                <th className="py-4 px-6 text-left">Expenditure</th>
-                <th className="py-4 px-6 text-left">Locator Code</th>
-                <th className="py-4 px-6 text-left">Title Type</th>
-                <th className="py-4 px-6 text-left"></th>
+                <th className="py-4 px-6 text-right">כותרת</th>
+                <th className="py-4 px-6 text-right">מחבר</th>
+                <th className="py-4 px-6 text-right">סיווג</th>
+                <th className="py-4 px-6 text-right">עותקים</th>
+                <th className="py-4 px-6 text-right">הוצאה</th>
+                <th className="py-4 px-6 text-right">קוד מיקום</th>
+                <th className="py-4 px-6 text-right">סוג כותרת</th>
+                <th className="py-4 px-6 text-right"></th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
               {currentBooks.length > 0 ? currentBooks.map((book, index) => (
                 <tr key={index} className="border-b border-gray-200 hover:bg-gray-100 relative">
-                  <td className="py-4 px-6 text-left">{book.title}</td>
-                  <td className="py-4 px-6 text-left">{book.author}</td>
-                  <td className="py-4 px-6 text-left">{book.classification}</td>
-                  <td className="py-4 px-6 text-left">{book.copies}</td>
-                  <td className="py-4 px-6 text-left">{book.expenditure}</td>
-                  <td className="py-4 px-6 text-left">{book.locatorCode}</td>
-                  <td className="py-4 px-6 text-left">{book.titleType}</td>
-                  <td className="py-4 px-6 text-left">
+                  <td className="py-4 px-6 text-right">{book.title}</td>
+                  <td className="py-4 px-6 text-right">{book.author}</td>
+                  <td className="py-4 px-6 text-right">{book.classification}</td>
+                  <td className="py-4 px-6 text-right">{book.copies}</td>
+                  <td className="py-4 px-6 text-right">{book.expenditure}</td>
+                  <td className="py-4 px-6 text-right">{book.locatorCode}</td>
+                  <td className="py-4 px-6 text-right">{book.titleType}</td>
+                  <td className="py-4 px-6 text-right">
                     <button onClick={() => handleUpdate(book)} className="text-green-500 hover:text-green-700 mr-2">
                       <FaEdit />
                     </button>
@@ -125,7 +125,7 @@ const PresentBooksPage = () => {
                     </button>
                   </td>
                 </tr>
-              )) : <tr><td colSpan="8" className="text-center py-4">No books found</td></tr>}
+              )) : <tr><td colSpan="8" className="text-center py-4">לא נמצאו ספרים</td></tr>}
             </tbody>
           </table>
         </div>

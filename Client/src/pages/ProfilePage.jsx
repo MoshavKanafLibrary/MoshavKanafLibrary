@@ -180,8 +180,8 @@ const ProfilePage = () => {
 
   return (
     <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 overflow-x-hidden">
-      <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-black text-center">Profile</h1>
-
+      <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-black text-center">פרופיל</h1>
+  
       <div className="container mx-auto px-4 py-8">
         {loading ? (
           <div className="flex justify-center items-center h-screen">
@@ -190,7 +190,7 @@ const ProfilePage = () => {
         ) : (
           <div>
             <div className="bg-gray-700 p-6 rounded-lg shadow-lg text-center">
-              <h3 className="mt-6 text-2xl text-white">Borrowed Books</h3>
+              <h3 className="mt-6 text-2xl text-white">ספרים מושאלים</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 {borrowedBooks.length > 0 ? (
                   borrowedBooks.map((book, index) => {
@@ -202,7 +202,7 @@ const ProfilePage = () => {
                         : isExpired
                           ? 'bg-red-500'
                           : 'bg-gray-500';
-
+  
                     return (
                       <div
                         key={index}
@@ -210,28 +210,28 @@ const ProfilePage = () => {
                       >
                         <h4 className="text-xl text-white">{book.title}</h4>
                         <p className={`text-md ${dateColor} text-white py-2 px-4 rounded-full`}>
-                          Due Date: {book.dueDate}
+                          תאריך להחזרה: {book.dueDate}
                         </p>
-                        <p className="text-gray-300">Status: {book.status === 'pending' ? 'Pending' : 'Accepted'}</p>
+                        <p className="text-gray-300">סטטוס: {book.status === 'pending' ? 'ממתין' : 'מאושר'}</p>
                         {book.status === 'pending' && (
                           <button
                             className="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                             onClick={() => handleCancel(book.title)}
                           >
-                            Cancel
+                            בטל
                           </button>
                         )}
                       </div>
                     );
                   })
                 ) : (
-                  <p className="text-white col-span-1 sm:col-span-2 text-center mt-4">You haven't borrowed any books yet.</p>
+                  <p className="text-white col-span-1 sm:col-span-2 text-center mt-4">לא השאלת ספרים עדיין.</p>
                 )}
               </div>
             </div>
-
+  
             <div className="bg-gray-700 p-6 rounded-lg shadow-lg text-center mt-8">
-              <h3 className="mt-6 text-2xl text-white">What Have I Already Read?</h3>
+              <h3 className="mt-6 text-2xl text-white">מה כבר קראתי?</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 {readBooks.length > 0 ? (
                   readBooks.map((book, index) => (
@@ -240,21 +240,20 @@ const ProfilePage = () => {
                       className="bg-gray-600 p-4 rounded-lg shadow-lg flex flex-col items-center"
                     >
                       <h4 className="text-xl text-white">{book.title}</h4>
-                      <p className="text-gray-300">Read Date: {book.readDate}</p>
-
-                      {/* Loading Indicator for Ratings */}
+                      <p className="text-gray-300">תאריך קריאה: {book.readDate}</p>
+  
                       {ratingLoading ? (
                         <FaSpinner className="animate-spin text-2xl text-gray-300 mt-4" />
                       ) : (
                         !hasRated[book.title] ? (
                           <div className="mt-4">
-                            <label className="text-white">Rate this book:</label>
+                            <label className="text-white">דרג את הספר:</label>
                             <select
                               className="ml-2 bg-gray-200 p-1 rounded"
                               value={ratings[book.title] || ""}
                               onChange={(e) => handleRatingChange(book.title, parseInt(e.target.value))}
                             >
-                              <option value="">Select a rating</option>
+                              <option value="">בחר דירוג</option>
                               {[1, 2, 3, 4, 5].map(value => (
                                 <option key={value} value={value}>{value}</option>
                               ))}
@@ -263,42 +262,41 @@ const ProfilePage = () => {
                               className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-4 rounded"
                               onClick={() => submitRating(book.title)}
                             >
-                              Submit
+                              שלח
                             </button>
                           </div>
                         ) : (
-                          <p className="text-green-500 mt-4">You have rated this book</p>
+                          <p className="text-green-500 mt-4">דרגת את הספר הזה</p>
                         )
                       )}
                     </div>
                   ))
                 ) : (
-                  <p className="text-white col-span-1 sm:col-span-2 text-center mt-4">You haven't read any books yet.</p>
+                  <p className="text-white col-span-1 sm:col-span-2 text-center mt-4">לא קראת ספרים עדיין.</p>
                 )}
               </div>
             </div>
           </div>
         )}
       </div>
-
-      {/* Confirmation Popup */}
+  
       {showConfirmPopup && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-bold mb-4">Confirm Delete</h2>
-            <p>Are you sure you want to delete this borrow request?</p>
+            <h2 className="text-2xl font-bold mb-4">אשר מחיקה</h2>
+            <p>האם אתה בטוח שברצונך למחוק בקשת השאלה זו?</p>
             <div className="mt-6 flex justify-end">
               <button 
                 onClick={() => setShowConfirmPopup(false)}
                 className="mr-4 px-4 py-2 bg-gray-300 rounded"
               >
-                Cancel
+                בטל
               </button>
               <button 
                 onClick={confirmDelete}
                 className="px-4 py-2 bg-red-600 text-white rounded"
               >
-                Confirm
+                אשר
               </button>
             </div>
           </div>
@@ -306,6 +304,7 @@ const ProfilePage = () => {
       )}
     </div>
   );
+  
 };
 
 export default ProfilePage;

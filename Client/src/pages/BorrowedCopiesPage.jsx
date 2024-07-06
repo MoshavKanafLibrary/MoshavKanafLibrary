@@ -96,8 +96,8 @@ const BorrowedCopiesPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">Borrowed Copies</h1>
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">עותקים מושאלים</h1>
         {successMessage && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
             <span className="block sm:inline"> {successMessage}</span>
@@ -112,7 +112,7 @@ const BorrowedCopiesPage = () => {
         <input
           type="text"
           className="w-full p-2 mb-4 text-lg"
-          placeholder="Search borrowed copies..."
+          placeholder="חפש עותקים מושאלים..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
@@ -120,38 +120,38 @@ const BorrowedCopiesPage = () => {
           <table className="min-w-full bg-white rounded-lg shadow-lg">
             <thead className="bg-gray-800 text-white text-lg">
               <tr>
-                <th className="py-4 px-6 text-left">Title</th>
-                <th className="py-4 px-6 text-left">Borrowed To</th>
-                <th className="py-4 px-6 text-left">Copy ID</th>
-                <th className="py-4 px-6 text-left">Actions</th>
+                <th className="py-4 px-6 text-right">כותר</th>
+                <th className="py-4 px-6 text-right">הושאל ל</th>
+                <th className="py-4 px-6 text-right">מזהה עותק</th>
+                <th className="py-4 px-6 text-right">פעולות</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
               {currentCopies.length > 0 ? currentCopies.map((copy, index) => (
                 <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
-                  <td className="py-4 px-6 text-left">{copy.title}</td>
-                  <td className="py-4 px-6 text-left">
+                  <td className="py-4 px-6 text-right">{copy.title}</td>
+                  <td className="py-4 px-6 text-right">
                     {copy.borrowedTo.map((borrower, i) => (
                       <div key={i} className="mb-2">
-                        <strong>Name:</strong> {borrower.displayName}<br />
-                        <strong>UID:</strong> {borrower.uid}
+                        <strong>שם:</strong> {borrower.displayName}<br />
+                        <strong>מזהה משתמש:</strong> {borrower.uid}
                       </div>
                     ))}
                   </td>
-                  <td className="py-4 px-6 text-left">{copy.copyID}</td>
-                  <td className="py-4 px-6 text-left">
+                  <td className="py-4 px-6 text-right">{copy.copyID}</td>
+                  <td className="py-4 px-6 text-right">
                     {copy.borrowedTo.map((borrower, i) => (
                       <button
                         key={i}
                         onClick={() => returnCopy(copy.copyID, copy.title, borrower.uid)}
                         className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
                       >
-                        Return
+                        החזרה
                       </button>
                     ))}
                   </td>
                 </tr>
-              )) : <tr><td colSpan="4" className="text-center py-4">No borrowed copies found</td></tr>}
+              )) : <tr><td colSpan="4" className="text-center py-4">לא נמצאו עותקים מושאלים</td></tr>}
             </tbody>
           </table>
         </div>

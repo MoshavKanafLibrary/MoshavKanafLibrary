@@ -69,12 +69,12 @@ const AllBooksPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">All Books Collection</h1>
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">אוסף הספרים שלנו</h1>
         <input
           type="text"
           className="w-full p-2 mb-4 text-lg"
-          placeholder="Search books..."
+          placeholder="חפש ספרים..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
@@ -82,27 +82,27 @@ const AllBooksPage = () => {
           <table className="min-w-full bg-white rounded-lg shadow-lg">
             <thead className="bg-gray-800 text-white text-lg">
               <tr>
-                <th className="py-4 px-6 text-left">Title</th>
-                <th className="py-4 px-6 text-left">Author</th>
-                <th className="py-4 px-6 text-left">Classification</th>
-                <th className="py-4 px-6 text-left">Copies</th>
-                <th className="py-4 px-6 text-left">Expenditure</th>
-                <th className="py-4 px-6 text-left">Locator Code</th>
-                <th className="py-4 px-6 text-left">Title Type</th>
+                <th className="py-4 px-6 text-right">כותר</th>
+                <th className="py-4 px-6 text-right">מחבר</th>
+                <th className="py-4 px-6 text-right">סיווג</th>
+                <th className="py-4 px-6 text-right">עותקים</th>
+                <th className="py-4 px-6 text-right">עלות</th>
+                <th className="py-4 px-6 text-right">קוד מיקום</th>
+                <th className="py-4 px-6 text-right">סוג כותר</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
               {currentBooks.length > 0 ? currentBooks.map((book, index) => (
                 <tr key={index} className="border-b border-gray-200 hover:bg-gray-100 relative">
-                  <td className="py-4 px-6 text-left">{book.title}</td>
-                  <td className="py-4 px-6 text-left">{book.author}</td>
-                  <td className="py-4 px-6 text-left">{book.classification}</td>
-                  <td className="py-4 px-6 text-left">{book.copies}</td>
-                  <td className="py-4 px-6 text-left">{book.expenditure}</td>
-                  <td className="py-4 px-6 text-left">{book.locatorCode}</td>
-                  <td className="py-4 px-6 text-left">{book.titleType}</td>
+                  <td className="py-4 px-6 text-right">{book.title}</td>
+                  <td className="py-4 px-6 text-right">{book.author}</td>
+                  <td className="py-4 px-6 text-right">{book.classification}</td>
+                  <td className="py-4 px-6 text-right">{book.copies}</td>
+                  <td className="py-4 px-6 text-right">{book.expenditure}</td>
+                  <td className="py-4 px-6 text-right">{book.locatorCode}</td>
+                  <td className="py-4 px-6 text-right">{book.titleType}</td>
                 </tr>
-              )) : <tr><td colSpan="7" className="text-center py-4">No books found</td></tr>}
+              )) : <tr><td colSpan="7" className="text-center py-4">לא נמצאו ספרים</td></tr>}
             </tbody>
           </table>
         </div>
@@ -123,7 +123,7 @@ const AllBooksPage = () => {
               onClick={exportToExcel}
               className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded"
             >
-              Export to Excel
+              ייצוא לאקסל
             </button>
           </div>
         </div>

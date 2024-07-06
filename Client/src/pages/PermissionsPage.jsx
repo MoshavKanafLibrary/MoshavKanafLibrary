@@ -34,7 +34,7 @@ const PermissionsPage = () => {
       (user.uid && user.uid.toLowerCase().includes(lowerCaseQuery)) ||
       (user.email && user.email.toLowerCase().includes(lowerCaseQuery)) ||
       (user.random && user.random.toString().includes(searchQuery)) ||
-      (user.isManager && (user.isManager ? 'yes' : 'no').includes(lowerCaseQuery))
+      (user.isManager && (user.isManager ? 'כן' : 'לא').includes(lowerCaseQuery))
     );
     setFilteredUsers(filtered);
   }, [searchQuery, users]);
@@ -71,12 +71,12 @@ const PermissionsPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">All Users</h1>
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">כל המשתמשים</h1>
         <input
           type="text"
           className="w-full p-2 mb-4 text-lg"
-          placeholder="Search users by name, ID, email, random ID, or manager status..."
+          placeholder="חפש משתמשים לפי שם, תעודת זהות, אימייל, מזהה רנדומלי, או סטטוס מנהל..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
@@ -84,32 +84,32 @@ const PermissionsPage = () => {
           <table className="min-w-full bg-white rounded-lg shadow-lg">
             <thead className="bg-gray-800 text-white text-lg">
               <tr>
-                <th className="py-4 px-6 text-left">UID</th>
-                <th className="py-4 px-6 text-left">Display Name</th>
-                <th className="py-4 px-6 text-left">Email</th>
-                <th className="py-4 px-6 text-left">Random ID</th>
-                <th className="py-4 px-6 text-left">Manager Permissions</th>
-                <th className="py-4 px-6 text-left">Actions</th>
+                <th className="py-4 px-6 text-right">תעודת זהות</th>
+                <th className="py-4 px-6 text-right">שם תצוגה</th>
+                <th className="py-4 px-6 text-right">אימייל</th>
+                <th className="py-4 px-6 text-right">מזהה רנדומלי</th>
+                <th className="py-4 px-6 text-right">הרשאות מנהל</th>
+                <th className="py-4 px-6 text-right">פעולות</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
               {currentUsers.length > 0 ? currentUsers.map((user, index) => (
                 <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
-                  <td className="py-4 px-6 text-left">{user.uid}</td>
-                  <td className="py-4 px-6 text-left">{user.displayName}</td>
-                  <td className="py-4 px-6 text-left">{user.email}</td>
-                  <td className="py-4 px-6 text-left">{user.random}</td>
-                  <td className="py-4 px-6 text-left">{user.isManager ? 'Yes' : 'No'}</td>
-                  <td className="py-4 px-6 text-left">
+                  <td className="py-4 px-6 text-right">{user.uid}</td>
+                  <td className="py-4 px-6 text-right">{user.displayName}</td>
+                  <td className="py-4 px-6 text-right">{user.email}</td>
+                  <td className="py-4 px-6 text-right">{user.random}</td>
+                  <td className="py-4 px-6 text-right">{user.isManager ? 'כן' : 'לא'}</td>
+                  <td className="py-4 px-6 text-right">
                     <button
                       onClick={() => toggleManagerStatus(user.uid, user.isManager)}
                       className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded"
                     >
-                      {user.isManager ? 'Revoke Manager' : 'Make Manager'}
+                      {user.isManager ? 'בטל מנהל' : 'עשה מנהל'}
                     </button>
                   </td>
                 </tr>
-              )) : <tr><td colSpan="6" className="text-center py-4">No users found</td></tr>}
+              )) : <tr><td colSpan="6" className="text-center py-4">לא נמצאו משתמשים</td></tr>}
             </tbody>
           </table>
         </div>

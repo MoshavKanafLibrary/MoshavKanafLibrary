@@ -46,7 +46,7 @@ const AddOrUpdateBookPage = () => {
 
     // Validate required fields
     if (!copiesID.length || !title.trim() || !author.trim()) {
-      setError("Title, author, and copy ID are required.");
+      setError("שם הספר, שם הסופר ומספרי עותקים נדרשים.");
       setIsLoading(false);
       return;
     }
@@ -75,7 +75,7 @@ const AddOrUpdateBookPage = () => {
       }
 
       if (result.status === 200) {
-        setSuccessMessage(isEditMode ? "Book updated successfully" : "Book added successfully");
+        setSuccessMessage(isEditMode ? "הספר עודכן בהצלחה" : "הספר נוסף בהצלחה");
         setError("");
 
         // Clear form fields if in add mode
@@ -90,18 +90,18 @@ const AddOrUpdateBookPage = () => {
           setSummary("");
           setCopies(0);
           setCopiesID([]);
-          
+
           // Notify all users about the new book
           if (!isEditMode) {
             await notifyAllUsers(title);
           }
         }
       } else {
-        setError(`Failed to ${isEditMode ? 'update' : 'add'} the book: ${result.data.message}`);
+        setError(`נכשל ${isEditMode ? 'לעדכן' : 'להוסיף'} את הספר: ${result.data.message}`);
       }
     } catch (error) {
       console.error("Error adding/updating book:", error);
-      setError(`Failed to ${isEditMode ? 'update' : 'add'} the book: ${error.message}`);
+      setError(`נכשל ${isEditMode ? 'לעדכן' : 'להוסיף'} את הספר: ${error.message}`);
     }
 
     setIsLoading(false);
@@ -116,21 +116,21 @@ const AddOrUpdateBookPage = () => {
       // Send notification to each user
       const notificationPromises = users.map(user =>
         axios.post(`/api/users/${user.id}/notifications`, {
-          message: `A new book titled "${bookTitle}" has been added to the library. Check it out now!`
+          message: `ספר חדש בשם "${bookTitle}" נוסף לספרייה. בדוק אותו עכשיו!`
         })
       );
 
       await Promise.all(notificationPromises);
-      console.log("Users notified successfully about the new book.");
+      console.log("משתמשים קיבלו התראה על הספר החדש בהצלחה.");
     } catch (error) {
-      console.error(`Error notifying users: ${error.response?.data?.message || error.message}`);
+      console.error(`שגיאה בהודעת המשתמשים: ${error.response?.data?.message || error.message}`);
     }
   };
 
-  const headerText = isEditMode ? "Update a book" : "Add a book";
+  const headerText = isEditMode ? "עדכן ספר" : "הוסף ספר";
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-br from-gray-200 via-gray-400 to-gray-200 text-gray-50">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-br from-gray-200 via-gray-400 to-gray-200 text-gray-50" dir="rtl">
       <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-black">{headerText}</h1>
       <form
         className="bg-gray-900 shadow-2xl rounded-lg md:px-16 px-4 pt-10 pb-12 w-full sm:w-3/4 lg:w-1/2"
@@ -143,11 +143,11 @@ const AddOrUpdateBookPage = () => {
         <div className="border-2 border-gray-700 rounded-lg p-4 mb-4">
           {/* Title */}
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">Title</label>
+            <label className="block text-gray-50 text-md mb-2">כותרת</label>
             <input
               className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
-              placeholder="Enter book title"
+              placeholder="הכנס את כותרת הספר"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
@@ -155,11 +155,11 @@ const AddOrUpdateBookPage = () => {
 
           {/* Author */}
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">Author's Name</label>
+            <label className="block text-gray-50 text-md mb-2">שם הסופר</label>
             <input
               className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
-              placeholder="Enter author's name"
+              placeholder="הכנס את שם הסופר"
               value={author}
               onChange={(e) => setAuthor(e.target.value)}
             />
@@ -167,11 +167,11 @@ const AddOrUpdateBookPage = () => {
 
           {/* Image URL */}
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">Image URL</label>
+            <label className="block text-gray-50 text-md mb-2">קישור לתמונה</label>
             <input
               className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
-              placeholder="Enter Image URL"
+              placeholder="הכנס את קישור התמונה"
               value={imageURL}
               onChange={(e) => setImageURL(e.target.value)}
             />
@@ -179,11 +179,11 @@ const AddOrUpdateBookPage = () => {
 
           {/* Expenditure */}
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">Expenditure</label>
+            <label className="block text-gray-50 text-md mb-2">הוצאה</label>
             <input
               className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
-              placeholder="Enter expenditure"
+              placeholder="הכנס את ההוצאה"
               value={expenditure}
               onChange={(e) => setExpenditure(e.target.value)}
             />
@@ -191,25 +191,25 @@ const AddOrUpdateBookPage = () => {
 
           {/* Title Type */}
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">Title Type</label>
+            <label className="block text-gray-50 text-md mb-2">סוג הכותרת</label>
             <select
               className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               value={titleType}
               onChange={(e) => setTitleType(e.target.value)}
             >
-              <option value="books">Books</option>
-              <option value="magazines">Magazines</option>
-              <option value="audio">Audio</option>
+              <option value="books">ספרים</option>
+              <option value="magazines">מגזינים</option>
+              <option value="audio">אודיו</option>
             </select>
           </div>
 
           {/* Locator Code */}
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">Locator Code</label>
+            <label className="block text-gray-50 text-md mb-2">קוד מיקום</label>
             <input
               className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
-              placeholder="Enter locator code"
+              placeholder="הכנס את קוד המיקום"
               value={locatorCode}
               onChange={(e) => setLocatorCode(e.target.value)}
             />
@@ -217,10 +217,10 @@ const AddOrUpdateBookPage = () => {
 
           {/* Classification */}
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">Classification</label>
+            <label className="block text-gray-50 text-md mb-2">סיווג</label>
             <input
               className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Enter classification"
+              placeholder="הכנס את הסיווג"
               value={classification}
               onChange={(e) => setClassification(e.target.value)}
             />
@@ -228,10 +228,10 @@ const AddOrUpdateBookPage = () => {
 
           {/* Summary */}
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">Summary</label>
+            <label className="block text-gray-50 text-md mb-2">תקציר</label>
             <input
               className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
-              placeholder="Enter summary"
+              placeholder="הכנס את התקציר"
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
             />
@@ -239,11 +239,11 @@ const AddOrUpdateBookPage = () => {
 
           {/* Copies */}
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">Copies</label>
+            <label className="block text-gray-50 text-md mb-2">עותקים</label>
             <input
               className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               type="number"
-              placeholder="Enter number of copies"
+              placeholder="הכנס את מספר העותקים"
               value={copies}
               onChange={(e) => {
                 const newCopies = parseInt(e.target.value);
@@ -256,13 +256,13 @@ const AddOrUpdateBookPage = () => {
 
           {/* Copy IDs */}
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">Copy IDs</label>
+            <label className="block text-gray-50 text-md mb-2">מספרי עותקים</label>
             {Array.from({ length: copies }, (_, index) => (
               <input
                 key={index}
                 className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
                 type="text"
-                placeholder={`Enter ID for copy ${index + 1}`}
+                placeholder={`הכנס מספר עותק ${index + 1}`}
                 value={copiesID[index]}
                 onChange={(e) => {
                   const newCopiesID = [...copiesID];
@@ -281,7 +281,7 @@ const AddOrUpdateBookPage = () => {
             type="submit"
             className="bg-green-600 hover:bg-green-700 text-gray-50 font-bold py-3 px-6 rounded"
           >
-            {isEditMode ? "Update Book" : "Add Book"}
+            {isEditMode ? "עדכן ספר" : "הוסף ספר"}
           </button>
         </div>
 

@@ -164,9 +164,6 @@ const BooksPage = () => {
     );
   };
   
-  
-  
-  
   const goToPage = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
@@ -174,9 +171,9 @@ const BooksPage = () => {
   };
 
   return (
-    <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 overflow-x-hidden">
+    <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 overflow-x-hidden" dir="rtl">
       <div>
-        <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-black text-center">Our Books</h1>
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-black text-center">הספרים שלנו</h1>
       </div>
       <div className="container mx-auto px-4 py-8">
         {isLoading ? (
@@ -191,7 +188,7 @@ const BooksPage = () => {
                   className="bg-gray-700 text-white px-4 py-2 rounded-lg"
                   onClick={toggleFilterDropdown}
                 >
-                  Filter
+                  סנן
                 </button>
                 {showFilterDropdown && (
                   <div className="absolute mt-2 bg-gray-800 rounded-lg shadow-lg p-4" ref={filterRef}>
@@ -200,7 +197,7 @@ const BooksPage = () => {
                         className="bg-gray-600 text-white px-4 py-2 rounded-lg"
                         onClick={toggleCategoryDropdown}
                       >
-                        Categories
+                        קטגוריות
                       </button>
                       {showCategoryDropdown && (
                         <div className="flex flex-col space-y-2">
@@ -221,7 +218,7 @@ const BooksPage = () => {
                         className="bg-gray-600 text-white px-4 py-2 rounded-lg"
                         onClick={toggleAuthorDropdown}
                       >
-                        Authors
+                        סופרים
                       </button>
                       {showAuthorDropdown && (
                         <div className="flex flex-col space-y-2">
@@ -242,7 +239,7 @@ const BooksPage = () => {
                         className="bg-gray-600 text-white px-4 py-2 rounded-lg"
                         onClick={toggleRatingDropdown}
                       >
-                        Ratings
+                        דירוגים
                       </button>
                       {showRatingDropdown && (
                         <div className="flex flex-col space-y-2">
@@ -265,11 +262,11 @@ const BooksPage = () => {
               </div>
               <div className="flex items-center justify-end w-full">
                 <FaSearch className="mr-2 text-black" />
-                <label className="text-black text-lg mr-2">Search:</label>
+                <label className="text-black text-lg mr-2">חפש:</label>
                 <input
                   type="text"
                   className="bg-gray-700 text-white px-3 py-2 rounded-lg"
-                  placeholder="Search by title or author"
+                  placeholder="חפש לפי כותרת או סופר"
                   value={searchQuery}
                   onChange={handleSearchInputChange}
                 />
@@ -291,14 +288,10 @@ const BooksPage = () => {
                       />
                     </div>
                     <div className="h-1/5">
-  <h2 className="text-xl font-semibold text-white">{book.title}</h2>
-  <p className="text-gray-300">by <span className="text-gray-300">{book.author}</span></p>
-  <p className="text-gray-300"><span className="text-gray-300">{book.averageRating === 'N/A' ? 'N/A' : getStars(book.averageRating)}</span></p>
-</div>
-
-
-
-
+                      <h2 className="text-xl font-semibold text-white">{book.title}</h2>
+                      <p className="text-gray-300">מאת <span className="text-gray-300">{book.author}</span></p>
+                      <p className="text-gray-300"><span className="text-gray-300">{book.averageRating === 'N/A' ? 'N/A' : getStars(book.averageRating)}</span></p>
+                    </div>
                   </div>
                 ))}
               </div>

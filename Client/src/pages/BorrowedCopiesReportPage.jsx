@@ -53,10 +53,10 @@ const BorrowedCopiesReportPage = () => {
     const dataForExport = filteredCopies.map(copy => {
       // Flatten the borrowedTo array for each copy
       return {
-        Title: copy.title,
-        CopyID: copy.copyID,
-        BorrowerName: copy.borrowedTo.map(borrower => borrower.displayName).join(', '),
-        BorrowerUID: copy.borrowedTo.map(borrower => borrower.uid).join(', ')
+        כותר: copy.title,
+        מזהה_עותק: copy.copyID,
+        שם_משאיל: copy.borrowedTo.map(borrower => borrower.displayName).join(', '),
+        מזהה_משאיל: copy.borrowedTo.map(borrower => borrower.uid).join(', ')
       };
     });
 
@@ -73,12 +73,12 @@ const BorrowedCopiesReportPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">Borrowed Copies Report</h1>
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">דוח עותקים מושאלים</h1>
         <input
           type="text"
           className="w-full p-2 mb-4 text-lg"
-          placeholder="Search borrowed copies..."
+          placeholder="חפש עותקים מושאלים..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
@@ -86,25 +86,25 @@ const BorrowedCopiesReportPage = () => {
           <table className="min-w-full bg-white rounded-lg shadow-lg">
             <thead className="bg-gray-800 text-white text-lg">
               <tr>
-                <th className="py-4 px-6 text-left">Title</th>
-                <th className="py-4 px-6 text-left">Copy ID</th>
-                <th className="py-4 px-6 text-left">Borrower Name</th>
-                <th className="py-4 px-6 text-left">Borrower UID</th>
+                <th className="py-4 px-6 text-right">כותר</th>
+                <th className="py-4 px-6 text-right">מזהה עותק</th>
+                <th className="py-4 px-6 text-right">שם משאיל</th>
+                <th className="py-4 px-6 text-right">מזהה משאיל</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
               {currentCopies.length > 0 ? currentCopies.map((copy, index) => (
                 <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
-                  <td className="py-4 px-6 text-left">{copy.title}</td>
-                  <td className="py-4 px-6 text-left">{copy.copyID}</td>
-                  <td className="py-4 px-6 text-left">
+                  <td className="py-4 px-6 text-right">{copy.title}</td>
+                  <td className="py-4 px-6 text-right">{copy.copyID}</td>
+                  <td className="py-4 px-6 text-right">
                     {copy.borrowedTo.map((borrower, i) => (
                       <div key={i} className="mb-2">
                         {borrower.displayName}
                       </div>
                     ))}
                   </td>
-                  <td className="py-4 px-6 text-left">
+                  <td className="py-4 px-6 text-right">
                     {copy.borrowedTo.map((borrower, i) => (
                       <div key={i} className="mb-2">
                         {borrower.uid}
@@ -112,7 +112,7 @@ const BorrowedCopiesReportPage = () => {
                     ))}
                   </td>
                 </tr>
-              )) : <tr><td colSpan="4" className="text-center py-4">No borrowed copies found</td></tr>}
+              )) : <tr><td colSpan="4" className="text-center py-4">לא נמצאו עותקים מושאלים</td></tr>}
             </tbody>
           </table>
         </div>
@@ -132,7 +132,7 @@ const BorrowedCopiesReportPage = () => {
             onClick={exportToExcel}
             className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded"
           >
-            Export to Excel
+            ייצוא לאקסל
           </button>
         </div>
       </div>

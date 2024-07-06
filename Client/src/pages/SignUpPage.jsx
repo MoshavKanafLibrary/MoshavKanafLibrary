@@ -22,13 +22,13 @@ const SignUpPage = () => {
     setHasClickedCreateAccount(true);
 
     if (password !== confirmPassword) {
-      setError("Password and confirm password do not match.");
+      setError("הסיסמה ואימות הסיסמה אינם תואמים.");
       setIsLoading(false);
       return;
     }
 
     if (displayName.length < 4 || displayName.length > 12) {
-      setError("Display name must be between 4 and 12 characters long.");
+      setError("שם התצוגה חייב להיות בין 4 ל-12 תווים.");
       setIsLoading(false);
       return;
     }
@@ -36,33 +36,33 @@ const SignUpPage = () => {
     try {
       const response = await axios.get(`/api/displaynames/${displayName}`);
       if (!response.data.valid) {
-        setError("Display name is already in use.");
+        setError("שם התצוגה כבר בשימוש.");
         setIsLoading(false);
         return;
       }
     } catch (error) {
-      console.error("Error validating display name", error);
-      setError("Failed to validate display name.");
+      console.error("שגיאה באימות שם התצוגה", error);
+      setError("נכשל באימות שם התצוגה.");
       setIsLoading(false);
       return;
     }
 
     let result = await signUp(auth, email, password);
     if (result.status) {
-      console.log("User created successfully.");
+      console.log("המשתמש נוצר בהצלחה.");
       try {
         const userResponse = await axios.put(`/api/displaynames/${result.user.uid}`, { displayName });
         if (userResponse.status === 200) {
           navigate("/");
         } else {
-          setError("Failed to save display name.");
+          setError("נכשל בשמירת שם התצוגה.");
         }
       } catch (error) {
-        console.error("Error updating display name", error);
-        setError("Failed to update display name.");
+        console.error("שגיאה בעדכון שם התצוגה", error);
+        setError("נכשל בעדכון שם התצוגה.");
       }
     } else {
-      console.log("User creation failed:", result.message);
+      console.log("נכשל ביצירת משתמש:", result.message);
       setError(result.message.replace("Firebase:", "").trim());
     }
     setIsLoading(false);
@@ -74,21 +74,21 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center mt-8">
+    <div className="flex items-center justify-center mt-8" dir="rtl">
       <form
         className="bg-bg-navbar-custom shadow-2xl rounded md:px-8 px-2 pt-6 pb-8 w-full sm:w-1/2 lg:w-1/3"
         onSubmit={handleSubmit}
       >
         <div className="text-center flex justify-center mb-3">
           <h1 className="text-3xl text-gray-50 font-bold mb-5">
-            Create an account
+            צור חשבון
           </h1>
         </div>
 
         <div className="border-2 bg-gray-700 rounded-lg p-4 mb-4">
           <div className="mb-4">
             <label className="block text-gray-50 text-sm mb-2">
-              Email Address
+              כתובת אימייל
             </label>
             <input
               className={
@@ -98,14 +98,14 @@ const SignUpPage = () => {
                   ? "bg-red-200 shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
                   : "bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               }
-              placeholder="Your email address"
+              placeholder="הכנס את כתובת האימייל שלך"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="mb-3">
             <label className="block text-gray-50 text-sm mb-2">
-              Password
+              סיסמה
             </label>
             <input
               className={
@@ -114,14 +114,14 @@ const SignUpPage = () => {
                   : "bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 mb-3 leading-tight focus:outline-none focus:shadow-outline"
               }
               type="password"
-              placeholder="Your password"
+              placeholder="הכנס סיסמה"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <div className="mb-3">
             <label className="block text-gray-50 text-sm mb-2">
-              Confirm Password
+              אימות סיסמה
             </label>
             <input
               className={
@@ -131,22 +131,22 @@ const SignUpPage = () => {
                   : "bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 mb-3 leading-tight focus:outline-none focus:shadow-outline"
               }
               type="password"
-              placeholder="Re-enter your password"
+              placeholder="הכנס שוב את הסיסמה"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
           <div className="mb-3">
             <label className="block text-gray-50 text-sm mb-2">
-              Display Name
+              שם תצוגה
             </label>
             <input
               className={
-                error && error.includes("Display name")
+                error && error.includes("שם התצוגה")
                   ? "bg-red-200 shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
                   : "bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               }
-              placeholder="Your display name"
+              placeholder="הכנס שם תצוגה"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
             />
@@ -161,14 +161,14 @@ const SignUpPage = () => {
               disabled
             >
               <FaSpinner className="animate-spin inline-block h-7 w-7 text-white mr-2" />
-              Loading ..
+              טוען ..
             </button>
           ) : (
             <button
               type="submit"
               className="bg-blue-500 hover:bg-blue-700 text-gray-50 font-bold py-2 px-4 mx-auto mb-4 rounded focus:outline-none focus:shadow-outline"
             >
-              Create Account
+              צור חשבון
             </button>
           )}
         </div>
@@ -179,12 +179,12 @@ const SignUpPage = () => {
         )}
 
         <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-gray-600 rounded-md py-4 px-6">
-          <h2 className="text-gray-50">Already have an account?</h2>
+          <h2 className="text-gray-50">כבר יש לך חשבון?</h2>
           <Link
             className="text-blue-500 rounded focus:outline-none focus:shadow-outline"
             to="/login"
           >
-            Log in here
+            התחבר כאן
           </Link>
         </div>
       </form>

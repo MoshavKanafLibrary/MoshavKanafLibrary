@@ -80,19 +80,19 @@ const NavBar = () => {
   };
 
   const registeredUserNavLinks = [
-    { name: "Contact Us", path: "/contactus" },
-    { name: "Create Book Request", path: "/user-requests" } // Add the link here
+    { name: "צור קשר", path: "/contactus" },
+    { name: "צור בקשת ספר", path: "/user-requests" } // Add the link here
   ].filter(Boolean); // Filter out undefined values
 
   const unRegisteredUserNavLinks = [
-    { name: "Info", path: "/contactus" },
-    { name: "Login", path: "/login" },
-    { name: "Signup", path: "/signup" }
+    { name: "מידע", path: "/contactus" },
+    { name: "התחברות", path: "/login" },
+    { name: "הרשמה", path: "/signup" }
   ];
 
   const registeredDropDownLinks = [
-    { name: "My Profile", path: "/profile" },
-    { name: "Basic Info", path: "/contactus" }
+    { name: "הפרופיל שלי", path: "/profile" },
+    { name: "מידע בסיסי", path: "/contactus" }
   ];
 
   const unRegisteredDropDownLinks = [];
@@ -112,7 +112,7 @@ const NavBar = () => {
             <div className="flex flex-col ml-4">
               <div className="flex flex-row items-center">
                 <h1 className="text-gray-200 text-sm md:text-2xl font-medium">
-                  <Link to="/">Moshav Kanaf</Link>
+                  <Link to="/">מושב כנף</Link>
                 </h1>
               </div>
             </div>
@@ -151,7 +151,7 @@ const NavBar = () => {
                 {showNotifications && (
                   <div className="absolute right-0 mt-2 w-64 max-h-80 bg-white border border-gray-300 rounded-lg shadow-lg overflow-y-auto z-20">
                     {notifications.length === 0 ? (
-                      <div className="p-4 text-gray-700">No notifications</div>
+                      <div className="p-4 text-gray-700">אין התראות</div>
                     ) : (
                       notifications.slice().reverse().map((notification, index) => (
                         <div
