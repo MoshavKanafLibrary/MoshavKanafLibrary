@@ -33,6 +33,8 @@ const WaitingListPage = () => {
                   waitingDate: waitingEntry.Time ? format(new Date(waitingEntry.Time.seconds * 1000), "MMM dd, yyyy p") : 'Date unknown',
                   uid: waitingEntry.uid,
                   email: userData.email,
+                  firstName: userData.firstName, // Adding firstName
+                  lastName: userData.lastName, // Adding lastName
                   bookId: book.id
                 };
               } catch (userError) {
@@ -60,7 +62,8 @@ const WaitingListPage = () => {
   useEffect(() => {
     const lowerCaseQuery = searchQuery.toLowerCase();
     const filtered = waitingList.filter(entry =>
-      (entry.displayName?.toLowerCase() || '').includes(lowerCaseQuery) ||
+      (entry.firstName?.toLowerCase() || '').includes(lowerCaseQuery) ||
+      (entry.lastName?.toLowerCase() || '').includes(lowerCaseQuery) ||
       (entry.email?.toLowerCase() || '').includes(lowerCaseQuery) ||
       (entry.bookTitle?.toLowerCase() || '').includes(lowerCaseQuery) ||
       (entry.waitingDate?.toLowerCase() || '').includes(lowerCaseQuery)
@@ -76,7 +79,7 @@ const WaitingListPage = () => {
   const paginate = pageNumber => setCurrentPage(pageNumber);
 
   const handleRowClick = (entry) => {
-    navigate('/BookBorrowDetails', { state: { bookTitle: entry.bookTitle, displayName: entry.displayName, uid: entry.uid, email: entry.email } });
+    navigate('/BookBorrowDetails', { state: { bookTitle: entry.bookTitle, firstName: entry.firstName, lastName: entry.lastName, phone: entry.phone, uid: entry.uid, email: entry.email } });
   };
 
   const handleDeleteClick = (entry) => {
@@ -118,9 +121,10 @@ const WaitingListPage = () => {
         />
         <div className="flex flex-col space-y-2">
           {/* Header Row */}
-          <div className="hidden sm:grid sm:grid-cols-5 text-center font-bold bg-gray-600 p-4 rounded-lg text-white">
+          <div className="hidden sm:grid sm:grid-cols-6 text-center font-bold bg-gray-600 p-4 rounded-lg text-white">
             <div>Uid</div>
-            <div>שם</div>
+            <div>שם פרטי</div>
+            <div>שם משפחה</div>
             <div>אימייל</div>
             <div>תאריך בקשה</div>
             <div>כותר הספר</div>
@@ -129,7 +133,7 @@ const WaitingListPage = () => {
           {currentItems.length > 0 ? (
             currentItems.map((entry, index) => (
               <div key={index}
-                className={`grid grid-cols-1 sm:grid-cols-5 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer relative ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
+                className={`grid grid-cols-1 sm:grid-cols-6 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer relative ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
                 onMouseEnter={() => setHoverIndex(index)}
                 onMouseLeave={() => setHoverIndex(-1)}
                 onClick={() => handleRowClick(entry)}
@@ -139,7 +143,8 @@ const WaitingListPage = () => {
                 }}
               >
                 <div className="sm:block">{entry.uid}</div>
-                <div className="sm:block">{entry.displayName}</div>
+                <div className="sm:block">{entry.firstName}</div>
+                <div className="sm:block">{entry.lastName}</div>
                 <div className="sm:block">{entry.email}</div>
                 <div className="sm:block">{entry.waitingDate}</div>
                 <div className="sm:block">{entry.bookTitle}</div>

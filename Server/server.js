@@ -832,7 +832,7 @@ app.get("/api/book/getCopiesByTitle", async (req, res) => {
 });
 
 
-// Endpoint to update the borrowedTo field in the copies collection with the user's display name and UID
+// Endpoint to update the borrowedTo field in the copies collection with the user's first name, last name, phone, and UID
 app.put("/api/copies/updateBorrowedTo", async (req, res) => {
   const { copyID, uid } = req.body; // Extract copyID and uid from the request body
 
@@ -851,7 +851,7 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
     }
 
     const userData = userSnapshot.data();
-    const displayName = userData.displayName;
+    const { firstName, lastName, phone } = userData;
 
     // Query to find the specific copy document by copyID field
     const copiesCollectionRef = collection(db, "copies");
@@ -867,7 +867,7 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
     const copyDocRef = querySnapshot.docs[0].ref;
 
     // Construct the new entry for the borrowedTo field
-    const newBorrowedEntry = { displayName, uid };
+    const newBorrowedEntry = { firstName, lastName, phone, uid };
 
     // Fetch the existing borrowedTo field, if it exists
     const copySnapshot = await getDoc(copyDocRef);
@@ -878,8 +878,10 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
     const existingEntryIndex = borrowedToList.findIndex(entry => entry.uid === uid);
 
     if (existingEntryIndex !== -1) {
-      // If the user already exists in the list, update their displayName
-      borrowedToList[existingEntryIndex].displayName = displayName;
+      // If the user already exists in the list, update their firstName, lastName, and phone
+      borrowedToList[existingEntryIndex].firstName = firstName;
+      borrowedToList[existingEntryIndex].lastName = lastName;
+      borrowedToList[existingEntryIndex].phone = phone;
     } else {
       // Otherwise, add the new entry to the list
       borrowedToList.push(newBorrowedEntry);
@@ -894,6 +896,7 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to update borrowedTo field: ${error.message || 'Unknown error'}` });
   }
 });
+
 
 
 

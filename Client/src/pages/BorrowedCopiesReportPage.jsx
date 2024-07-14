@@ -34,8 +34,10 @@ const BorrowedCopiesReportPage = () => {
       copy.title.toLowerCase().includes(lowerCaseQuery) ||
       copy.copyID.toLowerCase().includes(lowerCaseQuery) ||
       copy.borrowedTo.some(borrower =>
-        borrower.displayName.toLowerCase().includes(lowerCaseQuery) ||
-        borrower.uid.toLowerCase().includes(lowerCaseQuery)
+        borrower.firstName.toLowerCase().includes(lowerCaseQuery) ||
+        borrower.lastName.toLowerCase().includes(lowerCaseQuery) ||
+        borrower.uid.toLowerCase().includes(lowerCaseQuery) ||
+        borrower.phone.toLowerCase().includes(lowerCaseQuery)
       )
     );
     setFilteredCopies(filtered);
@@ -55,8 +57,10 @@ const BorrowedCopiesReportPage = () => {
       return {
         כותר: copy.title,
         מזהה_עותק: copy.copyID,
-        שם_משאיל: copy.borrowedTo.map(borrower => borrower.displayName).join(', '),
-        מזהה_משאיל: copy.borrowedTo.map(borrower => borrower.uid).join(', ')
+        שם_פרטי: copy.borrowedTo.map(borrower => borrower.firstName).join(', '),
+        שם_משפחה: copy.borrowedTo.map(borrower => borrower.lastName).join(', '),
+        מזהה_משאיל: copy.borrowedTo.map(borrower => borrower.uid).join(', '),
+        טלפון: copy.borrowedTo.map(borrower => borrower.phone).join(', ')
       };
     });
 
@@ -88,8 +92,10 @@ const BorrowedCopiesReportPage = () => {
               <tr>
                 <th className="py-4 px-6 text-right">כותר</th>
                 <th className="py-4 px-6 text-right">מזהה עותק</th>
-                <th className="py-4 px-6 text-right">שם משאיל</th>
+                <th className="py-4 px-6 text-right">שם פרטי</th>
+                <th className="py-4 px-6 text-right">שם משפחה</th>
                 <th className="py-4 px-6 text-right">מזהה משאיל</th>
+                <th className="py-4 px-6 text-right">טלפון</th>
               </tr>
             </thead>
             <tbody className="text-gray-700">
@@ -100,7 +106,14 @@ const BorrowedCopiesReportPage = () => {
                   <td className="py-4 px-6 text-right">
                     {copy.borrowedTo.map((borrower, i) => (
                       <div key={i} className="mb-2">
-                        {borrower.displayName}
+                        {borrower.firstName}
+                      </div>
+                    ))}
+                  </td>
+                  <td className="py-4 px-6 text-right">
+                    {copy.borrowedTo.map((borrower, i) => (
+                      <div key={i} className="mb-2">
+                        {borrower.lastName}
                       </div>
                     ))}
                   </td>
@@ -111,8 +124,15 @@ const BorrowedCopiesReportPage = () => {
                       </div>
                     ))}
                   </td>
+                  <td className="py-4 px-6 text-right">
+                    {copy.borrowedTo.map((borrower, i) => (
+                      <div key={i} className="mb-2">
+                        {borrower.phone}
+                      </div>
+                    ))}
+                  </td>
                 </tr>
-              )) : <tr><td colSpan="4" className="text-center py-4">לא נמצאו עותקים מושאלים</td></tr>}
+              )) : <tr><td colSpan="6" className="text-center py-4">לא נמצאו עותקים מושאלים</td></tr>}
             </tbody>
           </table>
         </div>

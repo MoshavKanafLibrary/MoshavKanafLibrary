@@ -24,7 +24,7 @@ const UserRequestsPage = () => {
     // Prepare the request data
     const requestData = {
       uid: user.uid,
-      username: user.displayName,
+      username: `${user.firstName} ${user.lastName}`,
       requestText,
     };
 

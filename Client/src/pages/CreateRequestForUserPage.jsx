@@ -87,7 +87,7 @@ const CreateRequestForUserPage = () => {
                 <option value="" disabled>בחר משתמש</option>
                 {users.map(user => (
                   <option key={user.uid} value={user.uid}>
-                    {user.email} - {user.displayName || 'אין שם תצוגה'}
+                    {user.email} - {`${user.firstName} ${user.lastName}`}
                   </option>
                 ))}
               </select>

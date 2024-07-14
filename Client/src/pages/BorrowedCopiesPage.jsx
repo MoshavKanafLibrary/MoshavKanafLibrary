@@ -36,7 +36,8 @@ const BorrowedCopiesPage = () => {
     const filtered = borrowedCopies.filter(copy =>
       copy.title.toLowerCase().includes(lowerCaseQuery) ||
       (copy.borrowedTo.some(borrower => 
-        borrower.displayName.toLowerCase().includes(lowerCaseQuery) ||
+        (borrower.firstName && borrower.firstName.toLowerCase().includes(lowerCaseQuery)) ||
+        (borrower.lastName && borrower.lastName.toLowerCase().includes(lowerCaseQuery)) ||
         borrower.uid.toLowerCase().includes(lowerCaseQuery))) ||
       copy.copyID.toLowerCase().includes(lowerCaseQuery)
     );
@@ -133,7 +134,7 @@ const BorrowedCopiesPage = () => {
                   <td className="py-4 px-6 text-right">
                     {copy.borrowedTo.map((borrower, i) => (
                       <div key={i} className="mb-2">
-                        <strong>שם:</strong> {borrower.displayName}<br />
+                        <strong>שם:</strong> {borrower.firstName} {borrower.lastName}<br />
                         <strong>מזהה משתמש:</strong> {borrower.uid}
                       </div>
                     ))}

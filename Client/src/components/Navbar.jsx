@@ -12,7 +12,7 @@ import { FaBell, FaBars, FaTimes, FaUserShield } from "react-icons/fa";
 const NavBar = () => {
   const { navBarDisplayName } = useContext(UserContext);
   const { user } = useUser();
-  const [userDetails, setUserDetails] = useState({ displayName: "" });
+  const [userDetails, setUserDetails] = useState({ lastName: "" });
   const [showAdminSidebar, setShowAdminSidebar] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -173,7 +173,7 @@ const NavBar = () => {
                 navBarLinks={registeredUserNavLinks}
                 user={user}
                 userDetails={userDetails}
-                userDisplayName={navBarDisplayName}
+                userDisplayName={userDetails.lastName}
               />
             ) : (
               <DropDown

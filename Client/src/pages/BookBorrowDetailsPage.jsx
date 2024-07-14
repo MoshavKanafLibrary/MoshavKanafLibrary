@@ -14,7 +14,9 @@ const BookBorrowDetailsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const bookTitle = location.state?.bookTitle;
-  const displayName = location.state?.displayName;
+  const firstName = location.state?.firstName;
+  const lastName = location.state?.lastName;
+  const phone = location.state?.phone;
   const uid = location.state?.uid;
 
   useEffect(() => {
@@ -55,7 +57,7 @@ const BookBorrowDetailsPage = () => {
           if (updateBorrowResponse.data.success) {
             setCopies(prevCopies => prevCopies.map(copy => {
               if (copy.copyID === copyID) {
-                return { ...copy, borrowedTo: displayName };
+                return { ...copy, borrowedTo: `${firstName} ${lastName}` };
               }
               return copy;
             }));
@@ -130,7 +132,7 @@ const BookBorrowDetailsPage = () => {
                       className="mt-4 bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded max-w-xs"
                       onClick={() => handleBorrow(copy.copyID)}
                     >
-                      השאל ל-{displayName}
+                      השאל ל-{`${firstName} ${lastName}`}
                     </button>
                   )}
                 </div>
@@ -155,8 +157,11 @@ const BookBorrowDetailsPage = () => {
             onClick={handleNotify}
           >
             <FaBell className="mr-2" />
-            הודע ל-{displayName} שהספר מוכן לאיסוף!
+            הודע ל-{`${firstName} ${lastName}`} שהספר מוכן לאיסוף!
           </button>
+          <div className="mt-4">
+            <strong>מספר טלפון:</strong> {phone}
+          </div>
         </>
       )}
       {error && <div className="text-red-500 p-3 rounded bg-gray-100 my-2">{error}</div>}
