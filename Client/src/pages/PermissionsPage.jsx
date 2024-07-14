@@ -30,9 +30,11 @@ const PermissionsPage = () => {
   useEffect(() => {
     const lowerCaseQuery = searchQuery.toLowerCase();
     const filtered = users.filter(user =>
-      (user.displayName && user.displayName.toLowerCase().includes(lowerCaseQuery)) ||
+      (user.firstName && user.firstName.toLowerCase().includes(lowerCaseQuery)) ||
+      (user.lastName && user.lastName.toLowerCase().includes(lowerCaseQuery)) ||
       (user.uid && user.uid.toLowerCase().includes(lowerCaseQuery)) ||
       (user.email && user.email.toLowerCase().includes(lowerCaseQuery)) ||
+      (user.phone && user.phone.toString().includes(searchQuery)) ||
       (user.random && user.random.toString().includes(searchQuery)) ||
       (user.isManager && (user.isManager ? 'כן' : 'לא').includes(lowerCaseQuery))
     );
@@ -76,7 +78,7 @@ const PermissionsPage = () => {
         <input
           type="text"
           className="w-full p-2 mb-4 text-lg"
-          placeholder="חפש משתמשים לפי שם, תעודת זהות, אימייל, מזהה רנדומלי, או סטטוס מנהל..."
+          placeholder="חפש משתמשים לפי שם, תעודת זהות, אימייל, פלאפון, מזהה רנדומלי, או סטטוס מנהל..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
@@ -85,8 +87,10 @@ const PermissionsPage = () => {
             <thead className="bg-gray-800 text-white text-lg">
               <tr>
                 <th className="py-4 px-6 text-right">תעודת זהות</th>
-                <th className="py-4 px-6 text-right">שם תצוגה</th>
+                <th className="py-4 px-6 text-right">שם פרטי</th>
+                <th className="py-4 px-6 text-right">שם משפחה</th>
                 <th className="py-4 px-6 text-right">אימייל</th>
+                <th className="py-4 px-6 text-right">פלאפון</th>
                 <th className="py-4 px-6 text-right">מזהה רנדומלי</th>
                 <th className="py-4 px-6 text-right">הרשאות מנהל</th>
                 <th className="py-4 px-6 text-right">פעולות</th>
@@ -96,8 +100,10 @@ const PermissionsPage = () => {
               {currentUsers.length > 0 ? currentUsers.map((user, index) => (
                 <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
                   <td className="py-4 px-6 text-right">{user.uid}</td>
-                  <td className="py-4 px-6 text-right">{user.displayName}</td>
+                  <td className="py-4 px-6 text-right">{user.firstName}</td>
+                  <td className="py-4 px-6 text-right">{user.lastName}</td>
                   <td className="py-4 px-6 text-right">{user.email}</td>
+                  <td className="py-4 px-6 text-right">{user.phone}</td>
                   <td className="py-4 px-6 text-right">{user.random}</td>
                   <td className="py-4 px-6 text-right">{user.isManager ? 'כן' : 'לא'}</td>
                   <td className="py-4 px-6 text-right">
@@ -109,7 +115,7 @@ const PermissionsPage = () => {
                     </button>
                   </td>
                 </tr>
-              )) : <tr><td colSpan="6" className="text-center py-4">לא נמצאו משתמשים</td></tr>}
+              )) : <tr><td colSpan="8" className="text-center py-4">לא נמצאו משתמשים</td></tr>}
             </tbody>
           </table>
         </div>
