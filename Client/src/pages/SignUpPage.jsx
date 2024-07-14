@@ -11,6 +11,9 @@ const SignUpPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [firstName, setFirstName] = useState(""); // New field
+  const [lastName, setLastName] = useState(""); // New field
+  const [phone, setPhone] = useState(""); // New field
   const [error, setError] = useState("");
   const [hasClickedCreateAccount, setHasClickedCreateAccount] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,19 +50,26 @@ const SignUpPage = () => {
       return;
     }
 
-    let result = await signUp(auth, email, password);
+    let result = await signUp(auth, email, password, displayName, firstName, lastName, phone);
     if (result.status) {
       console.log("המשתמש נוצר בהצלחה.");
       try {
-        const userResponse = await axios.put(`/api/displaynames/${result.user.uid}`, { displayName });
+        const userResponse = await axios.post("/api/users/signUp", {
+          uid: result.user.uid,
+          email,
+          displayName,
+          firstName, // New field
+          lastName, // New field
+          phone, // New field
+        });
         if (userResponse.status === 200) {
           navigate("/");
         } else {
-          setError("נכשל בשמירת שם התצוגה.");
+          setError("נכשל בשמירת פרטי המשתמש.");
         }
       } catch (error) {
-        console.error("שגיאה בעדכון שם התצוגה", error);
-        setError("נכשל בעדכון שם התצוגה.");
+        console.error("שגיאה ביצירת המשתמש", error);
+        setError("נכשל ביצירת המשתמש.");
       }
     } else {
       console.log("נכשל ביצירת משתמש:", result.message);
@@ -149,6 +159,39 @@ const SignUpPage = () => {
               placeholder="הכנס שם תצוגה"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
+            />
+          </div>
+          <div className="mb-3">
+            <label className="block text-gray-50 text-sm mb-2">
+              שם פרטי
+            </label>
+            <input
+              className="bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="הכנס את שמך הפרטי"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+          </div>
+          <div className="mb-3">
+            <label className="block text-gray-50 text-sm mb-2">
+              שם משפחה
+            </label>
+            <input
+              className="bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="הכנס את שם משפחתך"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+            />
+          </div>
+          <div className="mb-3">
+            <label className="block text-gray-50 text-sm mb-2">
+              פלאפון
+            </label>
+            <input
+              className="bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="הכנס את מספר הפלאפון שלך"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
           </div>
         </div>

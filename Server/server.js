@@ -197,8 +197,8 @@ app.put("/api/displaynames/:uid", async (req, res) => {
 // Handler for user sign up
 app.post("/api/users/signUp", async (req, res) => {
   try {
-    console.log(req.body);
-    const { uid, email } = req.body; // Extract email from request body
+    console.log("Request body:", req.body); // Log request body
+    const { uid, email, displayName, firstName, lastName, phone } = req.body; // Extract all fields from request body
     const random = Math.floor(Math.random() * 1000000);
 
     // Reference to the "users" collection
@@ -208,21 +208,27 @@ app.post("/api/users/signUp", async (req, res) => {
     const userRef = doc(usersCollection, uid);
     await setDoc(userRef, {
       uid: uid,
-      email: email, // Add email here
-      displayName: "",
+      email: email,
+      displayName: displayName,
+      firstName: firstName,
+      lastName: lastName,
+      phone: phone,
       random: random,
       isManager: false,
       historyBooks: [] // assuming you want to insert the random number as well
     });
 
+    console.log("User created successfully"); // Log success message
     // Respond with a success message
     res.status(200).json({ success: true });
   } catch (error) {
     // Handle errors
-    console.error("Error creating user", error);
+    console.error("Error creating user:", error); // Log the error
     res.status(500).send("Server error");
   }
 });
+
+
 
 
 

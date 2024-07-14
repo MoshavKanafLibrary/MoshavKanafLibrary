@@ -1,16 +1,17 @@
 import axios from "axios";
-// axios.defaults.baseURL = 'http://localhost:3000';
 
-export const addNewUserToDb = async (user, email, displayName) => {
+export const addNewUserToDb = async (user, email, displayName, firstName, lastName, phone) => {
   const uid = user.uid;
-  console.log(user);
-  console.log(uid);
+  console.log({ uid, email, displayName, firstName, lastName, phone }); // Log all fields to ensure they are not undefined
 
-  // Include displayName in the request body
+  // Include all fields in the request body
   const response = await axios.post("/api/users/signUp", {
     uid: uid,
     email: email,
-    displayName: displayName // Add displayName here
+    displayName: displayName,
+    firstName: firstName,
+    lastName: lastName,
+    phone: phone
   });
 
   return response.data; // Return the response data for further use if needed
