@@ -74,6 +74,36 @@ app.get("/api/users/:uid", async (req, res) => {
   }
 });
 
+// Handler for updating user data by UID
+app.put("/api/users/:uid", async (req, res) => {
+  try {
+    const { uid } = req.params;
+    const { firstName, lastName, phone } = req.body;
+
+    if (!firstName || !lastName || !phone) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+
+    // Reference the user document by UID
+    const userRef = doc(db, "users", uid);
+
+    // Check if the user exists
+    const userSnapshot = await getDoc(userRef);
+    if (!userSnapshot.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Update the user document with new data
+    await updateDoc(userRef, { firstName, lastName, phone });
+
+    res.status(200).json({ success: true, message: "User data updated successfully" });
+  } catch (error) {
+    console.error("Error updating user data", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
 
 app.get('/api/users/:uid/historyBooks', async (req, res) => {
   console.log("Endpoint Hit: /api/users/:uid/historyBooks");

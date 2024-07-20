@@ -23,7 +23,7 @@ import CreateRequestForUserPage from "./pages/CreateRequestForUserPage";
 import useUser from "./hooks/useUser"; // Import the useUser hook
 import BorrowedCopiesReportPage from "./pages/BorrowedCopiesReportPage";
 import AllRequestsPage from "./pages/AllRequestsPage";
- 
+import { MoreInfoPage } from "./components/MoreInfoPage"; // Import the MoreInfoPage
 
 function App() {
   const { user } = useUser();
@@ -62,7 +62,7 @@ function App() {
           <Route path="/BookBorrowDetails/:bookId?" element={<BookBorrowDetailsPage />} />
           <Route path="/book/:bookName" element={<BookDetailPage />} />
           <Route path="/resetpassword" element={<ResetPasswordPage />} />
-          
+          <Route path="/more-info" element={<MoreInfoPage />} /> {}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>

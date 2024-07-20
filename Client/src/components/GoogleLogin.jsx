@@ -1,24 +1,40 @@
 import React from "react";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { addNewUserToDb } from "../api/users";
 import { auth } from "../components/FireBaseAuth";
 import { FcGoogle } from "react-icons/fc";
-const GoogleLogin = ({ setShowAddMoreInfo }) => {
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+const GoogleLogin = () => {
   const provider = new GoogleAuthProvider();
+  const navigate = useNavigate();
 
   const signIn = async () => {
     try {
       const userCredential = await signInWithPopup(auth, provider);
-      // Check if the user is new and add to the database
+      const user = userCredential.user;
+
       if (userCredential._tokenResponse.isNewUser) {
-        const user = userCredential.user;
-        addNewUserToDb(user);
-        setShowAddMoreInfo(true);
+        await axios.post("/api/users/signUp", {
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName,
+          firstName: "",
+          lastName: "",
+          phone: ""
+        });
 
+        navigate("/more-info");
+      } else {
+        const userDoc = await axios.get(`/api/users/${user.uid}`);
+        const { firstName, lastName, phone } = userDoc.data;
+
+        if (!firstName || !lastName || !phone) {
+          navigate("/more-info");
+        } else {
+          navigate("/");
+        }
       }
-      console.log("successfully logged in with google account");
-
-      // Handle successful login
     } catch (error) {
       console.log("error with signing in with google provider", error);
     }
