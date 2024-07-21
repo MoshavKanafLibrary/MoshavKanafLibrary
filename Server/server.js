@@ -1551,13 +1551,14 @@ app.delete("/api/requests/:id", async (req, res) => {
     return res.status(500).json({ success: false, message: `Failed to delete request: ${error.message}` });
   }
 });
+
 // Handler for adding a review to a book
 app.post("/api/books/:id/reviews", async (req, res) => {
   const { id } = req.params;
-  const { uid, displayName, review } = req.body;
+  const { uid, firstName, lastName, review } = req.body;
 
-  if (!uid || !displayName || !review) {
-    return res.status(400).json({ success: false, message: "User ID, display name, and review text are required" });
+  if (!uid || !firstName || !lastName || !review) {
+    return res.status(400).json({ success: false, message: "User ID, first name, last name, and review text are required" });
   }
 
   const bookRef = doc(db, "books", id);
@@ -1578,7 +1579,8 @@ app.post("/api/books/:id/reviews", async (req, res) => {
     // Add the new review
     const newReview = {
       uid,
-      displayName,
+      firstName,
+      lastName,
       review,
       reviewedAt: new Date() // Timestamp for when the review was made
     };
@@ -1594,6 +1596,7 @@ app.post("/api/books/:id/reviews", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to add review: ${error.message}` });
   }
 });
+
 
 // Handler for fetching all reviews for a book
 app.get("/api/books/:id/reviews", async (req, res) => {

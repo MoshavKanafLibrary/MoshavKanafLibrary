@@ -80,14 +80,16 @@ const BookDetailPage = () => {
     try {
       await axios.post(`/api/books/${book.id}/reviews`, {
         uid: user.uid,
-        displayName: user.displayName,
+        firstName: user.firstName, // השתמש בשם פרטי
+        lastName: user.lastName,   // השתמש בשם משפחה
         review: reviewText.trim(),
         reviewedAt: new Date() // Use JavaScript Date for the new review
       });
       setSuccessMessage("הביקורת נשלחה בהצלחה!");
       setReviews([...reviews, {
         uid: user.uid,
-        displayName: user.displayName,
+        firstName: user.firstName,
+        lastName: user.lastName,
         review: reviewText.trim(),
         reviewedAt: new Date() // Add new review with current date
       }]);
@@ -156,7 +158,7 @@ const BookDetailPage = () => {
             <div className="space-y-6">
               {reviews.map((review, index) => (
                 <div key={index} className="bg-white p-4 rounded-lg shadow-md">
-                  <p className="font-semibold">{review.displayName}</p>
+                  <p className="font-semibold">{review.firstName} {review.lastName}</p> {}
                   <p className="text-gray-600">{review.review}</p>
                   <p className="text-xs text-gray-500 mt-2">
                     {new Date(review.reviewedAt).toLocaleString()}
