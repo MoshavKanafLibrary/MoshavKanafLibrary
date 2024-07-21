@@ -100,6 +100,7 @@ const PresentBooksPage = () => {
                 <th className="py-4 px-6 text-right">מחבר</th>
                 <th className="py-4 px-6 text-right">סיווג</th>
                 <th className="py-4 px-6 text-right">עותקים</th>
+                <th className="py-4 px-6 text-right">מספרי עותקים</th>
                 <th className="py-4 px-6 text-right">הוצאה</th>
                 <th className="py-4 px-6 text-right">קוד מיקום</th>
                 <th className="py-4 px-6 text-right">סוג כותרת</th>
@@ -113,6 +114,7 @@ const PresentBooksPage = () => {
                   <td className="py-4 px-6 text-right">{book.author}</td>
                   <td className="py-4 px-6 text-right">{book.classification}</td>
                   <td className="py-4 px-6 text-right">{book.copies}</td>
+                  <td className="py-4 px-6 text-right">{book.copiesID.join(", ")}</td>
                   <td className="py-4 px-6 text-right">{book.expenditure}</td>
                   <td className="py-4 px-6 text-right">{book.locatorCode}</td>
                   <td className="py-4 px-6 text-right">{book.titleType}</td>
@@ -125,7 +127,7 @@ const PresentBooksPage = () => {
                     </button>
                   </td>
                 </tr>
-              )) : <tr><td colSpan="8" className="text-center py-4">לא נמצאו ספרים</td></tr>}
+              )) : <tr><td colSpan="9" className="text-center py-4">לא נמצאו ספרים</td></tr>}
             </tbody>
           </table>
         </div>

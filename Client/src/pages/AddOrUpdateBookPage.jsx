@@ -19,13 +19,11 @@ const AddOrUpdateBookPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Retrieve bookData from location state
   const location = useLocation();
   const navigate = useNavigate();
   const bookData = location.state?.bookData;
-  const isEditMode = Boolean(bookData); // Determine if in update mode
+  const isEditMode = Boolean(bookData);
 
-  // Update state with book data on component mount if in edit mode
   useEffect(() => {
     if (bookData) {
       setTitle(bookData.title || "");
@@ -44,9 +42,8 @@ const AddOrUpdateBookPage = () => {
   const handleFormSubmit = async () => {
     setIsLoading(true);
 
-    // Validate required fields
-    if (!copiesID.length || !title.trim() || !author.trim()) {
-      setError("שם הספר, שם הסופר ומספרי עותקים נדרשים.");
+    if (!copies || !title.trim() || !author.trim()) {
+      setError("שם הספר, שם הסופר ומספר העותקים נדרשים.");
       setIsLoading(false);
       return;
     }
@@ -67,10 +64,8 @@ const AddOrUpdateBookPage = () => {
     let result;
     try {
       if (isEditMode) {
-        // If in update mode, use axios.put to call the update endpoint
         result = await axios.put(`/api/books/update/${bookData.id}`, newBookData);
       } else {
-        // If in add mode, use axios.post to call the add endpoint
         result = await axios.post("/api/books/add", newBookData);
       }
 
@@ -78,7 +73,6 @@ const AddOrUpdateBookPage = () => {
         setSuccessMessage(isEditMode ? "הספר עודכן בהצלחה" : "הספר נוסף בהצלחה");
         setError("");
 
-        // Clear form fields if in add mode
         if (!isEditMode) {
           setTitle("");
           setAuthor("");
@@ -91,10 +85,7 @@ const AddOrUpdateBookPage = () => {
           setCopies(0);
           setCopiesID([]);
 
-          // Notify all users about the new book
-          if (!isEditMode) {
-            await notifyAllUsers(title);
-          }
+          await notifyAllUsers(title);
         }
       } else {
         setError(`נכשל ${isEditMode ? 'לעדכן' : 'להוסיף'} את הספר: ${result.data.message}`);
@@ -109,11 +100,9 @@ const AddOrUpdateBookPage = () => {
 
   const notifyAllUsers = async (bookTitle) => {
     try {
-      // Fetch all users
       const usersResponse = await axios.get('/api/users');
       const users = usersResponse.data.users;
 
-      // Send notification to each user
       const notificationPromises = users.map(user =>
         axios.post(`/api/users/${user.id}/notifications`, {
           message: `ספר חדש בשם "${bookTitle}" נוסף לספרייה. בדוק אותו עכשיו!`
@@ -139,9 +128,7 @@ const AddOrUpdateBookPage = () => {
           handleFormSubmit();
         }}
       >
-        {/* Form fields */}
         <div className="border-2 border-gray-700 rounded-lg p-4 mb-4">
-          {/* Title */}
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">כותרת</label>
             <input
@@ -153,7 +140,6 @@ const AddOrUpdateBookPage = () => {
             />
           </div>
 
-          {/* Author */}
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">שם הסופר</label>
             <input
@@ -165,7 +151,6 @@ const AddOrUpdateBookPage = () => {
             />
           </div>
 
-          {/* Image URL */}
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">קישור לתמונה</label>
             <input
@@ -177,7 +162,6 @@ const AddOrUpdateBookPage = () => {
             />
           </div>
 
-          {/* Expenditure */}
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">הוצאה</label>
             <input
@@ -189,7 +173,6 @@ const AddOrUpdateBookPage = () => {
             />
           </div>
 
-          {/* Title Type */}
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">סוג הכותרת</label>
             <select
@@ -203,7 +186,6 @@ const AddOrUpdateBookPage = () => {
             </select>
           </div>
 
-          {/* Locator Code */}
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">קוד מיקום</label>
             <input
@@ -215,7 +197,6 @@ const AddOrUpdateBookPage = () => {
             />
           </div>
 
-          {/* Classification */}
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">סיווג</label>
             <input
@@ -226,7 +207,6 @@ const AddOrUpdateBookPage = () => {
             />
           </div>
 
-          {/* Summary */}
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">תקציר</label>
             <input
@@ -237,7 +217,6 @@ const AddOrUpdateBookPage = () => {
             />
           </div>
 
-          {/* Copies */}
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">עותקים</label>
             <input
@@ -254,28 +233,20 @@ const AddOrUpdateBookPage = () => {
             />
           </div>
 
-          {/* Copy IDs */}
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">מספרי עותקים</label>
-            {Array.from({ length: copies }, (_, index) => (
+            {copiesID.map((copyID, index) => (
               <input
                 key={index}
                 className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
                 type="text"
-                placeholder={`הכנס מספר עותק ${index + 1}`}
-                value={copiesID[index]}
-                onChange={(e) => {
-                  const newCopiesID = [...copiesID];
-                  newCopiesID[index] = e.target.value;
-                  setCopiesID(newCopiesID);
-                }}
+                value={copyID}
+                readOnly
               />
             ))}
           </div>
-
         </div>
 
-        {/* Submission button */}
         <div className="flex items-center justify-center mt-10 space-x-4">
           <button
             type="submit"
@@ -285,7 +256,6 @@ const AddOrUpdateBookPage = () => {
           </button>
         </div>
 
-        {/* Error and success messages */}
         {error && (
           <p className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded text-center mt-6">
             {error}

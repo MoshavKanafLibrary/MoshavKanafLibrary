@@ -39,7 +39,8 @@ const AllBooksPage = () => {
       book.locatorCode.toLowerCase().includes(lowerCaseQuery) ||
       book.titleType.toLowerCase().includes(lowerCaseQuery) ||
       book.copies.toString().includes(lowerCaseQuery) ||
-      book.expenditure.toString().includes(lowerCaseQuery)
+      book.expenditure.toString().includes(lowerCaseQuery) ||
+      book.copiesID.join(', ').toLowerCase().includes(lowerCaseQuery) // Include copiesID in search
     );
     setFilteredBooks(filtered);
   }, [searchQuery, books]);
@@ -86,6 +87,7 @@ const AllBooksPage = () => {
                 <th className="py-4 px-6 text-right">מחבר</th>
                 <th className="py-4 px-6 text-right">סיווג</th>
                 <th className="py-4 px-6 text-right">עותקים</th>
+                <th className="py-4 px-6 text-right">מספרי עותקים</th> {/* Add copiesID column */}
                 <th className="py-4 px-6 text-right">עלות</th>
                 <th className="py-4 px-6 text-right">קוד מיקום</th>
                 <th className="py-4 px-6 text-right">סוג כותר</th>
@@ -98,11 +100,12 @@ const AllBooksPage = () => {
                   <td className="py-4 px-6 text-right">{book.author}</td>
                   <td className="py-4 px-6 text-right">{book.classification}</td>
                   <td className="py-4 px-6 text-right">{book.copies}</td>
+                  <td className="py-4 px-6 text-right">{book.copiesID.join(', ')}</td> {/* Display copiesID */}
                   <td className="py-4 px-6 text-right">{book.expenditure}</td>
                   <td className="py-4 px-6 text-right">{book.locatorCode}</td>
                   <td className="py-4 px-6 text-right">{book.titleType}</td>
                 </tr>
-              )) : <tr><td colSpan="7" className="text-center py-4">לא נמצאו ספרים</td></tr>}
+              )) : <tr><td colSpan="8" className="text-center py-4">לא נמצאו ספרים</td></tr>}
             </tbody>
           </table>
         </div>

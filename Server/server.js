@@ -542,17 +542,40 @@ app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
 });
 
 
+const getAndUpdateCounter = async (incrementBy) => {
+  const counterRef = doc(db, 'counters', 'bookCounter');
+  const counterDoc = await getDoc(counterRef);
+
+  if (!counterDoc.exists()) {
+    await setDoc(counterRef, { count: 1000 + incrementBy });
+    return 1000;
+  } else {
+    const currentCount = counterDoc.data().count;
+    const newCount = currentCount + incrementBy;
+    await updateDoc(counterRef, { count: newCount });
+    return currentCount;
+  }
+};
+
+const generateCopiesID = async (numCopies) => {
+  const startID = await getAndUpdateCounter(numCopies);
+  return Array.from({ length: numCopies }, (_, index) => startID + index + 1);
+};
+
 // Handler for adding a new book
 app.post("/api/books/add", async (req, res) => {
   try {
-    const { title, copiesID } = req.body; // Extract title and copiesID array from request body
+    const { title, copies } = req.body; // Extract title and number of copies from request body
 
-    // Reference to the "books" collection
-    const booksCollection = collection(db, "books");
-    const copiesCollection = collection(db, "copies");
+    // Generate unique copy IDs
+    const copiesID = await generateCopiesID(copies);
+
+    const newBookData = { ...req.body, copiesID };
+    const booksCollection = collection(db, 'books');
+    const copiesCollection = collection(db, 'copies');
 
     // Create a new document in the "books" collection
-    const docRef = await addDoc(booksCollection, req.body);
+    const docRef = await addDoc(booksCollection, newBookData);
 
     // Create new copies in the "copies" collection for each copyID
     const copiesPromises = copiesID.map(copyID => {
