@@ -15,6 +15,7 @@ const AddOrUpdateBookPage = () => {
   const [summary, setSummary] = useState("");
   const [copies, setCopies] = useState(0);
   const [copiesID, setCopiesID] = useState([]);
+  const [newCopiesCount, setNewCopiesCount] = useState(0);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -96,6 +97,36 @@ const AddOrUpdateBookPage = () => {
     }
 
     setIsLoading(false);
+  };
+
+  const handleAddCopies = async () => {
+    try {
+      const newCopyIds = [];
+      for (let i = 0; i < newCopiesCount; i++) {
+        const response = await axios.post(`/api/books/${bookData.id}/addCopy`);
+        newCopyIds.push(response.data.copyID);
+      }
+      setCopiesID([...copiesID, ...newCopyIds]);
+      setCopies(copies + newCopiesCount);
+      setSuccessMessage("עותקים נוספו בהצלחה.");
+    } catch (error) {
+      console.error("Error adding copies:", error);
+      setError("נכשל להוסיף עותקים: " + error.message);
+    }
+  };
+  
+  
+
+  const handleRemoveCopy = async (copyID) => {
+    try {
+      await axios.delete(`/api/books/${bookData.id}/removeCopy/${copyID}`);
+      setCopiesID(copiesID.filter(id => id !== copyID));
+      setCopies(copies - 1);
+      setSuccessMessage("עותק הוסר בהצלחה.");
+    } catch (error) {
+      console.error("Error removing copy:", error);
+      setError("נכשל להסיר עותק: " + error.message);
+    }
   };
 
   const notifyAllUsers = async (bookTitle) => {
@@ -222,6 +253,8 @@ const AddOrUpdateBookPage = () => {
             <input
               className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
               type="number"
+              min={0}
+              readOnly={isEditMode}
               placeholder="הכנס את מספר העותקים"
               value={copies}
               onChange={(e) => {
@@ -236,15 +269,48 @@ const AddOrUpdateBookPage = () => {
           <div className="mb-4">
             <label className="block text-gray-50 text-md mb-2">מספרי עותקים</label>
             {copiesID.map((copyID, index) => (
-              <input
-                key={index}
-                className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
-                type="text"
-                value={copyID}
-                readOnly
-              />
+              <div key={index} className="flex items-center mb-2">
+                <input
+                  className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+                  type="text"
+                  value={copyID}
+                  readOnly
+                />
+                <button
+                  type="button"
+                  className="bg-red-600 hover:bg-red-700 text-gray-50 font-bold py-2 px-4 rounded ml-2"
+                  onClick={() => handleRemoveCopy(copyID)}
+                >
+                  הסר
+                </button>
+              </div>
             ))}
           </div>
+
+          {isEditMode && (
+            <div className="mb-4">
+              <label className="block text-gray-50 text-md mb-2">הוסף עותקים חדשים</label>
+              <input
+                className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+                type="number"
+                placeholder="מספר העותקים להוספה"
+                value={newCopiesCount}
+                onChange={(e) => {
+                  const count = parseInt(e.target.value);
+                  if (!isNaN(count) && count >= 0) {
+                    setNewCopiesCount(count);
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="bg-blue-600 hover:bg-blue-700 text-gray-50 font-bold py-2 px-4 rounded mt-2"
+                onClick={handleAddCopies}
+              >
+                הוסף עותקים
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-center mt-10 space-x-4">

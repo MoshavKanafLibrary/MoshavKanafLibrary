@@ -148,6 +148,26 @@ app.get('/api/users/:uid/historyBooks', async (req, res) => {
 });
 
 
+const getUniqueCopyID = async () => {
+  let isUnique = false;
+  let newCopyID = await getAndUpdateCounter(1);
+  
+  const copiesCollection = collection(db, 'copies');
+
+  while (!isUnique) {
+    const q = query(copiesCollection, where("copyID", "==", newCopyID));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      isUnique = true;
+    } else {
+      newCopyID += 1;
+    }
+  }
+
+  return newCopyID;
+};
+
 
 
 // // Handler for fetching user by UID
@@ -556,6 +576,9 @@ const getAndUpdateCounter = async (incrementBy) => {
     return currentCount;
   }
 };
+
+
+
 
 const generateCopiesID = async (numCopies) => {
   const startID = await getAndUpdateCounter(numCopies);
@@ -1642,3 +1665,98 @@ app.get("/api/books/:id/reviews", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to fetch reviews: ${error.message}` });
   }
 });
+
+
+
+app.post("/api/books/:id/addCopy", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Reference to the specific book document
+    const bookRef = doc(db, "books", id);
+    const bookSnap = await getDoc(bookRef);
+
+    if (!bookSnap.exists()) {
+      res.status(404).json({ success: false, message: "Book not found" });
+      return;
+    }
+
+    const bookData = bookSnap.data();
+
+    // Generate a unique copy ID
+    const newCopyID = await getUniqueCopyID();
+
+    // Add the new copy to the copies collection
+    const copiesCollection = collection(db, 'copies');
+    await addDoc(copiesCollection, {
+      title: bookData.title,
+      isBorrowed: false,
+      borrowedTo: null,
+      copyID: newCopyID
+    });
+
+    // Update the book document with the new copy ID and increment the number of copies
+    const updatedCopiesID = [...bookData.copiesID, newCopyID];
+    await updateDoc(bookRef, {
+      copies: bookData.copies + 1,
+      copiesID: updatedCopiesID
+    });
+
+    res.status(200).json({ success: true, copyID: newCopyID, message: "Copy added successfully" });
+  } catch (error) {
+    console.error("Error adding copy:", error);
+    res.status(500).send("Failed to add copy");
+  }
+});
+
+
+
+
+
+
+app.delete("/api/books/:id/removeCopy/:copyID", async (req, res) => {
+  try {
+    const { id, copyID } = req.params;
+
+    // Reference to the specific book document
+    const bookRef = doc(db, "books", id);
+    const bookSnap = await getDoc(bookRef);
+
+    if (!bookSnap.exists()) {
+      res.status(404).json({ success: false, message: "Book not found" });
+      return;
+    }
+
+    const bookData = bookSnap.data();
+
+    // Reference to the specific copy document
+    const copiesCollection = collection(db, 'copies');
+    const copyQuery = query(copiesCollection, where("copyID", "==", parseInt(copyID)));
+    const copySnap = await getDocs(copyQuery);
+
+    if (copySnap.empty) {
+      res.status(404).json({ success: false, message: "Copy not found" });
+      return;
+    }
+
+    // Delete the copy document
+    copySnap.forEach(async (doc) => {
+      await deleteDoc(doc.ref);
+    });
+
+    // Update the book document to remove the copy ID and decrement the number of copies
+    const updatedCopiesID = bookData.copiesID.filter(id => id !== parseInt(copyID));
+    await updateDoc(bookRef, {
+      copies: bookData.copies - 1,
+      copiesID: updatedCopiesID
+    });
+
+    res.status(200).json({ success: true, message: "Copy removed successfully" });
+  } catch (error) {
+    console.error("Error removing copy:", error);
+    res.status(500).send("Failed to remove copy");
+  }
+});
+
+
+
