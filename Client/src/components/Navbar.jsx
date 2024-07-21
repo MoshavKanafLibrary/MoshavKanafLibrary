@@ -67,7 +67,7 @@ const NavBar = () => {
           isRead: true,
         }));
         setNotifications(updatedNotifications);
-        setUnreadCount(0); // Reset unread count
+        setUnreadCount(0); 
       } catch (error) {
         console.error("Failed to mark notifications as read", error);
       }
@@ -81,8 +81,9 @@ const NavBar = () => {
 
   const registeredUserNavLinks = [
     { name: "צור קשר", path: "/contactus" },
-    { name: "צור בקשת ספר", path: "/user-requests" } // Add the link here
-  ].filter(Boolean); // Filter out undefined values
+    { name: "צור בקשת ספר", path: "/user-requests" },
+    { name: "עדכון פרטים", path: "/more-info" }
+  ].filter(Boolean); 
 
   const unRegisteredUserNavLinks = [
     { name: "מידע", path: "/contactus" },
