@@ -69,6 +69,7 @@ const WaitingListPage = () => {
       (entry.waitingDate?.toLowerCase() || '').includes(lowerCaseQuery)
     );
     setFilteredWaitingList(filtered);
+    setCurrentPage(1); // Reset to first page on new search
   }, [searchQuery, waitingList]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -101,6 +102,31 @@ const WaitingListPage = () => {
         setDeleteEntry(null);
       }
     }
+  };
+
+  const renderPageNumbers = () => {
+    const pages = [];
+    const maxPageNumbersToShow = 5;
+    const halfRange = Math.floor(maxPageNumbersToShow / 2);
+    let startPage = Math.max(currentPage - halfRange, 1);
+    let endPage = Math.min(startPage + maxPageNumbersToShow - 1, totalPages);
+
+    if (endPage - startPage < maxPageNumbersToShow - 1) {
+      startPage = Math.max(endPage - maxPageNumbersToShow + 1, 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => paginate(i)}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-gray-500 text-white' : 'bg-gray-700 text-gray-300'}`}
+        >
+          {i}
+        </button>
+      );
+    }
+    return pages;
   };
 
   return (
@@ -161,17 +187,25 @@ const WaitingListPage = () => {
             <div className="text-center py-4">לא נמצאו בקשות</div>
           )}
         </div>
-        <div className="flex justify-center mt-4 space-x-1">
-          {Array.from({ length: totalPages }, (_, index) => (
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8">
             <button
-              key={index}
-              onClick={() => paginate(index + 1)}
-              className={`px-2 py-1 rounded ${currentPage === index + 1 ? 'bg-gray-700 hover:bg-gray-800 text-white' : 'bg-gray-300 text-black'}`}
+              className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
             >
-              {index + 1}
+              {'<'}
             </button>
-          ))}
-        </div>
+            {renderPageNumbers()}
+            <button
+              className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              {'>'}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Confirmation Popup */}
