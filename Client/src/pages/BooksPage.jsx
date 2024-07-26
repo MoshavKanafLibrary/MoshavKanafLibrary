@@ -45,6 +45,7 @@ const BooksPage = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 8; // Number of books per page
+  const maxPageNumbersToShow = 5; // Maximum number of page numbers to show at a time
 
   const { user } = useUser();
   const location = useLocation();
@@ -56,7 +57,9 @@ const BooksPage = () => {
   }, 300), []);
 
   const handleSearchInputChange = (event) => {
-    setSearchQuery(event.target.value);
+    const query = event.target.value;
+    setSearchQuery(query);
+    handleSearch(query);
   };
 
   useEffect(() => {
@@ -153,7 +156,7 @@ const BooksPage = () => {
     }
     const goldStars = Math.floor(rating); // Number of gold stars
     const grayStars = 5 - goldStars; // Number of gray stars
-  
+
     return (
       <span className="text-yellow-500 inline-block">
         {'★'.repeat(goldStars)}
@@ -163,11 +166,35 @@ const BooksPage = () => {
       </span>
     );
   };
-  
+
   const goToPage = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
     }
+  };
+
+  const renderPageNumbers = () => {
+    const pages = [];
+    const halfRange = Math.floor(maxPageNumbersToShow / 2);
+    let startPage = Math.max(currentPage - halfRange, 1);
+    let endPage = Math.min(startPage + maxPageNumbersToShow - 1, totalPages);
+
+    if (endPage - startPage < maxPageNumbersToShow - 1) {
+      startPage = Math.max(endPage - maxPageNumbersToShow + 1, 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          className={`px-4 py-2 mx-2 rounded-lg ${i === currentPage ? 'bg-gray-500 text-white' : 'bg-gray-700 text-gray-300'}`}
+          onClick={() => goToPage(i)}
+        >
+          {i}
+        </button>
+      );
+    }
+    return pages;
   };
 
   return (
@@ -297,15 +324,21 @@ const BooksPage = () => {
               </div>
               {totalPages > 1 && (
                 <div className="flex justify-center mt-8">
-                  {[...Array(totalPages)].map((_, pageNumber) => (
-                    <button
-                      key={pageNumber + 1}
-                      className={`px-4 py-2 mx-2 rounded-lg ${pageNumber + 1 === currentPage ? 'bg-gray-500 text-white' : 'bg-gray-700 text-gray-300'}`}
-                      onClick={() => goToPage(pageNumber + 1)}
-                    >
-                      {pageNumber + 1}
-                    </button>
-                  ))}
+                  <button
+                    className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    {'<'}
+                  </button>
+                  {renderPageNumbers()}
+                  <button
+                    className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    {'>'}
+                  </button>
                 </div>
               )}
             </div>
