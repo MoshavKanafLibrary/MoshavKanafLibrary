@@ -31,16 +31,17 @@ const BorrowedCopiesReportPage = () => {
   useEffect(() => {
     const lowerCaseQuery = searchQuery.toLowerCase();
     const filtered = borrowedCopies.filter(copy =>
-      copy.title.toLowerCase().includes(lowerCaseQuery) ||
-      copy.copyID.toLowerCase().includes(lowerCaseQuery) ||
+      (copy.title && copy.title.toLowerCase().includes(lowerCaseQuery)) ||
+      (copy.copyID && copy.copyID.toString().toLowerCase().includes(lowerCaseQuery)) ||
       copy.borrowedTo.some(borrower =>
-        borrower.firstName.toLowerCase().includes(lowerCaseQuery) ||
-        borrower.lastName.toLowerCase().includes(lowerCaseQuery) ||
-        borrower.uid.toLowerCase().includes(lowerCaseQuery) ||
-        borrower.phone.toLowerCase().includes(lowerCaseQuery)
+        (borrower.firstName && borrower.firstName.toLowerCase().includes(lowerCaseQuery)) ||
+        (borrower.lastName && borrower.lastName.toLowerCase().includes(lowerCaseQuery)) ||
+        (borrower.uid && borrower.uid.toLowerCase().includes(lowerCaseQuery)) ||
+        (borrower.phone && borrower.phone.toLowerCase().includes(lowerCaseQuery))
       )
     );
     setFilteredCopies(filtered);
+    setCurrentPage(1); // Reset to first page on new search
   }, [searchQuery, borrowedCopies]);
 
   const indexOfLastCopy = currentPage * itemsPerPage;
@@ -49,6 +50,31 @@ const BorrowedCopiesReportPage = () => {
   const totalPages = Math.ceil(filteredCopies.length / itemsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const renderPageNumbers = () => {
+    const pages = [];
+    const maxPageNumbersToShow = 5;
+    const halfRange = Math.floor(maxPageNumbersToShow / 2);
+    let startPage = Math.max(currentPage - halfRange, 1);
+    let endPage = Math.min(startPage + maxPageNumbersToShow - 1, totalPages);
+
+    if (endPage - startPage < maxPageNumbersToShow - 1) {
+      startPage = Math.max(endPage - maxPageNumbersToShow + 1, 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => paginate(i)}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-gray-500 text-white' : 'bg-gray-700 text-gray-300'}`}
+        >
+          {i}
+        </button>
+      );
+    }
+    return pages;
+  };
 
   const exportToExcel = () => {
     // Prepare the data for export
@@ -136,17 +162,25 @@ const BorrowedCopiesReportPage = () => {
             </tbody>
           </table>
         </div>
-        <div className="flex justify-center mb-4">
-          {Array.from({ length: totalPages }, (_, i) => (
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8">
             <button
-              key={i + 1}
-              onClick={() => paginate(i + 1)}
-              className={`mx-1 px-4 py-2 rounded ${currentPage === i + 1 ? 'bg-gray-700 hover:bg-gray-800 text-white' : 'bg-gray-300 text-black'}`}
+              className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
             >
-              {i + 1}
+              {'<'}
             </button>
-          ))}
-        </div>
+            {renderPageNumbers()}
+            <button
+              className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              {'>'}
+            </button>
+          </div>
+        )}
         <div className="flex justify-center">
           <button
             onClick={exportToExcel}
