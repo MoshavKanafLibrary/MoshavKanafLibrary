@@ -100,19 +100,19 @@ const NavBar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 w-full bg-gray-700 transition-colors z-10">
+      <nav className="fixed top-0 w-full bg-[#F1E0DC] transition-colors z-10">
         <div className="flex justify-between items-center sm:px-4 py-3 md:px-10 md:py-5">
           <div className="flex items-center">
             <Link
               to="/"
-              className="text-white hover:animate-pulse hover:bg-gray-700 sm:px-3 rounded-md text-sm font-medium"
+              className="text-[#7C382A] hover:animate-pulse hover:bg-[#F1E0DC] sm:px-3 rounded-md text-sm font-medium"
             >
-              <GiBookmarklet size={48} className="text-white" />
+              <GiBookmarklet size={48} className="text-[#7C382A]" />
             </Link>
 
             <div className="flex flex-col ml-4">
               <div className="flex flex-row items-center">
-                <h1 className="text-gray-200 text-sm md:text-2xl font-medium">
+                <h1 className="text-[#7C382A] text-sm md:text-2xl font-medium">
                   <Link to="/">מושב כנף</Link>
                 </h1>
               </div>
@@ -122,7 +122,7 @@ const NavBar = () => {
           <div className="flex items-center lg:hidden">
             <button
               onClick={toggleNav}
-              className="text-gray-200 focus:outline-none"
+              className="text-[#7C382A] focus:outline-none"
             >
               {navOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
             </button>
@@ -130,9 +130,9 @@ const NavBar = () => {
 
           <div className={`lg:flex lg:items-center ${navOpen ? "block" : "hidden"}`}>
             {user ? (
-              <NavHeaders navBarLinks={registeredUserNavLinks} />
+              <NavHeaders navBarLinks={registeredUserNavLinks.map(link => ({ ...link, color: "#7C382A" }))} />
             ) : (
-              <NavHeaders navBarLinks={unRegisteredUserNavLinks} />
+              <NavHeaders navBarLinks={unRegisteredUserNavLinks.map(link => ({ ...link, color: "#7C382A" }))} />
             )}
 
             {user && (
@@ -140,7 +140,7 @@ const NavBar = () => {
                 <div className="relative">
                   <FaBell
                     size={24}
-                    className="text-white cursor-pointer"
+                    className="text-[#7C382A] cursor-pointer"
                     onClick={toggleNotifications}
                   />
                   {unreadCount > 0 && (
@@ -188,7 +188,7 @@ const NavBar = () => {
             {isAdmin && (
               <button
                 onClick={toggleAdminSidebar}
-                className="text-gray-200 hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+                className="text-[#7C382A] hover:bg-[#F1E0DC] px-3 py-2 rounded-md text-sm font-medium"
               >
                 <FaUserShield size={24} />
               </button>

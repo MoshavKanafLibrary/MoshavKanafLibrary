@@ -9,7 +9,7 @@ const NavHeaders = ({ navBarLinks }) => {
           <button
             key={index}
             onClick={link.onClick}
-            className="text-gray-200 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium md:flex md:items-center md:px-4 md:py-3 md:text-base"
+            className="text-[#7C382A] hover:bg-[#7C382A] hover:text-[#F1E0DC] px-3 py-2 rounded-md text-sm font-medium md:flex md:items-center md:px-4 md:py-3 md:text-base"
           >
             {link.name}
           </button>
@@ -17,7 +17,7 @@ const NavHeaders = ({ navBarLinks }) => {
           <Link
             key={link.path}
             to={link.path}
-            className="text-gray-200 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium md:flex md:items-center md:px-4 md:py-3 md:text-base"
+            className="text-[#7C382A] hover:bg-[#7C382A] hover:text-[#F1E0DC] px-3 py-2 rounded-md text-sm font-medium md:flex md:items-center md:px-4 md:py-3 md:text-base"
           >
             {link.name}
           </Link>
