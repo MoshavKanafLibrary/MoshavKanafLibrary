@@ -42,17 +42,14 @@ const BookBorrowDetailsPage = () => {
 
   const handleBorrow = async (copyID) => {
     try {
-      // Get book ID using book title
       const bookResponse = await axios.get(`/api/books/names`);
       const book = bookResponse.data.bookNames.find(book => book.title === bookTitle);
   
       if (book) {
-        // Remove the user from the waiting list by book ID
         const deleteRequestResponse = await axios.delete(`/api/books/${book.id}/waiting-list`, { data: { uid } });
         if (deleteRequestResponse.data.success) {
           console.log("בקשת השאלה נמחקה בהצלחה");
   
-          // Update the borrow information
           const updateBorrowResponse = await axios.put('/api/copies/updateBorrowedTo', { copyID, uid, title: bookTitle });
           if (updateBorrowResponse.data.success) {
             setCopies(prevCopies => prevCopies.map(copy => {
@@ -62,7 +59,6 @@ const BookBorrowDetailsPage = () => {
               return copy;
             }));
   
-            // Update the status in the user's borrowBooks-list
             const updateStatusResponse = await axios.put(`/api/users/${uid}/borrow-books-list/update-status`, { title: bookTitle });
             if (updateStatusResponse.data.success) {
               console.log("סטטוס רשימת ההשאלות עודכן בהצלחה");
@@ -112,24 +108,24 @@ const BookBorrowDetailsPage = () => {
   const total_pages = Math.ceil(copies.length / itemsPerPage);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full" dir="rtl">
-      <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">פרטי השאלה עבור "{bookTitle}"</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-br from-[#4B0000] via-[#8B0000] to-[#4B0000]" dir="rtl">
+      <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#F5EFE6]">פרטי השאלה עבור "{bookTitle}"</h1>
       {isLoading ? (
         <div className="flex justify-center items-center">
-          <FaSpinner className="animate-spin text-6xl" />
+          <FaSpinner className="animate-spin text-6xl text-[#F5EFE6]" />
         </div>
       ) : (
         <>
           {copies.length > 0 ? (
             <div className="w-full px-4 flex flex-wrap justify-center gap-4">
               {currentItems.map((copy, index) => (
-                <div key={index} className="bg-white p-4 rounded-lg shadow mb-4" style={{ width: 'calc(40% - 16px)' }}>
+                <div key={index} className="bg-[#F5EFE6] p-4 rounded-lg shadow mb-4" style={{ width: 'calc(40% - 16px)' }}>
                   <div><strong>כותר:</strong> {copy.title}</div>
                   <div><strong>מספר עותק:</strong> {copy.copyID}</div>
                   <div><strong>סטטוס:</strong> {copy.borrowedTo ? `הושאל ל-${copy.borrowedTo}` : "זמין"}</div>
                   {!copy.borrowedTo && (
                     <button
-                      className="mt-4 bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded max-w-xs"
+                      className="mt-4 bg-[#4B0000] hover:bg-[#8B0000] text-[#F5EFE6] font-bold py-2 px-4 rounded max-w-xs"
                       onClick={() => handleBorrow(copy.copyID)}
                     >
                       השאל ל-{`${firstName} ${lastName}`}
@@ -139,34 +135,34 @@ const BookBorrowDetailsPage = () => {
               ))}
             </div>
           ) : (
-            <div>אין עותקים זמינים לכותר זה.</div>
+            <div className="text-[#F5EFE6]">אין עותקים זמינים לכותר זה.</div>
           )}
           <div className="flex justify-center mt-4">
             {Array.from({ length: total_pages }, (_, index) => (
               <button
                 key={index}
                 onClick={() => paginate(index + 1)}
-                className={`mx-2 px-4 py-2 rounded ${currentPage === index + 1 ? 'bg-gray-700 hover:bg-gray-800 text-white' : 'bg-gray-300'}`}
+                className={`mx-2 px-4 py-2 rounded ${currentPage === index + 1 ? 'bg-[#4B0000] hover:bg-[#8B0000] text-[#F5EFE6]' : 'bg-[#F5EFE6] hover:bg-gray-300 text-[#7C382A]'}`}
               >
                 {index + 1}
               </button>
             ))}
           </div>
           <button
-            className="flex items-center justify-center mt-8 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded"
+            className="flex items-center justify-center mt-8 bg-blue-500 hover:bg-blue-600 text-[#F5EFE6] font-bold py-3 px-4 rounded"
             onClick={handleNotify}
           >
             <FaBell className="mr-2" />
             הודע ל-{`${firstName} ${lastName}`} שהספר מוכן לאיסוף!
           </button>
-          <div className="mt-4">
+          <div className="mt-4 text-[#F5EFE6]">
             <strong>מספר טלפון:</strong> {phone}
           </div>
         </>
       )}
       {error && <div className="text-red-500 p-3 rounded bg-gray-100 my-2">{error}</div>}
       {successMessage && <div className="text-green-500 p-3 rounded bg-gray-100 my-2">{successMessage}</div>}
-      <button onClick={() => navigate(-1)} className="mt-4 bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded">
+      <button onClick={() => navigate(-1)} className="mt-4 bg-[#4B0000] hover:bg-[#8B0000] text-[#F5EFE6] font-bold py-2 px-4 rounded">
         חזור
       </button>
     </div>

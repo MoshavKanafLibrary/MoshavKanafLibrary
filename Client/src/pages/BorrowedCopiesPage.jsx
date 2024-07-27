@@ -107,7 +107,7 @@ const BorrowedCopiesPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-gray-500 text-white' : 'bg-gray-700 text-gray-300'}`}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-[#8B0000] text-[#F5EFE6]' : 'bg-[#4B0000] text-[#F5EFE6]'}`}
         >
           {i}
         </button>
@@ -123,8 +123,8 @@ const BorrowedCopiesPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">עותקים מושאלים</h1>
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 " dir="rtl">
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#F5EFE6]">עותקים מושאלים</h1>
         {successMessage && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
             <span className="block sm:inline"> {successMessage}</span>
@@ -138,14 +138,14 @@ const BorrowedCopiesPage = () => {
         )}
         <input
           type="text"
-          className="w-full p-2 mb-4 text-lg"
+          className="w-full p-2 mb-4 text-lg bg-[#F5EFE6] text-[#7C382A]"
           placeholder="חפש עותקים מושאלים..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
         <div className="overflow-x-auto mb-4">
-          <table className="min-w-full bg-white rounded-lg shadow-lg">
-            <thead className="bg-gray-800 text-white text-lg">
+          <table className="min-w-full bg-[#F5EFE6] rounded-lg shadow-lg">
+            <thead className="bg-[#7C382A] text-[#F5EFE6] text-lg">
               <tr>
                 <th className="py-4 px-6 text-right">כותר</th>
                 <th className="py-4 px-6 text-right">הושאל ל</th>
@@ -153,9 +153,9 @@ const BorrowedCopiesPage = () => {
                 <th className="py-4 px-6 text-right">פעולות</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700">
+            <tbody className="text-[#7C382A]">
               {currentCopies.length > 0 ? currentCopies.map((copy, index) => (
-                <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
+                <tr key={index} className="border-b border-[#7C382A] hover:bg-[#8B0000] hover:text-[#F5EFE6]">
                   <td className="py-4 px-6 text-right">{copy.title}</td>
                   <td className="py-4 px-6 text-right">
                     {copy.borrowedTo.map((borrower, i) => (
@@ -171,20 +171,20 @@ const BorrowedCopiesPage = () => {
                       <button
                         key={i}
                         onClick={() => returnCopy(copy.copyID, copy.title, borrower.uid)}
-                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mr-2"
+                        className="bg-red-500 hover:bg-red-700 text-[#F5EFE6] font-bold py-2 px-4 rounded mr-2"
                       >
                         החזרה
                       </button>
                     ))}
                   </td>
                 </tr>
-              )) : <tr><td colSpan="4" className="text-center py-4">לא נמצאו עותקים מושאלים</td></tr>}
+              )) : <tr><td colSpan="4" className="text-center py-4 text-[#F5EFE6]">לא נמצאו עותקים מושאלים</td></tr>}
             </tbody>
           </table>
         </div>
         <div className="flex justify-center mt-8">
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+            className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#F5EFE6]"
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -192,7 +192,7 @@ const BorrowedCopiesPage = () => {
           </button>
           {renderPageNumbers()}
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+            className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#F5EFE6]"
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
           >

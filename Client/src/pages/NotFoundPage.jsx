@@ -4,19 +4,19 @@ import NotFoundPageImage from '../assets/NotFoundPageImage.png'
 
 const NotFoundPage = () => {
   return (
-    <div className="h-screen w-screen bg-gray-50 flex items-center" dir="rtl">
-      <div className="container flex flex-col md:flex-row items-center justify-between px-5 text-gray-700">
+    <div className="h-screen w-screen bg-[#F5EFE6] flex items-center" dir="rtl">
+      <div className="container flex flex-col md:flex-row items-center justify-between px-5 text-[#7C382A]">
         <div className="w-full lg:w-1/2 mx-8">
-          <div className="text-7xl text-blue-500 font-dark font-extrabold mb-8">
+          <div className="text-7xl font-dark font-extrabold mb-8" style={{color: '#7C382A'}}>
             404
           </div>
-          <p className="text-2xl md:text-3xl font-light leading-normal mb-8">
+          <p className="text-2xl md:text-3xl font-light leading-normal mb-8" style={{color: '#7C382A'}}>
             סליחה, לא מצאנו את הדף שאתה מחפש
           </p>
 
           <Link
             to={"/login"}
-            className="px-5 inline py-3 text-sm font-medium leading-5 shadow-2xl text-white transition-all duration-400 border border-transparent rounded-lg focus:outline-none bg-blue-600 active:bg-blue-800 hover:bg-blue-700"
+            className="px-5 inline py-3 text-sm font-medium leading-5 shadow-2xl text-white transition-all duration-400 border border-transparent rounded-lg focus:outline-none bg-red-600 active:bg-red-800 hover:bg-red-700"
           >
             חזור לדף הבית
           </Link>

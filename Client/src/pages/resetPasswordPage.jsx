@@ -37,23 +37,21 @@ function ResetPasswordPage() {
     <div className="mt-8" dir="rtl">
       <div className="flex items-center justify-center">
         <form
-          className="bg-bg-navbar-custom shadow-2xl rounded md:px-8 px-2 pt-6 pb-8 w-full sm:w-1/2 lg:w-1/3"
+          className="bg-[#F5EFE6] shadow-2xl rounded md:px-8 px-2 pt-6 pb-8 w-full sm:w-1/2 lg:w-1/3"
           onSubmit={handleSubmit}
         >
           <div className="text-center flex justify-center mb-3">
-            <h1 className="text-3xl text-gray-50 font-bold mb-5">
+            <h1 className="text-3xl text-[#7C382A] font-bold mb-5">
               איפוס סיסמה
             </h1>
           </div>
-          <div className="border-2 bg-gray-700 rounded-lg p-4 mb-4">
+          <div className="border-2 bg-[#4B0000] rounded-lg p-4 mb-4">
             <div className="mb-4">
-              <label className="block text-gray-50 text-sm mb-2">
+              <label className="block text-[#F5EFE6] text-sm mb-2">
                 כתובת אימייל
               </label>
               <input
-                className="bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3
-                  text-gray-50 leading-tight focus:outline-none focus:shadow-outline
-                  focus:border-blue-500"
+                className="bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
                 type="text"
                 placeholder="הכנס את כתובת האימייל שלך"
                 value={email}
@@ -62,7 +60,7 @@ function ResetPasswordPage() {
             </div>
             {isLoading ? (
               <button
-                className="bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 w-full rounded"
+                className="bg-green-500 hover:bg-green-400 text-[#F5EFE6] font-bold py-2 px-4 w-full rounded"
                 type="button"
                 disabled={true}
               >
@@ -71,7 +69,7 @@ function ResetPasswordPage() {
               </button>
             ) : (
               <button
-                className="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 w-full rounded focus:outline-none focus:shadow-outline"
+                className="bg-green-600 hover:bg-green-500 text-[#F5EFE6] font-bold py-2 px-4 w-full rounded focus:outline-none focus:shadow-outline"
                 type="submit"
               >
                 שלח אימייל איפוס סיסמה

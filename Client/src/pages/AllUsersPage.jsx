@@ -65,7 +65,7 @@ const AllUsersPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-gray-500 text-white' : 'bg-gray-700 text-gray-300'}`}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-[#8B0000] text-[#F5EFE6]' : 'bg-[#4B0000] text-[#F5EFE6]'}`}
         >
           {i}
         </button>
@@ -88,18 +88,18 @@ const AllUsersPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">כל המשתמשים</h1>
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 " dir="rtl">
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#F5EFE6]">כל המשתמשים</h1>
         <input
           type="text"
-          className="w-full p-2 mb-4 text-lg"
+          className="w-full p-2 mb-4 text-lg bg-[#F5EFE6] text-[#7C382A]"
           placeholder="חפש משתמשים לפי שם פרטי, שם משפחה, מזהה, אימייל, פלאפון, או סטטוס מנהל..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
         <div className="overflow-x-auto mb-4">
-          <table className="min-w-full bg-white rounded-lg shadow-lg">
-            <thead className="bg-gray-800 text-white text-lg">
+          <table className="min-w-full bg-[#F5EFE6] rounded-lg shadow-lg">
+            <thead className="bg-[#7C382A] text-[#F5EFE6] text-lg">
               <tr>
                 <th className="py-4 px-6 text-right">מזהה משתמש</th>
                 <th className="py-4 px-6 text-right">שם פרטי</th>
@@ -109,9 +109,9 @@ const AllUsersPage = () => {
                 <th className="py-4 px-6 text-right">הרשאות מנהל</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700">
+            <tbody className="text-[#7C382A]">
               {currentUsers.length > 0 ? currentUsers.map((user, index) => (
-                <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
+                <tr key={index} className="border-b border-[#7C382A] hover:bg-[#8B0000] hover:text-[#F5EFE6]">
                   <td className="py-4 px-6 text-right">{user.uid}</td>
                   <td className="py-4 px-6 text-right">{user.firstName}</td>
                   <td className="py-4 px-6 text-right">{user.lastName}</td>
@@ -119,14 +119,14 @@ const AllUsersPage = () => {
                   <td className="py-4 px-6 text-right">{user.phone}</td>
                   <td className="py-4 px-6 text-right">{user.isManager ? 'כן' : 'לא'}</td>
                 </tr>
-              )) : <tr><td colSpan="6" className="text-center py-4">לא נמצאו משתמשים</td></tr>}
+              )) : <tr><td colSpan="6" className="text-center py-4 text-[#F5EFE6]">לא נמצאו משתמשים</td></tr>}
             </tbody>
           </table>
         </div>
         {totalPages > 1 && (
           <div className="flex justify-center mt-8">
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+              className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#F5EFE6]"
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
             >
@@ -134,7 +134,7 @@ const AllUsersPage = () => {
             </button>
             {renderPageNumbers()}
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+              className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#F5EFE6]"
               onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
@@ -145,7 +145,7 @@ const AllUsersPage = () => {
         <div className="flex justify-center">
           <button
             onClick={exportToExcel}
-            className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded"
+            className="bg-[#4B0000] hover:bg-[#8B0000] text-[#F5EFE6] font-bold py-2 px-4 rounded"
           >
             ייצא לאקסל
           </button>

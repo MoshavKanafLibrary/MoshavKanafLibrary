@@ -74,7 +74,7 @@ const PermissionsPage = () => {
         </div>
       )}
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">כל המשתמשים</h1>
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#F5EFE6]">כל המשתמשים</h1>
         <input
           type="text"
           className="w-full p-2 mb-4 text-lg"
@@ -83,8 +83,8 @@ const PermissionsPage = () => {
           onChange={e => setSearchQuery(e.target.value)}
         />
         <div className="overflow-x-auto mb-4">
-          <table className="min-w-full bg-white rounded-lg shadow-lg">
-            <thead className="bg-gray-800 text-white text-lg">
+          <table className="min-w-full bg-[#F5EFE6] rounded-lg shadow-lg">
+            <thead className="bg-[#7C382A] text-[#F5EFE6] text-lg">
               <tr>
                 <th className="py-4 px-6 text-right">תעודת זהות</th>
                 <th className="py-4 px-6 text-right">שם פרטי</th>
@@ -96,9 +96,9 @@ const PermissionsPage = () => {
                 <th className="py-4 px-6 text-right">פעולות</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700">
+            <tbody className="text-[#7C382A]">
               {currentUsers.length > 0 ? currentUsers.map((user, index) => (
-                <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
+                <tr key={index} className="border-b border-[#7C382A] hover:bg-[#8B0000] hover:text-[#F5EFE6]">
                   <td className="py-4 px-6 text-right">{user.uid}</td>
                   <td className="py-4 px-6 text-right">{user.firstName}</td>
                   <td className="py-4 px-6 text-right">{user.lastName}</td>
@@ -109,7 +109,7 @@ const PermissionsPage = () => {
                   <td className="py-4 px-6 text-right">
                     <button
                       onClick={() => toggleManagerStatus(user.uid, user.isManager)}
-                      className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded"
+                      className={`font-bold py-2 px-4 rounded ${user.isManager ? 'bg-[#4B0000] text-[#F5EFE6]' : 'bg-[#4B0000] text-[#F5EFE6]'}`}
                     >
                       {user.isManager ? 'בטל מנהל' : 'עשה מנהל'}
                     </button>
@@ -124,7 +124,7 @@ const PermissionsPage = () => {
             <button
               key={i + 1}
               onClick={() => paginate(i + 1)}
-              className={`mx-1 px-4 py-2 rounded ${currentPage === i + 1 ? 'bg-gray-700 hover:bg-gray-800 text-white' : 'bg-gray-300 text-black'}`}
+              className={`mx-1 px-4 py-2 rounded ${currentPage === i + 1 ? 'bg-[#4B0000] hover:bg-[#8B0000] text-[#F5EFE6]' : 'bg-[#F5EFE6] text-[#7C382A]'}`}
             >
               {i + 1}
             </button>

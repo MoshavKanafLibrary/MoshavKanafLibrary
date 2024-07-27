@@ -8,7 +8,7 @@ import WaitingListPage from "./pages/WaitingListPage";
 import LoginPage from "./pages/LoginPage";
 import BooksPage from "./pages/BooksPage";
 import AddOrUpdateBookPage from "./pages/AddOrUpdateBookPage";
-import UserRequestsPage from "./pages/UserRequestsPage"; 
+import UserRequestsPage from "./pages/UserRequestsPage";
 import ProfilePage from "./pages/ProfilePage";
 import ContactPage from "./pages/ContactPage";
 import BookDetailPage from "./pages/BookDetailPage";
@@ -39,7 +39,7 @@ function App() {
       <div className="relative z-20">
         <Navbar />
       </div>
-      <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 overflow-x-hidden">
+      <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-bg-red-black-gradient-from via-bg-red-black-gradient-via to-bg-red-black-gradient-to overflow-x-hidden">
         <Routes>
           <Route path="/" element={<BooksPage />} />
           <Route path="/signup" element={<SignUpPage />} />

@@ -187,7 +187,7 @@ const BooksPage = () => {
       pages.push(
         <button
           key={i}
-          className={`px-4 py-2 mx-2 rounded-lg ${i === currentPage ? 'bg-[#A52A2A] text-[#F1E0DC]' : 'bg-[#7C382A] text-[#F1E0DC]'}`}
+          className={`px-4 py-2 mx-2 rounded-lg ${i === currentPage ? 'bg-[#8B0000] text-[#F1E0DC]' : 'bg-[#4B0000] text-[#F1E0DC]'}`}
           onClick={() => goToPage(i)}
         >
           {i}
@@ -198,9 +198,9 @@ const BooksPage = () => {
   };
 
   return (
-    <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-[#4B0000] via-[#7C382A] to-[#A52A2A] overflow-x-hidden" dir="rtl">
+    <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-[#4B0000] via-[#8B0000] to-[#4B0000] overflow-x-hidden" dir="rtl">
       <div>
-      <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-[#F1E0DC] text-center">הספרים שלנו</h1>
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-[#F1E0DC] text-center">הספרים שלנו</h1>
       </div>
       <div className="container mx-auto px-4 py-8">
         {isLoading ? (
@@ -212,16 +212,16 @@ const BooksPage = () => {
             <div className="flex justify-between mb-4">
               <div className="flex items-center space-x-4">
                 <button
-                  className="bg-[#F1E0DC] text-[#7C382A] px-4 py-2 rounded-lg"
+                  className="bg-[#F5EFE6] text-[#7C382A] px-4 py-2 rounded-lg"
                   onClick={toggleFilterDropdown}
                 >
                   סנן
                 </button>
                 {showFilterDropdown && (
-                  <div className="absolute mt-2 bg-[#F1E0DC] rounded-lg shadow-lg p-4" ref={filterRef}>
+                  <div className="absolute mt-2 bg-[#F5EFE6] rounded-lg shadow-lg p-4" ref={filterRef}>
                     <div className="flex flex-col space-y-4">
                       <button
-                        className="bg-[#F1E0DC] text-[#7C382A] px-4 py-2 rounded-lg"
+                        className="bg-[#F5EFE6] text-[#7C382A] px-4 py-2 rounded-lg"
                         onClick={toggleCategoryDropdown}
                       >
                         קטגוריות
@@ -242,7 +242,7 @@ const BooksPage = () => {
                         </div>
                       )}
                       <button
-                        className="bg-[#F1E0DC] text-[#7C382A] px-4 py-2 rounded-lg"
+                        className="bg-[#F5EFE6] text-[#7C382A] px-4 py-2 rounded-lg"
                         onClick={toggleAuthorDropdown}
                       >
                         סופרים
@@ -263,7 +263,7 @@ const BooksPage = () => {
                         </div>
                       )}
                       <button
-                        className="bg-[#F1E0DC] text-[#7C382A] px-4 py-2 rounded-lg"
+                        className="bg-[#F5EFE6] text-[#7C382A] px-4 py-2 rounded-lg"
                         onClick={toggleRatingDropdown}
                       >
                         דירוגים
@@ -292,7 +292,7 @@ const BooksPage = () => {
                 <label className="text-[#F1E0DC] text-lg mr-2">חפש:</label>
                 <input
                   type="text"
-                  className="bg-[#F1E0DC] text-[#7C382A] px-3 py-2 rounded-lg"
+                  className="bg-[#F5EFE6] text-[#7C382A] px-3 py-2 rounded-lg"
                   placeholder="חפש לפי כותרת או סופר"
                   value={searchQuery}
                   onChange={handleSearchInputChange}
@@ -304,7 +304,7 @@ const BooksPage = () => {
                 {paginatedBooks.map((book, index) => (
                   <div
                     key={index}
-                    className="bg-[#F1E0DC] shadow-xl rounded-lg p-4 text-center h-96 w-56 mx-auto cursor-pointer"
+                    className="bg-[#F5EFE6] shadow-xl rounded-lg p-4 text-center h-96 w-56 mx-auto cursor-pointer"
                     onClick={() => handleCardClick(book)}
                   >
                     <div className="h-4/5 w-full">
@@ -325,7 +325,7 @@ const BooksPage = () => {
               {totalPages > 1 && (
                 <div className="flex justify-center mt-8">
                   <button
-                    className="px-4 py-2 mx-2 rounded-lg bg-[#F1E0DC] text-[#7C382A]"
+                    className="px-4 py-2 mx-2 rounded-lg bg-[#F5EFE6] text-[#7C382A]"
                     onClick={() => goToPage(currentPage - 1)}
                     disabled={currentPage === 1}
                   >
@@ -333,7 +333,7 @@ const BooksPage = () => {
                   </button>
                   {renderPageNumbers()}
                   <button
-                    className="px-4 py-2 mx-2 rounded-lg bg-[#F1E0DC] text-[#7C382A]"
+                    className="px-4 py-2 mx-2 rounded-lg bg-[#F5EFE6] text-[#7C382A]"
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
                   >

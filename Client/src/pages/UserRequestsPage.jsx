@@ -47,20 +47,20 @@ const UserRequestsPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full" dir="rtl">
-      <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">
+    <div className="flex flex-col items-center justify-center min-h-screen w-full " dir="rtl">
+      <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#F5EFE6]">
         שלח בקשה
       </h1>
       <form
-        className="bg-bg-navbar-custom shadow-2xl rounded-lg md:px-16 px-4 pt-10 pb-12 w-full sm:w-3/4 lg:w-1/2"
+        className="bg-[#4B0000] shadow-2xl rounded-lg md:px-16 px-4 pt-10 pb-12 w-full sm:w-3/4 lg:w-1/2"
         onSubmit={handleFormSubmit}
       >
         {/* Request Text */}
-        <div className="border-2 bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="border-2 bg-[#4B0000] rounded-lg p-4 mb-4">
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">בקשה</label>
+            <label className="block text-[#F5EFE6] text-md mb-2">בקשה</label>
             <textarea
-              className="bg-bg-navbar-custom shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#F5EFE6] shadow border rounded w-full py-3 px-4 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               placeholder="הכנס את הבקשה שלך"
               value={requestText}
               onChange={(e) => setRequestText(e.target.value)}
@@ -73,7 +73,7 @@ const UserRequestsPage = () => {
         <div className="flex items-center justify-center mt-10 space-x-4">
           <button
             type="submit"
-            className="bg-green-600 hover:bg-blue-700 text-gray-50 font-bold py-3 px-6 rounded"
+            className="bg-green-600 hover:bg-blue-700 text-[#F5EFE6] font-bold py-3 px-6 rounded"
             disabled={isLoading}
           >
             {isLoading ? <FaSpinner className="animate-spin" /> : "שלח בקשה"}

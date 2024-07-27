@@ -41,7 +41,7 @@ const DropDown = ({
     ? userDetails.displayName
     : user
     ? user.displayName || user.email
-    : "Menu";
+    : "תפריט";
   const handleLogOut = async (navigate) => {
     await logout();
     navigate("/login");
@@ -108,7 +108,7 @@ const DropDown = ({
                   handleLogOut(navigate);
                 }}
               >
-                Sign Out
+                התנתקות
               </button>
             ) : (
               <Link
@@ -117,7 +117,7 @@ const DropDown = ({
                 className="block px-4 py-4 sm:py-2 text-lg sm:text-sm text-[#F1E0DC] hover:bg-green-400 hover:text-black border-b-2 border-gray-500"
                 role="menuitem"
               >
-                Login
+                התחברות
               </Link>
             )}
           </div>

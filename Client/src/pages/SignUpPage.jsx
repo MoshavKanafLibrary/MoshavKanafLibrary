@@ -86,18 +86,18 @@ const SignUpPage = () => {
   return (
     <div className="flex items-center justify-center mt-8" dir="rtl">
       <form
-        className="bg-bg-navbar-custom shadow-2xl rounded md:px-8 px-2 pt-6 pb-8 w-full sm:w-1/2 lg:w-1/3"
+        className="bg-[#F5EFE6] shadow-2xl rounded md:px-8 px-2 pt-6 pb-8 w-full sm:w-1/2 lg:w-1/3"
         onSubmit={handleSubmit}
       >
         <div className="text-center flex justify-center mb-3">
-          <h1 className="text-3xl text-gray-50 font-bold mb-5">
+          <h1 className="text-3xl text-[#7C382A] font-bold mb-5">
             צור חשבון
           </h1>
         </div>
 
-        <div className="border-2 bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="border-2 bg-[#4B0000] rounded-lg p-4 mb-4">
           <div className="mb-4">
-            <label className="block text-gray-50 text-sm mb-2">
+            <label className="block text-[#F5EFE6] text-sm mb-2">
               כתובת אימייל
             </label>
             <input
@@ -105,8 +105,8 @@ const SignUpPage = () => {
                 (error === "Firebase: Error (auth/invalid-email)." ||
                   email === "") &&
                 hasClickedCreateAccount
-                  ? "bg-red-200 shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
-                  : "bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+                  ? "bg-red-200 shadow appearance-none border rounded w-full py-2 px-3 text-[#4B0000] leading-tight focus:outline-none focus:shadow-outline"
+                  : "bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               }
               placeholder="הכנס את כתובת האימייל שלך"
               value={email}
@@ -114,14 +114,14 @@ const SignUpPage = () => {
             />
           </div>
           <div className="mb-3">
-            <label className="block text-gray-50 text-sm mb-2">
+            <label className="block text-[#F5EFE6] text-sm mb-2">
               סיסמה
             </label>
             <input
               className={
                 password === "" && hasClickedCreateAccount
-                  ? "bg-red-200 shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-50 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                  : "bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  ? "bg-red-200 shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-[#4B0000] mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  : "bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#F5EFE6] mb-3 leading-tight focus:outline-none focus:shadow-outline"
               }
               type="password"
               placeholder="הכנס סיסמה"
@@ -130,15 +130,15 @@ const SignUpPage = () => {
             />
           </div>
           <div className="mb-3">
-            <label className="block text-gray-50 text-sm mb-2">
+            <label className="block text-[#F5EFE6] text-sm mb-2">
               אימות סיסמה
             </label>
             <input
               className={
                 (password !== confirmPassword || confirmPassword === "") &&
                 hasClickedCreateAccount
-                  ? "bg-red-200 shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-50 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                  : "bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  ? "bg-red-200 shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-[#4B0000] mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  : "bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#F5EFE6] mb-3 leading-tight focus:outline-none focus:shadow-outline"
               }
               type="password"
               placeholder="הכנס שוב את הסיסמה"
@@ -147,14 +147,14 @@ const SignUpPage = () => {
             />
           </div>
           <div className="mb-3">
-            <label className="block text-gray-50 text-sm mb-2">
+            <label className="block text-[#F5EFE6] text-sm mb-2">
               שם תצוגה
             </label>
             <input
               className={
                 error && error.includes("שם התצוגה")
-                  ? "bg-red-200 shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
-                  : "bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+                  ? "bg-red-200 shadow appearance-none border rounded w-full py-2 px-3 text-[#4B0000] leading-tight focus:outline-none focus:shadow-outline"
+                  : "bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               }
               placeholder="הכנס שם תצוגה"
               value={displayName}
@@ -162,33 +162,33 @@ const SignUpPage = () => {
             />
           </div>
           <div className="mb-3">
-            <label className="block text-gray-50 text-sm mb-2">
+            <label className="block text-[#F5EFE6] text-sm mb-2">
               שם פרטי
             </label>
             <input
-              className="bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               placeholder="הכנס את שמך הפרטי"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
             />
           </div>
           <div className="mb-3">
-            <label className="block text-gray-50 text-sm mb-2">
+            <label className="block text-[#F5EFE6] text-sm mb-2">
               שם משפחה
             </label>
             <input
-              className="bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               placeholder="הכנס את שם משפחתך"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
             />
           </div>
           <div className="mb-3">
-            <label className="block text-gray-50 text-sm mb-2">
+            <label className="block text-[#F5EFE6] text-sm mb-2">
               פלאפון
             </label>
             <input
-              className="bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               placeholder="הכנס את מספר הפלאפון שלך"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -200,7 +200,7 @@ const SignUpPage = () => {
           {isLoading ? (
             <button
               type="button"
-              className="bg-blue-400 text-gray-50 font-bold py-2 px-4 mx-auto mb-4 rounded"
+              className="bg-blue-400 text-[#F5EFE6] font-bold py-2 px-4 mx-auto mb-4 rounded"
               disabled
             >
               <FaSpinner className="animate-spin inline-block h-7 w-7 text-white mr-2" />
@@ -209,7 +209,7 @@ const SignUpPage = () => {
           ) : (
             <button
               type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-gray-50 font-bold py-2 px-4 mx-auto mb-4 rounded focus:outline-none focus:shadow-outline"
+              className="bg-blue-500 hover:bg-blue-700 text-[#F5EFE6] font-bold py-2 px-4 mx-auto mb-4 rounded focus:outline-none focus:shadow-outline"
             >
               צור חשבון
             </button>
@@ -221,8 +221,8 @@ const SignUpPage = () => {
           </p>
         )}
 
-        <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-gray-600 rounded-md py-4 px-6">
-          <h2 className="text-gray-50">כבר יש לך חשבון?</h2>
+        <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-[#4B0000] rounded-md py-4 px-6">
+          <h2 className="text-[#4B0000]">כבר יש לך חשבון?</h2>
           <Link
             className="text-blue-500 rounded focus:outline-none focus:shadow-outline"
             to="/login"

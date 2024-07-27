@@ -24,7 +24,7 @@ const AdminSidebar = ({ isVisible, toggleSidebar }) => {
         />
       )}
       <div
-        className={`fixed top-16 sm:top-[64px] right-0 w-56 sm:w-72 h-[calc(100%-4rem)] sm:h-[calc(100%-64px)] bg-[#F1E0DC] text-[#7C382A] flex flex-col rounded-lg transition-transform duration-300 transform ${
+        className={`fixed top-16 sm:top-[64px] right-0 w-56 sm:w-72 h-[calc(100%-4rem)] sm:h-[calc(100%-64px)] bg-[#F5EFE6] text-[#7C382A] flex flex-col rounded-lg transition-transform duration-300 transform ${
           isVisible ? 'translate-x-0' : 'translate-x-full'
         } sm:translate-x-0 z-50 sm:z-auto`}
         dir="rtl"

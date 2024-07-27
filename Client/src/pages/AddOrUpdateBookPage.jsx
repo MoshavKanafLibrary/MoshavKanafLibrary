@@ -115,8 +115,6 @@ const AddOrUpdateBookPage = () => {
     }
   };
   
-  
-
   const handleRemoveCopy = async (copyID) => {
     try {
       await axios.delete(`/api/books/${bookData.id}/removeCopy/${copyID}`);
@@ -150,20 +148,20 @@ const AddOrUpdateBookPage = () => {
   const headerText = isEditMode ? "עדכן ספר" : "הוסף ספר";
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-br from-gray-200 via-gray-400 to-gray-200 text-gray-50" dir="rtl">
-      <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-black">{headerText}</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-br from-[#4B0000] via-[#8B0000] to-[#4B0000] text-[#F5EFE6]" dir="rtl">
+      <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#F5EFE6]">{headerText}</h1>
       <form
-        className="bg-gray-900 shadow-2xl rounded-lg md:px-16 px-4 pt-10 pb-12 w-full sm:w-3/4 lg:w-1/2"
+        className="bg-[#F5EFE6] shadow-2xl rounded-lg md:px-16 px-4 pt-10 pb-12 w-full sm:w-3/4 lg:w-1/2"
         onSubmit={(e) => {
           e.preventDefault();
           handleFormSubmit();
         }}
       >
-        <div className="border-2 border-gray-700 rounded-lg p-4 mb-4">
+        <div className="border-2 border-[#7C382A] rounded-lg p-4 mb-4">
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">כותרת</label>
+            <label className="block text-[#7C382A] text-md mb-2">כותרת</label>
             <input
-              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#7C382A] shadow border rounded w-full py-3 px-4 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="הכנס את כותרת הספר"
               value={title}
@@ -172,9 +170,9 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">שם הסופר</label>
+            <label className="block text-[#7C382A] text-md mb-2">שם הסופר</label>
             <input
-              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#7C382A] shadow border rounded w-full py-3 px-4 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="הכנס את שם הסופר"
               value={author}
@@ -183,9 +181,9 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">קישור לתמונה</label>
+            <label className="block text-[#7C382A] text-md mb-2">קישור לתמונה</label>
             <input
-              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#7C382A] shadow border rounded w-full py-3 px-4 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="הכנס את קישור התמונה"
               value={imageURL}
@@ -194,9 +192,9 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">הוצאה</label>
+            <label className="block text-[#7C382A] text-md mb-2">הוצאה</label>
             <input
-              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#7C382A] shadow border rounded w-full py-3 px-4 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="הכנס את ההוצאה"
               value={expenditure}
@@ -205,9 +203,9 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">סוג הכותרת</label>
+            <label className="block text-[#7C382A] text-md mb-2">סוג הכותרת</label>
             <select
-              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#7C382A] shadow border rounded w-full py-3 px-4 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               value={titleType}
               onChange={(e) => setTitleType(e.target.value)}
             >
@@ -218,9 +216,9 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">קוד מיקום</label>
+            <label className="block text-[#7C382A] text-md mb-2">קוד מיקום</label>
             <input
-              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#7C382A] shadow border rounded w-full py-3 px-4 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="הכנס את קוד המיקום"
               value={locatorCode}
@@ -229,9 +227,9 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">סיווג</label>
+            <label className="block text-[#7C382A] text-md mb-2">סיווג</label>
             <input
-              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#7C382A] shadow border rounded w-full py-3 px-4 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               placeholder="הכנס את הסיווג"
               value={classification}
               onChange={(e) => setClassification(e.target.value)}
@@ -239,9 +237,9 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">תקציר</label>
+            <label className="block text-[#7C382A] text-md mb-2">תקציר</label>
             <input
-              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#7C382A] shadow border rounded w-full py-3 px-4 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               placeholder="הכנס את התקציר"
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
@@ -249,9 +247,9 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">עותקים</label>
+            <label className="block text-[#7C382A] text-md mb-2">עותקים</label>
             <input
-              className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#7C382A] shadow border rounded w-full py-3 px-4 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
               type="number"
               min={0}
               readOnly={isEditMode}
@@ -267,18 +265,18 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-50 text-md mb-2">מספרי עותקים</label>
+            <label className="block text-[#7C382A] text-md mb-2">מספרי עותקים</label>
             {copiesID.map((copyID, index) => (
               <div key={index} className="flex items-center mb-2">
                 <input
-                  className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+                  className="bg-[#7C382A] shadow border rounded w-full py-3 px-4 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
                   type="text"
                   value={copyID}
                   readOnly
                 />
                 <button
                   type="button"
-                  className="bg-red-600 hover:bg-red-700 text-gray-50 font-bold py-2 px-4 rounded ml-2"
+                  className="bg-red-600 hover:bg-red-700 text-[#F5EFE6] font-bold py-2 px-4 rounded ml-2"
                   onClick={() => handleRemoveCopy(copyID)}
                 >
                   הסר
@@ -289,9 +287,9 @@ const AddOrUpdateBookPage = () => {
 
           {isEditMode && (
             <div className="mb-4">
-              <label className="block text-gray-50 text-md mb-2">הוסף עותקים חדשים</label>
+              <label className="block text-[#7C382A] text-md mb-2">הוסף עותקים חדשים</label>
               <input
-                className="bg-gray-800 shadow border rounded w-full py-3 px-4 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+                className="bg-[#7C382A] shadow border rounded w-full py-3 px-4 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
                 type="number"
                 placeholder="מספר העותקים להוספה"
                 value={newCopiesCount}
@@ -304,7 +302,7 @@ const AddOrUpdateBookPage = () => {
               />
               <button
                 type="button"
-                className="bg-blue-600 hover:bg-blue-700 text-gray-50 font-bold py-2 px-4 rounded mt-2"
+                className="bg-blue-600 hover:bg-blue-700 text-[#F5EFE6] font-bold py-2 px-4 rounded mt-2"
                 onClick={handleAddCopies}
               >
                 הוסף עותקים
@@ -316,7 +314,7 @@ const AddOrUpdateBookPage = () => {
         <div className="flex items-center justify-center mt-10 space-x-4">
           <button
             type="submit"
-            className="bg-green-600 hover:bg-green-700 text-gray-50 font-bold py-3 px-6 rounded"
+            className="bg-green-600 hover:bg-green-700 text-[#F5EFE6] font-bold py-3 px-6 rounded"
           >
             {isEditMode ? "עדכן ספר" : "הוסף ספר"}
           </button>

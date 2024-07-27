@@ -12,6 +12,11 @@ export default {
         "bg-navbar-gradient-to": "#000000",
         "bg-home-gradient-from": "#D3CCE3",
         "bg-home-gradient-to": "#E9E4F0",
+        "bg-red-black-gradient-from": "#4B0000",
+        "bg-red-black-gradient-via": "#8B0000",
+        "bg-red-black-gradient-to": "#4B0000",
+        "bg-light-custom": "#F5EFE6",
+        "bg-dark-red": "#7C382A",
       },
       screens: {
         notComputer: "1500px",
