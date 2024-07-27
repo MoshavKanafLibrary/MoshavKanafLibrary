@@ -105,7 +105,7 @@ const AllRequestsPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-[#8B0000] text-[#F5EFE6]' : 'bg-[#4B0000] text-[#F5EFE6]'}`}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-[#8B0000] text-[#E7DBCB]' : 'bg-[#4B0000] text-[#E7DBCB]'}`}
         >
           {i}
         </button>
@@ -127,17 +127,17 @@ const AllRequestsPage = () => {
             {successMessage}
           </div>
         )}
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#F5EFE6]">כל הבקשות של המשתמשים</h1>
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#E7DBCB]">כל הבקשות של המשתמשים</h1>
         <input
           type="text"
-          className="w-full p-2 mb-4 text-lg bg-[#F5EFE6] text-[#7C382A]"
+          className="w-full p-2 mb-4 text-lg bg-[#E7DBCB] text-[#7C382A]"
           placeholder="חפש בקשות..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
         <div className="overflow-x-auto mb-4">
-          <table className="min-w-full bg-[#F5EFE6] rounded-lg shadow-lg">
-            <thead className="bg-[#7C382A] text-[#F5EFE6] text-lg">
+          <table className="min-w-full bg-[#E7DBCB] rounded-lg shadow-lg">
+            <thead className="bg-[#7C382A] text-[#E7DBCB] text-lg">
               <tr>
                 <th className="py-4 px-6 text-right">UID</th>
                 <th className="py-4 px-6 text-right">שם משתמש</th>
@@ -148,7 +148,7 @@ const AllRequestsPage = () => {
             </thead>
             <tbody className="text-[#7C382A]">
               {currentRequests.length > 0 ? currentRequests.map((request, index) => (
-                <tr key={index} className="border-b border-[#7C382A] hover:bg-[#8B0000] hover:text-[#F5EFE6]">
+                <tr key={index} className="border-b border-[#7C382A] hover:bg-[#8B0000] hover:text-[#E7DBCB]">
                   <td className="py-4 px-6 text-right">{request.uid}</td>
                   <td className="py-4 px-6 text-right">{request.username}</td>
                   <td className="py-4 px-6 text-right">{request.requestText}</td>
@@ -170,13 +170,13 @@ const AllRequestsPage = () => {
                     </button>
                   </td>
                 </tr>
-              )) : <tr><td colSpan="5" className="text-center py-4 text-[#F5EFE6]">לא נמצאו בקשות</td></tr>}
+              )) : <tr><td colSpan="5" className="text-center py-4 text-[#E7DBCB]">לא נמצאו בקשות</td></tr>}
             </tbody>
           </table>
         </div>
         <div className="flex justify-center mt-8">
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#F5EFE6]"
+            className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#E7DBCB]"
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -184,7 +184,7 @@ const AllRequestsPage = () => {
           </button>
           {renderPageNumbers()}
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#F5EFE6]"
+            className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#E7DBCB]"
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
           >

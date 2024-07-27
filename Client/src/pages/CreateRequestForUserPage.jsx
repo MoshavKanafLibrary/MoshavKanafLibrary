@@ -68,13 +68,13 @@ const CreateRequestForUserPage = () => {
         </div>
       )}
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 " dir="rtl">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#F5EFE6]">צור בקשה עבור משתמש</h1>
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#E7DBCB]">צור בקשה עבור משתמש</h1>
         <div className="bg-[#8B0000] border-4 border-[#4B0000] rounded-lg p-6 mb-4">
           <div className="flex justify-between mb-4">
             <div className="border-2 bg-[#7C382A] rounded-lg p-4 w-1/2 pr-2">
-              <label className="block text-[#F5EFE6] text-lg font-medium mb-2">בחר משתמש:</label>
+              <label className="block text-[#E7DBCB] text-lg font-medium mb-2">בחר משתמש:</label>
               <select
-                className="w-full p-2 mb-4 text-lg bg-[#F5EFE6] shadow border rounded text-[#7C382A] leading-tight focus:outline-none focus:shadow-outline"
+                className="w-full p-2 mb-4 text-lg bg-[#E7DBCB] shadow border rounded text-[#7C382A] leading-tight focus:outline-none focus:shadow-outline"
                 value={selectedUser ? selectedUser.uid : ''}
                 onChange={e => {
                   const user = users.find(u => u.uid === e.target.value);
@@ -90,9 +90,9 @@ const CreateRequestForUserPage = () => {
               </select>
             </div>
             <div className="border-2 bg-[#7C382A] rounded-lg p-4 w-1/2 pl-2">
-              <label className="block text-[#F5EFE6] text-lg font-medium mb-2">בחר ספר:</label>
+              <label className="block text-[#E7DBCB] text-lg font-medium mb-2">בחר ספר:</label>
               <select
-                className="w-full p-2 mb-4 text-lg bg-[#F5EFE6] shadow border rounded text-[#7C382A] leading-tight focus:outline-none focus:shadow-outline"
+                className="w-full p-2 mb-4 text-lg bg-[#E7DBCB] shadow border rounded text-[#7C382A] leading-tight focus:outline-none focus:shadow-outline"
                 value={selectedBook ? selectedBook.id : ''}
                 onChange={e => {
                   const book = books.find(b => b.id === e.target.value);
@@ -112,7 +112,7 @@ const CreateRequestForUserPage = () => {
         <div className="flex justify-center">
           <button
             onClick={handleRequest}
-            className="bg-[#4B0000] hover:bg-[#8B0000] text-[#F5EFE6] font-bold py-2 px-4 rounded"
+            className="bg-[#4B0000] hover:bg-[#8B0000] text-[#E7DBCB] font-bold py-2 px-4 rounded"
           >
             צור בקשה
           </button>

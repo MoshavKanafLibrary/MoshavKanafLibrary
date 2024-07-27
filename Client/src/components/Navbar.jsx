@@ -100,12 +100,12 @@ const NavBar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 w-full bg-[#F5EFE6] transition-colors z-10">
+      <nav className="fixed top-0 w-full bg-[#E7DBCB] transition-colors z-10">
         <div className="flex justify-between items-center sm:px-4 py-3 md:px-10 md:py-5">
           <div className="flex items-center">
             <Link
               to="/"
-              className="text-[#7C382A] hover:animate-pulse hover:bg-[#F5EFE6] sm:px-3 rounded-md text-sm font-medium"
+              className="text-[#7C382A] hover:animate-pulse hover:bg-[#E7DBCB] sm:px-3 rounded-md text-sm font-medium"
             >
               <GiBookmarklet size={48} className="text-[#7C382A]" />
             </Link>
@@ -188,7 +188,7 @@ const NavBar = () => {
             {isAdmin && (
               <button
                 onClick={toggleAdminSidebar}
-                className="text-[#7C382A] hover:bg-[#F5EFE6] px-3 py-2 rounded-md text-sm font-medium"
+                className="text-[#7C382A] hover:bg-[#E7DBCB] px-3 py-2 rounded-md text-sm font-medium"
               >
                 <FaUserShield size={24} />
               </button>

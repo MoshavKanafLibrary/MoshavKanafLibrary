@@ -41,7 +41,7 @@ const MoreInfoPage = () => {
   return (
     <div className="flex items-center justify-center mt-8" dir="rtl">
       <form
-        className="bg-[#F5EFE6] shadow-2xl rounded md:px-8 px-2 pt-6 pb-8 w-full sm:w-1/2 lg:w-1/3"
+        className="bg-[#E7DBCB] shadow-2xl rounded md:px-8 px-2 pt-6 pb-8 w-full sm:w-1/2 lg:w-1/3"
         onSubmit={validateAndNavigate}
       >
         <div className="text-center flex justify-center mb-3">
@@ -52,46 +52,46 @@ const MoreInfoPage = () => {
         <div className="border-2 bg-[#4B0000] rounded-lg p-4 mb-4">
           {user && user.email && (
             <div className="mb-3">
-              <label className="block text-[#F5EFE6] text-sm mb-2">
+              <label className="block text-[#E7DBCB] text-sm mb-2">
                 כתובת האימייל שלך: {user.email}
               </label>
             </div>
           )}
           {user && user.uid && (
             <div className="mb-3">
-              <label className="block text-[#F5EFE6] text-sm mb-2">
+              <label className="block text-[#E7DBCB] text-sm mb-2">
                 מזהה משתמש: {user.uid}
               </label>
             </div>
           )}
           <div className="mb-3">
-            <label className="block text-[#F5EFE6] text-sm mb-2">
+            <label className="block text-[#E7DBCB] text-sm mb-2">
               שם פרטי
             </label>
             <input
-              className="bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#E7DBCB] leading-tight focus:outline-none focus:shadow-outline"
               placeholder="הכנס את שמך הפרטי"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
             />
           </div>
           <div className="mb-3">
-            <label className="block text-[#F5EFE6] text-sm mb-2">
+            <label className="block text-[#E7DBCB] text-sm mb-2">
               שם משפחה
             </label>
             <input
-              className="bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#E7DBCB] leading-tight focus:outline-none focus:shadow-outline"
               placeholder="הכנס את שם משפחתך"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
             />
           </div>
           <div className="mb-3">
-            <label className="block text-[#F5EFE6] text-sm mb-2">
+            <label className="block text-[#E7DBCB] text-sm mb-2">
               פלאפון
             </label>
             <input
-              className="bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#F5EFE6] leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#E7DBCB] leading-tight focus:outline-none focus:shadow-outline"
               placeholder="הכנס את מספר הפלאפון שלך"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}

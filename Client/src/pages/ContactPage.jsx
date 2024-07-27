@@ -3,10 +3,10 @@ import React from 'react';
 const ContactPage = () => {
   return (
     <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-[#4B0000] via-[#8B0000] to-[#4B0000] overflow-x-hidden" dir="rtl">
-      <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-[#F5EFE6] text-center">צור קשר</h1>
+      <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-[#E7DBCB] text-center">צור קשר</h1>
       
       <div className="container mx-auto px-4 py-8">
-        <div className="bg-[#F5EFE6] p-8 rounded-lg shadow-lg text-center space-y-6">
+        <div className="bg-[#E7DBCB] p-8 rounded-lg shadow-lg text-center space-y-6">
           <h2 className="text-3xl text-[#7C382A] font-bold">ספריית מושב כנף</h2>
           
           <p className="text-xl text-[#7C382A]">לשאלות כלליות, אנא צרו קשר עם:</p>

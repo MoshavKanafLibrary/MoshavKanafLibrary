@@ -4,7 +4,7 @@ import NotFoundPageImage from '../assets/NotFoundPageImage.png'
 
 const NotFoundPage = () => {
   return (
-    <div className="h-screen w-screen bg-[#F5EFE6] flex items-center" dir="rtl">
+    <div className="h-screen w-screen bg-[#E7DBCB] flex items-center" dir="rtl">
       <div className="container flex flex-col md:flex-row items-center justify-between px-5 text-[#7C382A]">
         <div className="w-full lg:w-1/2 mx-8">
           <div className="text-7xl font-dark font-extrabold mb-8" style={{color: '#7C382A'}}>

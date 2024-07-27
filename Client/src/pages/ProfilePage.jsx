@@ -180,16 +180,16 @@ const ProfilePage = () => {
 
   return (
     <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-[#4B0000] via-[#8B0000] to-[#4B0000] overflow-x-hidden">
-      <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-[#F5EFE6] text-center">פרופיל</h1>
+      <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-[#E7DBCB] text-center">פרופיל</h1>
   
       <div className="container mx-auto px-4 py-8">
         {loading ? (
           <div className="flex justify-center items-center h-screen">
-            <FaSpinner className="animate-spin text-6xl text-[#F5EFE6]" />
+            <FaSpinner className="animate-spin text-6xl text-[#E7DBCB]" />
           </div>
         ) : (
           <div>
-            <div className="bg-[#F5EFE6] p-6 rounded-lg shadow-lg text-center">
+            <div className="bg-[#E7DBCB] p-6 rounded-lg shadow-lg text-center">
               <h3 className="mt-6 text-2xl text-[#7C382A]">ספרים מושאלים</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 {borrowedBooks.length > 0 ? (
@@ -208,11 +208,11 @@ const ProfilePage = () => {
                         key={index}
                         className="bg-[#4B0000] p-4 rounded-lg shadow-lg flex flex-col items-center"
                       >
-                        <h4 className="text-xl text-[#F5EFE6]">{book.title}</h4>
-                        <p className={`text-md ${dateColor} text-[#F5EFE6] py-2 px-4 rounded-full`}>
+                        <h4 className="text-xl text-[#E7DBCB]">{book.title}</h4>
+                        <p className={`text-md ${dateColor} text-[#E7DBCB] py-2 px-4 rounded-full`}>
                           תאריך להחזרה: {book.dueDate}
                         </p>
-                        <p className="text-[#F5EFE6]">סטטוס: {book.status === 'pending' ? 'ממתין' : 'מאושר'}</p>
+                        <p className="text-[#E7DBCB]">סטטוס: {book.status === 'pending' ? 'ממתין' : 'מאושר'}</p>
                         {book.status === 'pending' && (
                           <button
                             className="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
@@ -230,7 +230,7 @@ const ProfilePage = () => {
               </div>
             </div>
   
-            <div className="bg-[#F5EFE6] p-6 rounded-lg shadow-lg text-center mt-8">
+            <div className="bg-[#E7DBCB] p-6 rounded-lg shadow-lg text-center mt-8">
               <h3 className="mt-6 text-2xl text-[#7C382A]">מה כבר קראתי?</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 {readBooks.length > 0 ? (
@@ -239,15 +239,15 @@ const ProfilePage = () => {
                       key={index}
                       className="bg-[#4B0000] p-4 rounded-lg shadow-lg flex flex-col items-center"
                     >
-                      <h4 className="text-xl text-[#F5EFE6]">{book.title}</h4>
-                      <p className="text-[#F5EFE6]">תאריך קריאה: {book.readDate}</p>
+                      <h4 className="text-xl text-[#E7DBCB]">{book.title}</h4>
+                      <p className="text-[#E7DBCB]">תאריך קריאה: {book.readDate}</p>
   
                       {ratingLoading ? (
-                        <FaSpinner className="animate-spin text-2xl text-[#F5EFE6] mt-4" />
+                        <FaSpinner className="animate-spin text-2xl text-[#E7DBCB] mt-4" />
                       ) : (
                         !hasRated[book.title] ? (
                           <div className="mt-4">
-                            <label className="text-[#F5EFE6]">דרג את הספר:</label>
+                            <label className="text-[#E7DBCB]">דרג את הספר:</label>
                             <select
                               className="ml-2 bg-gray-200 p-1 rounded"
                               value={ratings[book.title] || ""}

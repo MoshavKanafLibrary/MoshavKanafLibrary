@@ -120,7 +120,7 @@ const WaitingListPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-[#8B0000] text-[#F5EFE6]' : 'bg-[#4B0000] text-[#F5EFE6]'}`}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-[#8B0000] text-[#E7DBCB]' : 'bg-[#4B0000] text-[#E7DBCB]'}`}
         >
           {i}
         </button>
@@ -137,17 +137,17 @@ const WaitingListPage = () => {
         </div>
       )}
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 " dir="rtl">
-        <h1 className="text-3xl md:text-5xl font-extrabold text-center mb-8 tracking-wide text-[#F5EFE6]">בקשות השאלה</h1>
+        <h1 className="text-3xl md:text-5xl font-extrabold text-center mb-8 tracking-wide text-[#E7DBCB]">בקשות השאלה</h1>
         <input
           type="text"
           placeholder="חפש לפי שם, אימייל, תאריך או כותר הספר..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="mb-10 p-2 w-full border rounded-md bg-[#F5EFE6] text-[#7C382A]"
+          className="mb-10 p-2 w-full border rounded-md bg-[#E7DBCB] text-[#7C382A]"
         />
         <div className="flex flex-col space-y-2">
           {/* Header Row */}
-          <div className="hidden sm:grid sm:grid-cols-6 text-center font-bold bg-[#7C382A] p-4 rounded-lg text-[#F5EFE6]">
+          <div className="hidden sm:grid sm:grid-cols-6 text-center font-bold bg-[#7C382A] p-4 rounded-lg text-[#E7DBCB]">
             <div>Uid</div>
             <div>שם פרטי</div>
             <div>שם משפחה</div>
@@ -159,7 +159,7 @@ const WaitingListPage = () => {
           {currentItems.length > 0 ? (
             currentItems.map((entry, index) => (
               <div key={index}
-                className={`grid grid-cols-1 sm:grid-cols-6 text-center bg-[#F5EFE6] hover:bg-[#8B0000] hover:text-[#F5EFE6] p-4 rounded-lg shadow cursor-pointer relative`}
+                className={`grid grid-cols-1 sm:grid-cols-6 text-center bg-[#E7DBCB] hover:bg-[#8B0000] hover:text-[#E7DBCB] p-4 rounded-lg shadow cursor-pointer relative`}
                 onMouseEnter={() => setHoverIndex(index)}
                 onMouseLeave={() => setHoverIndex(-1)}
                 onClick={() => handleRowClick(entry)}
@@ -184,13 +184,13 @@ const WaitingListPage = () => {
               </div>
             ))
           ) : (
-            <div className="text-center py-4 text-[#F5EFE6]">לא נמצאו בקשות</div>
+            <div className="text-center py-4 text-[#E7DBCB]">לא נמצאו בקשות</div>
           )}
         </div>
         {totalPages > 1 && (
           <div className="flex justify-center mt-8">
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#F5EFE6]"
+              className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#E7DBCB]"
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
             >
@@ -198,7 +198,7 @@ const WaitingListPage = () => {
             </button>
             {renderPageNumbers()}
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#F5EFE6]"
+              className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#E7DBCB]"
               onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
@@ -211,7 +211,7 @@ const WaitingListPage = () => {
       {/* Confirmation Popup */}
       {showConfirmPopup && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-[#F5EFE6] p-4 sm:p-8 rounded-lg shadow-lg max-w-sm w-full mx-2">
+          <div className="bg-[#E7DBCB] p-4 sm:p-8 rounded-lg shadow-lg max-w-sm w-full mx-2">
             <h2 className="text-xl sm:text-2xl font-bold mb-4 text-[#7C382A]">אישור מחיקה</h2>
             <p className="text-[#7C382A]">האם אתה בטוח שברצונך למחוק את הבקשה?</p>
             <div className="mt-6 flex justify-end">
@@ -223,7 +223,7 @@ const WaitingListPage = () => {
               </button>
               <button 
                 onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 text-[#F5EFE6] rounded"
+                className="px-4 py-2 bg-red-600 text-[#E7DBCB] rounded"
               >
                 אישור
               </button>

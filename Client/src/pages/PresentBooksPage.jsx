@@ -88,7 +88,7 @@ const PresentBooksPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-[#8B0000] text-[#F5EFE6]' : 'bg-[#4B0000] text-[#F5EFE6]'}`}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-[#8B0000] text-[#E7DBCB]' : 'bg-[#4B0000] text-[#E7DBCB]'}`}
         >
           {i}
         </button>
@@ -105,7 +105,7 @@ const PresentBooksPage = () => {
         </div>
       )}
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 bg-gradient-to-br from-[#4B0000] via-[#8B0000] to-[#4B0000]" dir="rtl">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#F5EFE6]">אוסף הספרים שלנו</h1>
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#E7DBCB]">אוסף הספרים שלנו</h1>
         {successMessage && (
           <div className="text-center py-3 px-4 bg-green-200 text-green-800 font-bold rounded-lg">
             {successMessage}
@@ -113,14 +113,14 @@ const PresentBooksPage = () => {
         )}
         <input
           type="text"
-          className="w-full p-2 mb-4 text-lg bg-[#F5EFE6] text-[#7C382A]"
+          className="w-full p-2 mb-4 text-lg bg-[#E7DBCB] text-[#7C382A]"
           placeholder="חפש ספרים..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-[#F5EFE6] rounded-lg shadow-lg">
-            <thead className="bg-[#7C382A] text-[#F5EFE6] text-lg">
+          <table className="min-w-full bg-[#E7DBCB] rounded-lg shadow-lg">
+            <thead className="bg-[#7C382A] text-[#E7DBCB] text-lg">
               <tr>
                 <th className="py-4 px-6 text-right">כותרת</th>
                 <th className="py-4 px-6 text-right">מחבר</th>
@@ -135,7 +135,7 @@ const PresentBooksPage = () => {
             </thead>
             <tbody className="text-[#7C382A]">
               {currentBooks.length > 0 ? currentBooks.map((book, index) => (
-                <tr key={index} className="border-b border-[#7C382A] hover:bg-[#8B0000] hover:text-[#F5EFE6] relative">
+                <tr key={index} className="border-b border-[#7C382A] hover:bg-[#8B0000] hover:text-[#E7DBCB] relative">
                   <td className="py-4 px-6 text-right">{book.title}</td>
                   <td className="py-4 px-6 text-right">{book.author}</td>
                   <td className="py-4 px-6 text-right">{book.classification}</td>
@@ -160,7 +160,7 @@ const PresentBooksPage = () => {
         {/* Pagination controls */}
         <div className="flex justify-center mt-4">
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#F5EFE6]"
+            className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#E7DBCB]"
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -168,7 +168,7 @@ const PresentBooksPage = () => {
           </button>
           {renderPageNumbers()}
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#F5EFE6]"
+            className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#E7DBCB]"
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
           >

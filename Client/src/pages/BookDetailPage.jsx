@@ -108,7 +108,7 @@ const BookDetailPage = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Book Details Section */}
-          <div className="lg:col-span-2 bg-[#F5EFE6] shadow-lg rounded-lg p-8 flex flex-col md:flex-row h-[600px]">
+          <div className="lg:col-span-2 bg-[#E7DBCB] shadow-lg rounded-lg p-8 flex flex-col md:flex-row h-[600px]">
             <div className="md:w-1/2 flex-shrink-0 pl-4">
               <div className="h-full w-full flex items-center justify-center overflow-hidden rounded-lg bg-[#7C382A]">
                 <img src={book.imageURL} alt={book.title} className="max-h-full max-w-full object-contain" />
@@ -119,7 +119,7 @@ const BookDetailPage = () => {
               <p className="text-[#7C382A] mb-4">{book.summary}</p>
               <p className="text-sm text-[#7C382A] mb-6">מאת {book.author}</p>
               <button
-                className={user ? "bg-[#7C382A] text-[#F5EFE6] hover:bg-[#4B0000] font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline" : "bg-[#7C382A] text-[#F5EFE6] font-bold py-3 px-6 rounded opacity-50 cursor-not-allowed"}
+                className={user ? "bg-[#7C382A] text-[#E7DBCB] hover:bg-[#4B0000] font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline" : "bg-[#7C382A] text-[#E7DBCB] font-bold py-3 px-6 rounded opacity-50 cursor-not-allowed"}
                 onClick={handleOrderNow}
               >
                 הזמן עכשיו
@@ -133,7 +133,7 @@ const BookDetailPage = () => {
           </div>
 
           {/* Reviews Section */}
-          <div className="lg:col-span-1 bg-[#F5EFE6] shadow-lg rounded-lg p-6 max-h-[600px] overflow-y-auto">
+          <div className="lg:col-span-1 bg-[#E7DBCB] shadow-lg rounded-lg p-6 max-h-[600px] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-6 text-center text-[#7C382A]">ביקורות משתמשים</h2>
             <div className="mb-6">
               {user ? (
@@ -145,7 +145,7 @@ const BookDetailPage = () => {
                     onChange={e => setReviewText(e.target.value)}
                   />
                   <button
-                    className="bg-[#4B0000] text-[#F5EFE6] py-3 px-6 rounded hover:bg-[#7C382A] focus:outline-none"
+                    className="bg-[#4B0000] text-[#E7DBCB] py-3 px-6 rounded hover:bg-[#7C382A] focus:outline-none"
                     onClick={handleReviewSubmit}
                   >
                     שלח ביקורת
@@ -159,9 +159,9 @@ const BookDetailPage = () => {
               <div className="space-y-6">
                 {reviews.map((review, index) => (
                   <div key={index} className="bg-[#7C382A] p-4 rounded-lg shadow-md">
-                    <p className="font-semibold text-[#F5EFE6]">{review.firstName} {review.lastName}</p>
-                    <p className="text-[#F5EFE6]">{review.review}</p>
-                    <p className="text-xs text-[#F5EFE6] mt-2">
+                    <p className="font-semibold text-[#E7DBCB]">{review.firstName} {review.lastName}</p>
+                    <p className="text-[#E7DBCB]">{review.review}</p>
+                    <p className="text-xs text-[#E7DBCB] mt-2">
                       {new Date(review.reviewedAt).toLocaleString()}
                     </p>
                   </div>
@@ -174,7 +174,7 @@ const BookDetailPage = () => {
         </div>
 
         {/* Recommendations Section */}
-        <div className="bg-[#F5EFE6] shadow-lg rounded-lg p-8 mt-12">
+        <div className="bg-[#E7DBCB] shadow-lg rounded-lg p-8 mt-12">
           <h2 className="text-2xl font-bold mb-6 text-center text-[#7C382A]">המלצות</h2>
           {loading ? (
             <div className="flex justify-center items-center h-64">
@@ -200,8 +200,8 @@ const BookDetailPage = () => {
                           className="max-h-full max-w-full object-contain"
                         />
                       </div>
-                      <h2 className="text-xl font-semibold text-[#F5EFE6]">{book.title}</h2>
-                      <p className="text-[#F5EFE6]">מאת {book.author}</p>
+                      <h2 className="text-xl font-semibold text-[#E7DBCB]">{book.title}</h2>
+                      <p className="text-[#E7DBCB]">מאת {book.author}</p>
                     </div>
                   ))}
                 </div>

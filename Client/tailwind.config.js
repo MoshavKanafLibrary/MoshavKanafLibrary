@@ -15,7 +15,7 @@ export default {
         "bg-red-black-gradient-from": "#4B0000",
         "bg-red-black-gradient-via": "#8B0000",
         "bg-red-black-gradient-to": "#4B0000",
-        "bg-light-custom": "#F5EFE6",
+        "bg-light-custom": "#E7DBCB",
         "bg-dark-red": "#7C382A",
       },
       screens: {
