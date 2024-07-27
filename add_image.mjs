@@ -27,7 +27,6 @@ async function searchImageOnSteimatzky(bookTitle) {
 
     // הדפסת ה-HTML המלא לניתוח
     console.log(`HTML fetched for book: ${bookTitle}`);
-    console.log(data);
 
     // מציאת הפריט הראשון בתוצאות החיפוש
     const firstResult = $('.product-item-image.product-image-container img').first();

@@ -19,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // טעינת קובץ ה-Excel
-const filePath = 'C:/Program Files/Git/BOOKS_TEST.xlsx'; // נתיב לקובץ ה-Excel שלך
+const filePath = 'C:/Program Files/Git/output.xlsx'; // נתיב לקובץ ה-Excel שלך
 const workbook = xlsx.readFile(filePath);
 const sheetName = workbook.SheetNames[0]; // השתמש בשם הגיליון הראשון
 const sheet = workbook.Sheets[sheetName];
