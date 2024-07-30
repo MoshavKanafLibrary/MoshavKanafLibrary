@@ -105,7 +105,7 @@ const AllRequestsPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-[#8B0000] text-[#E7DBCB]' : 'bg-[#4B0000] text-[#E7DBCB]'}`}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-hover text-bg-navbar-custom' : 'bg-bg-hover text-bg-navbar-custom'}`}
         >
           {i}
         </button>
@@ -121,23 +121,23 @@ const AllRequestsPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 bg-gradient-to-br from-[#4B0000] via-[#8B0000] to-[#4B0000]" dir="rtl">
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 bg-bg-hover" dir="rtl">
         {successMessage && (
           <div className="mb-4 p-4 text-center text-white bg-green-500 rounded-lg">
             {successMessage}
           </div>
         )}
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#E7DBCB]">כל הבקשות של המשתמשים</h1>
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">כל הבקשות של המשתמשים</h1>
         <input
           type="text"
-          className="w-full p-2 mb-4 text-lg bg-[#E7DBCB] text-[#7C382A]"
+          className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom text-bg-text"
           placeholder="חפש בקשות..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
         <div className="overflow-x-auto mb-4">
-          <table className="min-w-full bg-[#E7DBCB] rounded-lg shadow-lg">
-            <thead className="bg-[#7C382A] text-[#E7DBCB] text-lg">
+          <table className="min-w-full bg-bg-navbar-custom rounded-lg shadow-lg">
+            <thead className="bg-bg-text text-bg-navbar-custom text-lg">
               <tr>
                 <th className="py-4 px-6 text-right">UID</th>
                 <th className="py-4 px-6 text-right">שם משתמש</th>
@@ -146,9 +146,9 @@ const AllRequestsPage = () => {
                 <th className="py-4 px-6 text-right">פעולות</th>
               </tr>
             </thead>
-            <tbody className="text-[#7C382A]">
+            <tbody className="text-bg-text">
               {currentRequests.length > 0 ? currentRequests.map((request, index) => (
-                <tr key={index} className="border-b border-[#7C382A] hover:bg-[#8B0000] hover:text-[#E7DBCB]">
+                <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom">
                   <td className="py-4 px-6 text-right">{request.uid}</td>
                   <td className="py-4 px-6 text-right">{request.username}</td>
                   <td className="py-4 px-6 text-right">{request.requestText}</td>
@@ -170,13 +170,13 @@ const AllRequestsPage = () => {
                     </button>
                   </td>
                 </tr>
-              )) : <tr><td colSpan="5" className="text-center py-4 text-[#E7DBCB]">לא נמצאו בקשות</td></tr>}
+              )) : <tr><td colSpan="5" className="text-center py-4 text-bg-navbar-custom">לא נמצאו בקשות</td></tr>}
             </tbody>
           </table>
         </div>
         <div className="flex justify-center mt-8">
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#E7DBCB]"
+            className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -184,7 +184,7 @@ const AllRequestsPage = () => {
           </button>
           {renderPageNumbers()}
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#E7DBCB]"
+            className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
           >

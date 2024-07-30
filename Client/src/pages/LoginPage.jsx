@@ -59,21 +59,21 @@ function LoginPage() {
         <div className="mt-8">
           <div className="flex items-center justify-center">
             <form
-              className="bg-[#E7DBCB] shadow-2xl rounded md:px-8 px-2 pt-6 pb-8 w-full sm:w-1/2 lg:w-1/3"
+              className="bg-bg-navbar-custom shadow-2xl rounded md:px-8 px-2 pt-6 pb-8 w-full sm:w-1/2 lg:w-1/3"
               onSubmit={handleSubmit}
               dir="rtl"
             >
               <div className="text-center flex justify-center mb-3">
-                <h1 className="text-3xl text-[#7C382A] font-bold mb-5">התחבר</h1>
+                <h1 className="text-3xl text-bg-text font-bold mb-5">התחבר</h1>
               </div>
 
-              <div className="border-2 bg-[#4B0000] rounded-lg p-4 mb-4">
+              <div className="border-2 bg-bg-hover rounded-lg p-4 mb-4">
                 <div className="mb-4">
-                  <label className="block text-[#E7DBCB] text-sm mb-2">
+                  <label className="block text-bg-navbar-custom text-sm mb-2">
                     כתובת אימייל
                   </label>
                   <input
-                    className="bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#E7DBCB] leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
+                    className="bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
                     type="text"
                     placeholder="הכנס כתובת אימייל"
                     value={email}
@@ -81,11 +81,11 @@ function LoginPage() {
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="block text-[#E7DBCB] text-sm mb-2">
+                  <label className="block text-bg-navbar-custom text-sm mb-2">
                     סיסמה
                   </label>
                   <input
-                    className="bg-[#8B0000] shadow appearance-none border rounded w-full py-2 px-3 text-[#E7DBCB] mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
+                    className="bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
                     type="password"
                     placeholder="********"
                     value={password}

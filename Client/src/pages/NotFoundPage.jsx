@@ -4,13 +4,13 @@ import NotFoundPageImage from '../assets/NotFoundPageImage.png'
 
 const NotFoundPage = () => {
   return (
-    <div className="h-screen w-screen bg-[#E7DBCB] flex items-center" dir="rtl">
-      <div className="container flex flex-col md:flex-row items-center justify-between px-5 text-[#7C382A]">
+    <div className="h-screen w-screen bg-bg-navbar-custom flex items-center" dir="rtl">
+      <div className="container flex flex-col md:flex-row items-center justify-between px-5 text-bg-text">
         <div className="w-full lg:w-1/2 mx-8">
-          <div className="text-7xl font-dark font-extrabold mb-8" style={{color: '#7C382A'}}>
+          <div className="text-7xl font-dark font-extrabold mb-8" style={{color: 'bg-background-gradient-from'}}>
             404
           </div>
-          <p className="text-2xl md:text-3xl font-light leading-normal mb-8" style={{color: '#7C382A'}}>
+          <p className="text-2xl md:text-3xl font-light leading-normal mb-8" style={{color: 'bg-background-gradient-from'}}>
             סליחה, לא מצאנו את הדף שאתה מחפש
           </p>
 

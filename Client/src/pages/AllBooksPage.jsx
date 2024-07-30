@@ -79,7 +79,7 @@ const AllBooksPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-[#8B0000] text-[#E7DBCB]' : 'bg-[#4B0000] text-[#E7DBCB]'}`}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-hover text-bg-navbar-custom' : 'bg-bg-hover text-bg-navbar-custom'}`}
         >
           {i}
         </button>
@@ -96,17 +96,17 @@ const AllBooksPage = () => {
         </div>
       )}
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 " dir="rtl">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-[#E7DBCB]">אוסף הספרים שלנו</h1>
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">אוסף הספרים שלנו</h1>
         <input
           type="text"
-          className="w-full p-2 mb-4 text-lg bg-[#E7DBCB] text-[#7C382A]"
+          className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom text-bg-text"
           placeholder="חפש ספרים..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
         <div className="overflow-x-auto mb-4">
-          <table className="min-w-full bg-[#E7DBCB] rounded-lg shadow-lg">
-            <thead className="bg-[#7C382A] text-[#E7DBCB] text-lg">
+          <table className="min-w-full bg-bg-navbar-custom rounded-lg shadow-lg">
+            <thead className="bg-bg-text text-bg-navbar-custom text-lg">
               <tr>
                 <th className="py-4 px-6 text-right">כותר</th>
                 <th className="py-4 px-6 text-right">מחבר</th>
@@ -118,9 +118,9 @@ const AllBooksPage = () => {
                 <th className="py-4 px-6 text-right">סוג כותר</th>
               </tr>
             </thead>
-            <tbody className="text-[#7C382A]">
+            <tbody className="text-bg-text">
               {currentBooks.length > 0 ? currentBooks.map((book, index) => (
-                <tr key={index} className="border-b border-[#7C382A] hover:bg-[#8B0000] hover:text-[#E7DBCB] relative">
+                <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom relative">
                   <td className="py-4 px-6 text-right">{book.title}</td>
                   <td className="py-4 px-6 text-right">{book.author}</td>
                   <td className="py-4 px-6 text-right">{book.classification}</td>
@@ -130,14 +130,14 @@ const AllBooksPage = () => {
                   <td className="py-4 px-6 text-right">{book.locatorCode}</td>
                   <td className="py-4 px-6 text-right">{book.titleType}</td>
                 </tr>
-              )) : <tr><td colSpan="8" className="text-center py-4 text-[#E7DBCB]">לא נמצאו ספרים</td></tr>}
+              )) : <tr><td colSpan="8" className="text-center py-4 text-bg-navbar-custom">לא נמצאו ספרים</td></tr>}
             </tbody>
           </table>
         </div>
         {totalPages > 1 && (
           <div className="flex justify-center mt-8">
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#E7DBCB]"
+              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
             >
@@ -145,7 +145,7 @@ const AllBooksPage = () => {
             </button>
             {renderPageNumbers()}
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-[#4B0000] text-[#E7DBCB]"
+              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
               onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
@@ -157,7 +157,7 @@ const AllBooksPage = () => {
           <div className="flex items-center">
             <button
               onClick={exportToExcel}
-              className="bg-[#4B0000] hover:bg-[#8B0000] text-[#E7DBCB] font-bold py-2 px-4 rounded"
+              className="bg-bg-hover hover:bg-bg-hover text-bg-navbar-custom font-bold py-2 px-4 rounded"
             >
               ייצוא לאקסל
             </button>

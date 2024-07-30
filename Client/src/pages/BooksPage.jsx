@@ -187,7 +187,7 @@ const BooksPage = () => {
       pages.push(
         <button
           key={i}
-          className={`px-4 py-2 mx-2 rounded-lg ${i === currentPage ? 'bg-[#8B0000] text-[#F1E0DC]' : 'bg-[#4B0000] text-[#F1E0DC]'}`}
+          className={`px-4 py-2 mx-2 rounded-lg ${i === currentPage ? 'bg-bg-header-custom text-black' : 'bg-bg-header-custom text-black'}`}
           onClick={() => goToPage(i)}
         >
           {i}
@@ -198,30 +198,30 @@ const BooksPage = () => {
   };
 
   return (
-    <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-[#4B0000] via-[#8B0000] to-[#4B0000] overflow-x-hidden" dir="rtl">
+    <div className="relative pt-20 z-10 h-screen overflow-x-hidden" dir="rtl">
       <div>
-        <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-[#F1E0DC] text-center">הספרים שלנו</h1>
+        <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-bg-header-custom text-center">הספרים שלנו</h1>
       </div>
       <div className="container mx-auto px-4 py-8">
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
-            <FaSpinner className="animate-spin text-4xl text-[#F1E0DC]" />
+            <FaSpinner className="animate-spin text-4xl text-bg-header-custom" />
           </div>
         ) : (
           <>
             <div className="flex justify-between mb-4">
               <div className="flex items-center space-x-4">
                 <button
-                  className="bg-[#E7DBCB] text-[#7C382A] px-4 py-2 rounded-lg"
+                  className="bg-bg-header-custom text-black px-4 py-2 rounded-lg"
                   onClick={toggleFilterDropdown}
                 >
                   סנן
                 </button>
                 {showFilterDropdown && (
-                  <div className="absolute mt-2 bg-[#E7DBCB] rounded-lg shadow-lg p-4" ref={filterRef}>
+                  <div className="absolute mt-2 bg-bg-header-custom rounded-lg shadow-lg p-4" ref={filterRef}>
                     <div className="flex flex-col space-y-4">
                       <button
-                        className="bg-[#E7DBCB] text-[#7C382A] px-4 py-2 rounded-lg"
+                        className="bg-bg-header-custom text-black px-4 py-2 rounded-lg"
                         onClick={toggleCategoryDropdown}
                       >
                         קטגוריות
@@ -236,13 +236,13 @@ const BooksPage = () => {
                                 checked={selectedCategories.includes(category)}
                                 onChange={() => handleMultiSelect(category, setSelectedCategories, selectedCategories)}
                               />
-                              <span className="text-[#7C382A]">{category}</span>
+                              <span className="text-black">{category}</span>
                             </label>
                           ))}
                         </div>
                       )}
                       <button
-                        className="bg-[#E7DBCB] text-[#7C382A] px-4 py-2 rounded-lg"
+                        className="bg-bg-header-custom text-black px-4 py-2 rounded-lg"
                         onClick={toggleAuthorDropdown}
                       >
                         סופרים
@@ -257,13 +257,13 @@ const BooksPage = () => {
                                 checked={selectedAuthors.includes(author)}
                                 onChange={() => handleMultiSelect(author, setSelectedAuthors, selectedAuthors)}
                               />
-                              <span className="text-[#7C382A]">{author}</span>
+                              <span className="text-black">{author}</span>
                             </label>
                           ))}
                         </div>
                       )}
                       <button
-                        className="bg-[#E7DBCB] text-[#7C382A] px-4 py-2 rounded-lg"
+                        className="bg-bg-header-custom text-black px-4 py-2 rounded-lg"
                         onClick={toggleRatingDropdown}
                       >
                         דירוגים
@@ -278,7 +278,7 @@ const BooksPage = () => {
                                 checked={selectedRatings.includes(ratingCategory)}
                                 onChange={() => handleMultiSelect(ratingCategory, setSelectedRatings, selectedRatings)}
                               />
-                              <span className="text-[#7C382A]">{ratingCategory}</span>
+                              <span className="text-black">{ratingCategory}</span>
                             </label>
                           ))}
                         </div>
@@ -288,11 +288,11 @@ const BooksPage = () => {
                 )}
               </div>
               <div className="flex items-center justify-end w-full">
-                <FaSearch className="mr-2 text-[#F1E0DC]" />
-                <label className="text-[#F1E0DC] text-lg mr-2">חפש:</label>
+                <FaSearch className="mr-2 text-black" />
+                <label className="text-black text-lg mr-2">חפש:</label>
                 <input
                   type="text"
-                  className="bg-[#E7DBCB] text-[#7C382A] px-3 py-2 rounded-lg"
+                  className="bg-bg-header-custom text-black px-3 py-2 rounded-lg"
                   placeholder="חפש לפי כותרת או סופר"
                   value={searchQuery}
                   onChange={handleSearchInputChange}
@@ -304,7 +304,7 @@ const BooksPage = () => {
                 {paginatedBooks.map((book, index) => (
                   <div
                     key={index}
-                    className="bg-[#E7DBCB] shadow-xl rounded-lg p-4 text-center h-96 w-56 mx-auto cursor-pointer"
+                    className="bg-bg-header-custom shadow-xl rounded-lg p-4 text-center h-96 w-56 mx-auto cursor-pointer"
                     onClick={() => handleCardClick(book)}
                   >
                     <div className="h-4/5 w-full">
@@ -315,9 +315,9 @@ const BooksPage = () => {
                       />
                     </div>
                     <div className="h-1/5">
-                      <h2 className="text-xl font-semibold text-[#7C382A]">{book.title}</h2>
-                      <p className="text-[#7C382A]">מאת <span className="text-[#7C382A]">{book.author}</span></p>
-                      <p className="text-[#7C382A]"><span className="text-[#7C382A]">{book.averageRating === 'N/A' ? 'N/A' : getStars(book.averageRating)}</span></p>
+                      <h2 className="text-xl font-semibold text-black">{book.title}</h2>
+                      <p className="text-black">מאת <span className="text-black">{book.author}</span></p>
+                      <p className="text-black"><span className="text-black">{book.averageRating === 'N/A' ? 'N/A' : getStars(book.averageRating)}</span></p>
                     </div>
                   </div>
                 ))}
@@ -325,7 +325,7 @@ const BooksPage = () => {
               {totalPages > 1 && (
                 <div className="flex justify-center mt-8">
                   <button
-                    className="px-4 py-2 mx-2 rounded-lg bg-[#E7DBCB] text-[#7C382A]"
+                    className="px-4 py-2 mx-2 rounded-lg bg-bg-header-custom text-black"
                     onClick={() => goToPage(currentPage - 1)}
                     disabled={currentPage === 1}
                   >
@@ -333,7 +333,7 @@ const BooksPage = () => {
                   </button>
                   {renderPageNumbers()}
                   <button
-                    className="px-4 py-2 mx-2 rounded-lg bg-[#E7DBCB] text-[#7C382A]"
+                    className="px-4 py-2 mx-2 rounded-lg bg-bg-header-custom text-black"
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
                   >

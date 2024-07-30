@@ -39,7 +39,7 @@ function App() {
       <div className="relative z-20">
         <Navbar />
       </div>
-      <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-bg-red-black-gradient-from via-bg-red-black-gradient-via to-bg-red-black-gradient-to overflow-x-hidden">
+      <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-bg-background-gradient-from via-bg-background-gradient-via to-bg-background-gradient-to overflow-x-hidden">
         <Routes>
           <Route path="/" element={<BooksPage />} />
           <Route path="/signup" element={<SignUpPage />} />
