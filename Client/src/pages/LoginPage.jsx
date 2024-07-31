@@ -67,7 +67,7 @@ function LoginPage() {
                 <h1 className="text-3xl text-bg-text font-bold mb-5">התחבר</h1>
               </div>
 
-              <div className="border-2 bg-bg-hover rounded-lg p-4 mb-4">
+              <div className="border-2 bg-bg-background-gradient-via rounded-lg p-4 mb-4">
                 <div className="mb-4">
                   <label className="block text-bg-navbar-custom text-sm mb-2">
                     כתובת אימייל
@@ -118,15 +118,15 @@ function LoginPage() {
                 </p>
               )}
               <div className="flex flex-col items-center justify-center">
-                <h2 className="text-center mb-2 text-[#4B0000]">
+                <h2 className="text-center mb-2 text-bg-background-gradient-via">
                   או... התחבר עם
                 </h2>
                 <div className="flex space-x-8">
                   <GoogleLogin setShowAddMoreInfo={setShowAddMoreInfo} />
                 </div>
               </div>
-              <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-[#4B0000] rounded-md py-4">
-                <h2 className="text-[#4B0000]">משתמש חדש?</h2>
+              <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-bg-background-gradient-from rounded-md py-4">
+                <h2 className="text-bg-background-gradient-via">משתמש חדש?</h2>
                 <Link
                   className="text-blue-500 rounded focus:outline-none focus:shadow-outline"
                   to="/signup"
@@ -134,8 +134,8 @@ function LoginPage() {
                   צור חשבון
                 </Link>
               </div>
-              <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-[#4B0000] rounded-md py-4">
-                <h2 className="text-[#4B0000]">שכחת סיסמה?</h2>
+              <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-bg-background-gradient-from rounded-md py-4">
+                <h2 className="text-bg-background-gradient-via">שכחת סיסמה?</h2>
                 <Link
                   className="text-blue-500 rounded focus:outline-none focus:shadow-outline"
                   to="/resetpassword"

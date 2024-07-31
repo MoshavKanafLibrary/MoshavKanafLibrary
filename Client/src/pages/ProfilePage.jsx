@@ -179,7 +179,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-[#4B0000] via-bg-hover to-[#4B0000] overflow-x-hidden">
+    <div className="relative pt-20 z-10 h-screen overflow-x-hidden">
       <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-bg-navbar-custom text-center">פרופיל</h1>
   
       <div className="container mx-auto px-4 py-8">

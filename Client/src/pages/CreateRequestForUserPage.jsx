@@ -69,7 +69,7 @@ const CreateRequestForUserPage = () => {
       )}
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 " dir="rtl">
         <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">צור בקשה עבור משתמש</h1>
-        <div className="bg-bg-hover border-4 border-[#4B0000] rounded-lg p-6 mb-4">
+        <div className="bg-bg-hover border-4 border-bg-background-gradient-from rounded-lg p-6 mb-4">
           <div className="flex justify-between mb-4">
             <div className="border-2 bg-bg-text rounded-lg p-4 w-1/2 pr-2">
               <label className="block text-bg-navbar-custom text-lg font-medium mb-2">בחר משתמש:</label>

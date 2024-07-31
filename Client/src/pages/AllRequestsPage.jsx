@@ -121,7 +121,7 @@ const AllRequestsPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 bg-bg-hover" dir="rtl">
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
         {successMessage && (
           <div className="mb-4 p-4 text-center text-white bg-green-500 rounded-lg">
             {successMessage}

@@ -49,7 +49,7 @@ const MoreInfoPage = () => {
             מלא פרטים נוספים
           </h1>
         </div>
-        <div className="border-2 bg-bg-hover rounded-lg p-4 mb-4">
+        <div className="border-2 bg-bg-background-gradient-via rounded-lg p-4 mb-4">
           {user && user.email && (
             <div className="mb-3">
               <label className="block text-bg-navbar-custom text-sm mb-2">

@@ -56,11 +56,11 @@ const UserRequestsPage = () => {
         onSubmit={handleFormSubmit}
       >
         {/* Request Text */}
-        <div className="border-2 bg-bg-hover rounded-lg p-4 mb-4">
+        <div className="border-2 bg-bg-background-gradient-via rounded-lg p-4 mb-4">
           <div className="mb-4">
             <label className="block text-bg-navbar-custom text-md mb-2">בקשה</label>
             <textarea
-              className="bg-bg-navbar-custom shadow border rounded w-full py-3 px-4 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-bg-navbar-custom shadow border rounded w-full py-3 px-4 leading-tight focus:outline-none focus:shadow-outline"
               placeholder="הכנס את הבקשה שלך"
               value={requestText}
               onChange={(e) => setRequestText(e.target.value)}

@@ -95,7 +95,7 @@ const SignUpPage = () => {
           </h1>
         </div>
 
-        <div className="border-2 bg-bg-hover rounded-lg p-4 mb-4">
+        <div className="border-2 bg-bg-background-gradient-via rounded-lg p-4 mb-4">
           <div className="mb-4">
             <label className="block text-bg-navbar-custom text-sm mb-2">
               כתובת אימייל
@@ -105,7 +105,7 @@ const SignUpPage = () => {
                 (error === "Firebase: Error (auth/invalid-email)." ||
                   email === "") &&
                 hasClickedCreateAccount
-                  ? "bg-red-200 shadow appearance-none border rounded w-full py-2 px-3 text-[#4B0000] leading-tight focus:outline-none focus:shadow-outline"
+                  ? "bg-red-200 shadow appearance-none border rounded w-full py-2 px-3 text-bg-background-gradient-from leading-tight focus:outline-none focus:shadow-outline"
                   : "bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline"
               }
               placeholder="הכנס את כתובת האימייל שלך"
@@ -120,7 +120,7 @@ const SignUpPage = () => {
             <input
               className={
                 password === "" && hasClickedCreateAccount
-                  ? "bg-red-200 shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-[#4B0000] mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  ? "bg-red-200 shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-bg-background-gradient-from mb-3 leading-tight focus:outline-none focus:shadow-outline"
                   : "bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom mb-3 leading-tight focus:outline-none focus:shadow-outline"
               }
               type="password"
@@ -137,7 +137,7 @@ const SignUpPage = () => {
               className={
                 (password !== confirmPassword || confirmPassword === "") &&
                 hasClickedCreateAccount
-                  ? "bg-red-200 shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-[#4B0000] mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  ? "bg-red-200 shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-bg-background-gradient-from mb-3 leading-tight focus:outline-none focus:shadow-outline"
                   : "bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom mb-3 leading-tight focus:outline-none focus:shadow-outline"
               }
               type="password"
@@ -153,7 +153,7 @@ const SignUpPage = () => {
             <input
               className={
                 error && error.includes("שם התצוגה")
-                  ? "bg-red-200 shadow appearance-none border rounded w-full py-2 px-3 text-[#4B0000] leading-tight focus:outline-none focus:shadow-outline"
+                  ? "bg-red-200 shadow appearance-none border rounded w-full py-2 px-3 text-bg-background-gradient-from leading-tight focus:outline-none focus:shadow-outline"
                   : "bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline"
               }
               placeholder="הכנס שם תצוגה"
@@ -221,8 +221,8 @@ const SignUpPage = () => {
           </p>
         )}
 
-        <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-[#4B0000] rounded-md py-4 px-6">
-          <h2 className="text-[#4B0000]">כבר יש לך חשבון?</h2>
+        <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-bg-background-gradient-from rounded-md py-4 px-6">
+          <h2 className="text-bg-background-gradient-from">כבר יש לך חשבון?</h2>
           <Link
             className="text-blue-500 rounded focus:outline-none focus:shadow-outline"
             to="/login"

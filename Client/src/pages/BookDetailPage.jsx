@@ -139,7 +139,7 @@ const BookDetailPage = () => {
               {user ? (
                 <div className="flex flex-col space-y-6">
                   <textarea
-                    className="w-full p-3 border border-bg-text rounded focus:outline-none focus:border-[#4B0000]"
+                    className="w-full p-3 border border-bg-text rounded focus:outline-none focus:border-bg-background-gradient-from"
                     placeholder="כתוב את הביקורת שלך..."
                     value={reviewText}
                     onChange={e => setReviewText(e.target.value)}
