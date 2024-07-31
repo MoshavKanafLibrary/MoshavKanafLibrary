@@ -288,8 +288,8 @@ const BooksPage = () => {
                 )}
               </div>
               <div className="flex items-center justify-end w-full">
-                <FaSearch className="mr-2 text-black" />
-                <label className="text-black text-lg mr-2">חפש:</label>
+                <FaSearch className="mr-2 text-bg-header-custom" />
+                <label className="text-bg-header-custom text-lg mr-2">חפש:</label>
                 <input
                   type="text"
                   className="bg-bg-header-custom text-black px-3 py-2 rounded-lg"
@@ -323,7 +323,7 @@ const BooksPage = () => {
                 ))}
               </div>
               {totalPages > 1 && (
-                <div className="flex justify-center mt-8">
+                <div className="flex justify-center mt-8 ">
                   <button
                     className="px-4 py-2 mx-2 rounded-lg bg-bg-header-custom text-black"
                     onClick={() => goToPage(currentPage - 1)}

@@ -22,7 +22,7 @@ const BookBorrowDetailsPage = () => {
   useEffect(() => {
     const fetchCopies = async () => {
       try {
-        const response = await axios.get(`/api/book/getCopiesByTitle`, { params: { title: bookTitle } });
+        const response = await axios.get("/api/book/getCopiesByTitle", { params: { title: bookTitle } });
         if (response.status === 200 && response.data.copies) {
           setCopies(response.data.copies);
         } else {
@@ -42,7 +42,7 @@ const BookBorrowDetailsPage = () => {
 
   const handleBorrow = async (copyID) => {
     try {
-      const bookResponse = await axios.get(`/api/books/names`);
+      const bookResponse = await axios.get("/api/books/names");
       const book = bookResponse.data.bookNames.find(book => book.title === bookTitle);
   
       if (book) {
@@ -54,7 +54,7 @@ const BookBorrowDetailsPage = () => {
           if (updateBorrowResponse.data.success) {
             setCopies(prevCopies => prevCopies.map(copy => {
               if (copy.copyID === copyID) {
-                return { ...copy, borrowedTo: `${firstName} ${lastName}` };
+                return { ...copy, borrowedTo: [{ firstName, lastName }] };
               }
               return copy;
             }));
@@ -87,7 +87,7 @@ const BookBorrowDetailsPage = () => {
       const response2 = await axios.post(`/api/users/${uid}/send-email`, {
         message: `הספר "${bookTitle}" מוכן להשאלה.`
       });
-      if ((response1.data.success) || (response1.data.success)) {
+      if (response1.data.success || response2.data.success) {
         setSuccessMessage("ההתראה נשלחה בהצלחה");
         setError(""); // Clear any previous error messages
       } else {
@@ -99,7 +99,7 @@ const BookBorrowDetailsPage = () => {
       setSuccessMessage(""); // Clear any previous success messages
     }
   };
-  
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = copies.slice(indexOfFirstItem, indexOfLastItem);
@@ -122,7 +122,7 @@ const BookBorrowDetailsPage = () => {
                 <div key={index} className="bg-bg-navbar-custom p-4 rounded-lg shadow mb-4" style={{ width: 'calc(40% - 16px)' }}>
                   <div><strong>כותר:</strong> {copy.title}</div>
                   <div><strong>מספר עותק:</strong> {copy.copyID}</div>
-                  <div><strong>סטטוס:</strong> {copy.borrowedTo ? `הושאל ל-${copy.borrowedTo}` : "זמין"}</div>
+                  <div><strong>סטטוס:</strong> {copy.borrowedTo && copy.borrowedTo.length > 0 ? `הושאל ל-${copy.borrowedTo[0].firstName} ${copy.borrowedTo[0].lastName}` : "זמין"}</div>
                   {!copy.borrowedTo && (
                     <button
                       className="mt-4 bg-bg-hover hover:bg-bg-hover text-bg-navbar-custom font-bold py-2 px-4 rounded max-w-xs"
