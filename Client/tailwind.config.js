@@ -5,13 +5,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        "bg-main-custom": "#18181b",
-        "bg-navbar-custom": "#161b21",
-        "bg-login-custom": "#E0E7FF",
-        "bg-navbar-gradient-from": "#18181b",
-        "bg-navbar-gradient-to": "#000000",
-        "bg-home-gradient-from": "#D3CCE3",
-        "bg-home-gradient-to": "#E9E4F0",
+        "bg-header-custom":"#DDE1EC",
+        "bg-navbar-custom": "#DDE1EC",
+        "bg-background-gradient-from": "#34389C",
+        "bg-background-gradient-via": "#1D1D40",
+        "bg-background-gradient-to": "#34389C",
+        "bg-background-textbox":"#2B2D57",
+        "bg-text":"#19162A",
+        "bg-hover":"#535692"
       },
       screens: {
         notComputer: "1500px",

@@ -65,7 +65,7 @@ const AllUsersPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-gray-500 text-white' : 'bg-gray-700 text-gray-300'}`}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-hover text-bg-navbar-custom' : 'bg-bg-hover text-bg-navbar-custom'}`}
         >
           {i}
         </button>
@@ -88,18 +88,18 @@ const AllUsersPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">כל המשתמשים</h1>
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 " dir="rtl">
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">כל המשתמשים</h1>
         <input
           type="text"
-          className="w-full p-2 mb-4 text-lg"
+          className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom text-bg-text"
           placeholder="חפש משתמשים לפי שם פרטי, שם משפחה, מזהה, אימייל, פלאפון, או סטטוס מנהל..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
         <div className="overflow-x-auto mb-4">
-          <table className="min-w-full bg-white rounded-lg shadow-lg">
-            <thead className="bg-gray-800 text-white text-lg">
+          <table className="min-w-full bg-bg-navbar-custom rounded-lg shadow-lg">
+            <thead className="bg-bg-text text-bg-navbar-custom text-lg">
               <tr>
                 <th className="py-4 px-6 text-right">מזהה משתמש</th>
                 <th className="py-4 px-6 text-right">שם פרטי</th>
@@ -109,9 +109,9 @@ const AllUsersPage = () => {
                 <th className="py-4 px-6 text-right">הרשאות מנהל</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700">
+            <tbody className="text-bg-text">
               {currentUsers.length > 0 ? currentUsers.map((user, index) => (
-                <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
+                <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom">
                   <td className="py-4 px-6 text-right">{user.uid}</td>
                   <td className="py-4 px-6 text-right">{user.firstName}</td>
                   <td className="py-4 px-6 text-right">{user.lastName}</td>
@@ -119,14 +119,14 @@ const AllUsersPage = () => {
                   <td className="py-4 px-6 text-right">{user.phone}</td>
                   <td className="py-4 px-6 text-right">{user.isManager ? 'כן' : 'לא'}</td>
                 </tr>
-              )) : <tr><td colSpan="6" className="text-center py-4">לא נמצאו משתמשים</td></tr>}
+              )) : <tr><td colSpan="6" className="text-center py-4 text-bg-navbar-custom">לא נמצאו משתמשים</td></tr>}
             </tbody>
           </table>
         </div>
         {totalPages > 1 && (
           <div className="flex justify-center mt-8">
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
             >
@@ -134,7 +134,7 @@ const AllUsersPage = () => {
             </button>
             {renderPageNumbers()}
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
               onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
@@ -145,7 +145,7 @@ const AllUsersPage = () => {
         <div className="flex justify-center">
           <button
             onClick={exportToExcel}
-            className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded"
+            className="bg-bg-hover hover:bg-bg-hover text-bg-navbar-custom font-bold py-2 px-4 rounded"
           >
             ייצא לאקסל
           </button>

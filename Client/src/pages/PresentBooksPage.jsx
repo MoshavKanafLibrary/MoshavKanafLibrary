@@ -88,7 +88,7 @@ const PresentBooksPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-gray-500 text-white' : 'bg-gray-700 text-gray-300'}`}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-background-gradient-via text-bg-navbar-custom' : 'bg-bg-background-gradient-from text-bg-navbar-custom'}`}
         >
           {i}
         </button>
@@ -104,8 +104,8 @@ const PresentBooksPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 " dir="rtl">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">אוסף הספרים שלנו</h1>
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">אוסף הספרים שלנו</h1>
         {successMessage && (
           <div className="text-center py-3 px-4 bg-green-200 text-green-800 font-bold rounded-lg">
             {successMessage}
@@ -113,14 +113,14 @@ const PresentBooksPage = () => {
         )}
         <input
           type="text"
-          className="w-full p-2 mb-4 text-lg"
+          className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom text-bg-text"
           placeholder="חפש ספרים..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded-lg shadow-lg">
-            <thead className="bg-gray-800 text-white text-lg">
+          <table className="min-w-full bg-bg-navbar-custom rounded-lg shadow-lg">
+            <thead className="bg-bg-text text-bg-navbar-custom text-lg">
               <tr>
                 <th className="py-4 px-6 text-right">כותרת</th>
                 <th className="py-4 px-6 text-right">מחבר</th>
@@ -133,9 +133,9 @@ const PresentBooksPage = () => {
                 <th className="py-4 px-6 text-right"></th>
               </tr>
             </thead>
-            <tbody className="text-gray-700">
+            <tbody className="text-bg-text">
               {currentBooks.length > 0 ? currentBooks.map((book, index) => (
-                <tr key={index} className="border-b border-gray-200 hover:bg-gray-100 relative">
+                <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom relative">
                   <td className="py-4 px-6 text-right">{book.title}</td>
                   <td className="py-4 px-6 text-right">{book.author}</td>
                   <td className="py-4 px-6 text-right">{book.classification}</td>
@@ -160,7 +160,7 @@ const PresentBooksPage = () => {
         {/* Pagination controls */}
         <div className="flex justify-center mt-4">
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+            className="px-4 py-2 mx-2 rounded-lg bg-bg-background-gradient-from text-bg-navbar-custom"
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -168,7 +168,7 @@ const PresentBooksPage = () => {
           </button>
           {renderPageNumbers()}
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+            className="px-4 py-2 mx-2 rounded-lg bg-bg-background-gradient-from text-bg-navbar-custom"
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
           >

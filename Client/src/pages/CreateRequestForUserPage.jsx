@@ -47,16 +47,13 @@ const CreateRequestForUserPage = () => {
     }
 
     try {
-      // Add user to the waiting list
       await axios.post(`/api/books/${selectedBook.id}/waiting-list`, { uid: selectedUser.uid });
-
-      // Add entry to the user's borrowBooks-list
       await axios.post(`/api/users/${selectedUser.uid}/borrow-books-list`, { title: selectedBook.title });
 
       setSuccessMessage("הספר הוזמן בהצלחה");
       setTimeout(() => {
         setSuccessMessage('');
-      }, 3000); // Clear the success message after 3 seconds
+      }, 3000);
     } catch (error) {
       console.error("Error handling request:", error.response ? error.response.data.message : error.message);
       alert(`${error.response ? error.response.data.message : "שגיאת שרת"}`);
@@ -70,14 +67,14 @@ const CreateRequestForUserPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">צור בקשה עבור משתמש</h1>
-        <div className="bg-gray-600 border-4 border-gray-300 rounded-lg p-6 mb-4">
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 " dir="rtl">
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">צור בקשה עבור משתמש</h1>
+        <div className="bg-bg-hover border-4 border-bg-background-gradient-from rounded-lg p-6 mb-4">
           <div className="flex justify-between mb-4">
-            <div className="border-2 bg-gray-700 rounded-lg p-4 w-1/2 pr-2">
-              <label className="block text-gray-50 text-lg font-medium mb-2">בחר משתמש:</label>
+            <div className="border-2 bg-bg-text rounded-lg p-4 w-1/2 pr-2">
+              <label className="block text-bg-navbar-custom text-lg font-medium mb-2">בחר משתמש:</label>
               <select
-                className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom shadow border rounded text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+                className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom shadow border rounded text-bg-text leading-tight focus:outline-none focus:shadow-outline"
                 value={selectedUser ? selectedUser.uid : ''}
                 onChange={e => {
                   const user = users.find(u => u.uid === e.target.value);
@@ -92,10 +89,10 @@ const CreateRequestForUserPage = () => {
                 ))}
               </select>
             </div>
-            <div className="border-2 bg-gray-700 rounded-lg p-4 w-1/2 pl-2">
-              <label className="block text-gray-50 text-lg font-medium mb-2">בחר ספר:</label>
+            <div className="border-2 bg-bg-text rounded-lg p-4 w-1/2 pl-2">
+              <label className="block text-bg-navbar-custom text-lg font-medium mb-2">בחר ספר:</label>
               <select
-                className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom shadow border rounded text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+                className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom shadow border rounded text-bg-text leading-tight focus:outline-none focus:shadow-outline"
                 value={selectedBook ? selectedBook.id : ''}
                 onChange={e => {
                   const book = books.find(b => b.id === e.target.value);
@@ -115,7 +112,7 @@ const CreateRequestForUserPage = () => {
         <div className="flex justify-center">
           <button
             onClick={handleRequest}
-            className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded"
+            className="bg-bg-hover hover:bg-bg-hover text-bg-navbar-custom font-bold py-2 px-4 rounded"
           >
             צור בקשה
           </button>

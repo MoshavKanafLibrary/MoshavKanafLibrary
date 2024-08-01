@@ -179,18 +179,18 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="relative pt-20 z-10 h-screen bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 overflow-x-hidden">
-      <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-black text-center">פרופיל</h1>
+    <div className="relative pt-20 z-10 h-screen overflow-x-hidden">
+      <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-bg-navbar-custom text-center">פרופיל</h1>
   
       <div className="container mx-auto px-4 py-8">
         {loading ? (
           <div className="flex justify-center items-center h-screen">
-            <FaSpinner className="animate-spin text-6xl text-gray-800" />
+            <FaSpinner className="animate-spin text-6xl text-bg-navbar-custom" />
           </div>
         ) : (
           <div>
-            <div className="bg-gray-700 p-6 rounded-lg shadow-lg text-center">
-              <h3 className="mt-6 text-2xl text-white">ספרים מושאלים</h3>
+            <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center">
+              <h3 className="mt-6 text-2xl text-bg-text">ספרים מושאלים</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 {borrowedBooks.length > 0 ? (
                   borrowedBooks.map((book, index) => {
@@ -206,13 +206,13 @@ const ProfilePage = () => {
                     return (
                       <div
                         key={index}
-                        className="bg-gray-600 p-4 rounded-lg shadow-lg flex flex-col items-center"
+                        className="bg-bg-hover p-4 rounded-lg shadow-lg flex flex-col items-center"
                       >
-                        <h4 className="text-xl text-white">{book.title}</h4>
-                        <p className={`text-md ${dateColor} text-white py-2 px-4 rounded-full`}>
+                        <h4 className="text-xl text-bg-navbar-custom">{book.title}</h4>
+                        <p className={`text-md ${dateColor} text-bg-navbar-custom py-2 px-4 rounded-full`}>
                           תאריך להחזרה: {book.dueDate}
                         </p>
-                        <p className="text-gray-300">סטטוס: {book.status === 'pending' ? 'ממתין' : 'מאושר'}</p>
+                        <p className="text-bg-navbar-custom">סטטוס: {book.status === 'pending' ? 'ממתין' : 'מאושר'}</p>
                         {book.status === 'pending' && (
                           <button
                             className="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
@@ -225,29 +225,29 @@ const ProfilePage = () => {
                     );
                   })
                 ) : (
-                  <p className="text-white col-span-1 sm:col-span-2 text-center mt-4">לא השאלת ספרים עדיין.</p>
+                  <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-4">לא השאלת ספרים עדיין.</p>
                 )}
               </div>
             </div>
   
-            <div className="bg-gray-700 p-6 rounded-lg shadow-lg text-center mt-8">
-              <h3 className="mt-6 text-2xl text-white">מה כבר קראתי?</h3>
+            <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mt-8">
+              <h3 className="mt-6 text-2xl text-bg-text">מה כבר קראתי?</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 {readBooks.length > 0 ? (
                   readBooks.map((book, index) => (
                     <div
                       key={index}
-                      className="bg-gray-600 p-4 rounded-lg shadow-lg flex flex-col items-center"
+                      className="bg-bg-hover p-4 rounded-lg shadow-lg flex flex-col items-center"
                     >
-                      <h4 className="text-xl text-white">{book.title}</h4>
-                      <p className="text-gray-300">תאריך קריאה: {book.readDate}</p>
+                      <h4 className="text-xl text-bg-navbar-custom">{book.title}</h4>
+                      <p className="text-bg-navbar-custom">תאריך קריאה: {book.readDate}</p>
   
                       {ratingLoading ? (
-                        <FaSpinner className="animate-spin text-2xl text-gray-300 mt-4" />
+                        <FaSpinner className="animate-spin text-2xl text-bg-navbar-custom mt-4" />
                       ) : (
                         !hasRated[book.title] ? (
                           <div className="mt-4">
-                            <label className="text-white">דרג את הספר:</label>
+                            <label className="text-bg-navbar-custom">דרג את הספר:</label>
                             <select
                               className="ml-2 bg-gray-200 p-1 rounded"
                               value={ratings[book.title] || ""}
@@ -272,7 +272,7 @@ const ProfilePage = () => {
                     </div>
                   ))
                 ) : (
-                  <p className="text-white col-span-1 sm:col-span-2 text-center mt-4">לא קראת ספרים עדיין.</p>
+                  <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-4">לא קראת ספרים עדיין.</p>
                 )}
               </div>
             </div>

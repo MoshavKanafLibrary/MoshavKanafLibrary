@@ -41,19 +41,17 @@ function ResetPasswordPage() {
           onSubmit={handleSubmit}
         >
           <div className="text-center flex justify-center mb-3">
-            <h1 className="text-3xl text-gray-50 font-bold mb-5">
+            <h1 className="text-3xl text-bg-text font-bold mb-5">
               איפוס סיסמה
             </h1>
           </div>
-          <div className="border-2 bg-gray-700 rounded-lg p-4 mb-4">
+          <div className="border-2 bg-bg-hover rounded-lg p-4 mb-4">
             <div className="mb-4">
-              <label className="block text-gray-50 text-sm mb-2">
+              <label className="block text-bg-navbar-custom text-sm mb-2">
                 כתובת אימייל
               </label>
               <input
-                className="bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3
-                  text-gray-50 leading-tight focus:outline-none focus:shadow-outline
-                  focus:border-blue-500"
+                className="bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
                 type="text"
                 placeholder="הכנס את כתובת האימייל שלך"
                 value={email}
@@ -62,7 +60,7 @@ function ResetPasswordPage() {
             </div>
             {isLoading ? (
               <button
-                className="bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 w-full rounded"
+                className="bg-green-500 hover:bg-green-400 text-bg-navbar-custom font-bold py-2 px-4 w-full rounded"
                 type="button"
                 disabled={true}
               >
@@ -71,7 +69,7 @@ function ResetPasswordPage() {
               </button>
             ) : (
               <button
-                className="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 w-full rounded focus:outline-none focus:shadow-outline"
+                className="bg-green-600 hover:bg-green-500 text-bg-navbar-custom font-bold py-2 px-4 w-full rounded focus:outline-none focus:shadow-outline"
                 type="submit"
               >
                 שלח אימייל איפוס סיסמה

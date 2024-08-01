@@ -15,7 +15,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
@@ -37,7 +36,6 @@ app.use((req, res, next) => {
 // Serve static files from the 'dist' directory where Vite outputs the built project
 app.use(express.static(path.join(__dirname, '../Client/dist')));
 
-``
 // Define a route handler for the root route
 app.get('/', (req, res) => {
   res.send('Hello, World from Server!'); // Send a simple response for the root route
@@ -104,7 +102,6 @@ app.put("/api/users/:uid", async (req, res) => {
 });
 
 
-
 app.get('/api/users/:uid/historyBooks', async (req, res) => {
   console.log("Endpoint Hit: /api/users/:uid/historyBooks");
 
@@ -147,7 +144,6 @@ app.get('/api/users/:uid/historyBooks', async (req, res) => {
   }
 });
 
-
 const getUniqueCopyID = async () => {
   let isUnique = false;
   let newCopyID = await getAndUpdateCounter(1);
@@ -167,36 +163,6 @@ const getUniqueCopyID = async () => {
 
   return newCopyID;
 };
-
-
-
-// // Handler for fetching user by UID
-// app.get("/api/displaynames/:uid", async (req, res) => {
-//   try {
-//     console.log(
-//       "123"
-//     )
-//     const { uid } = req.params;
-//     const usersCollection = collection(db, "users");
-//     const q = query(usersCollection, where("uid", "==", uid));
-//     const querySnapshot = await getDocs(q);
-
-//     if (!querySnapshot.empty) {
-//       querySnapshot.forEach(doc => {
-//         const user = doc.data();
-//         res.status(200).send(user.displayName);
-//       });
-//     } else {
-//       res.status(404).send("User not found");
-//     }
-//     console.log(
-//       "123"
-//     )
-//   } catch (error) {
-//     console.error("Error fetching user data", error);
-//     res.status(500).send("Server error");
-//   }
-// });
 
 
 // Handler for validating display name
@@ -222,7 +188,6 @@ app.get("/api/displaynames/:displayName", async (req, res) => {
 });
 
 
-
 // Handler for updating display name by UID
 app.put("/api/displaynames/:uid", async (req, res) => {
   try {
@@ -241,7 +206,6 @@ app.put("/api/displaynames/:uid", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-
 
 
 // Handler for user sign up
@@ -279,10 +243,6 @@ app.post("/api/users/signUp", async (req, res) => {
 });
 
 
-
-
-
-
 const fetchTotalBookCount = async (searchQuery = "", selectedCategories = [], selectedAuthors = []) => {
   try {
     const booksCollection = collection(db, "books");
@@ -317,7 +277,6 @@ const fetchTotalBookCount = async (searchQuery = "", selectedCategories = [], se
 };
 
 
-
 app.get('/api/books/getCategoriesAndAuthors', async (req, res) => {
   try {
     const booksCollection = collection(db, 'books');
@@ -339,59 +298,9 @@ app.get('/api/books/getCategoriesAndAuthors', async (req, res) => {
 });
 
 
-
-
-
-// const addBooksToFirestore = async (books) => {
-//   const booksCollection = collection(db, "books");
-
-//   const bookPromises = books.map((book) => {
-//     const bookDoc = doc(booksCollection);
-//     return setDoc(bookDoc, book);
-//   });
-
-//   await Promise.all(bookPromises);
-//   console.log("Books added successfully.");
-// };
-
-// // Sample data for books
-// const booksData = [
-//   {
-//     "author": "Jane Austen",
-//     "bookNumber": "4",
-//     "classification": "e",
-//     "copies": 1,
-//     "expenditure": "e",
-//     "imageURL": "https://th.bing.com/th/id/R.9a1148dcd77be7ff4a134e9f8b0f9718?rik=%2bovZzx%2fuYQ%2bjSQ&pid=ImgRaw&r=0",
-//     "locatorCode": "e",
-//     "summary": "A romantic novel that depicts the character growth of Elizabeth Bennet.",
-//     "title": "Pri1de a212nd Prej2123413u2dice",
-//     "titleType": "books"
-//   },
-//   {
-//     "author": "Jane Austen",
-//     "bookNumber": "4",
-//     "classification": "e",
-//     "copies": 1,
-//     "expenditure": "e",
-//     "imageURL": "https://th.bing.com/th/id/R.9a1148dcd77be7ff4a134e9f8b0f9718?rik=%2bovZzx%2fuYQ%2bjSQ&pid=ImgRaw&r=0",
-//     "locatorCode": "e",
-//     "summary": "A romantic novel that depicts the character growth of Elizabeth Bennet.",
-//     "title": "P12ri6de and514 Pre5j514u62dice",
-//     "titleType": "books"
-//   },
-//   // Additional books...
-// ];
-// addBooksToFirestore(booksData);
-
-
-
-
-
 axios.defaults.httpsAgent = new Agent({
   rejectUnauthorized: false,
 });
-
 
 
 async function fetchTitles(productId) {
@@ -517,13 +426,6 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
 })
 
 
-// (async () => {
-//   const bookName = '1984';
-//   await fetchBookTitles(bookName);
-// })();
-
-
-
 app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
   try {
     const searchQuery = req.query.bookName || ""; // Book name search parameter
@@ -561,14 +463,22 @@ app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
   }
 });
 
+// const resetCounter = async () => {
+//   const counterRef = doc(db, 'counters', 'bookCounter');
+//   await setDoc(counterRef, { count: 6000 });
+//   console.log("Counter reset to 6000");
+// };
+
+// resetCounter(); // 
+
 
 const getAndUpdateCounter = async (incrementBy) => {
   const counterRef = doc(db, 'counters', 'bookCounter');
   const counterDoc = await getDoc(counterRef);
 
   if (!counterDoc.exists()) {
-    await setDoc(counterRef, { count: 1000 + incrementBy });
-    return 1000;
+    await setDoc(counterRef, { count: 6000 + incrementBy }); // Start count from 6000
+    return 6000;
   } else {
     const currentCount = counterDoc.data().count;
     const newCount = currentCount + incrementBy;
@@ -576,7 +486,6 @@ const getAndUpdateCounter = async (incrementBy) => {
     return currentCount;
   }
 };
-
 
 
 
@@ -776,8 +685,6 @@ app.delete("/api/books/:id", async (req, res) => {
 });
 
 
-
-
 const getCopiesIdByTitle = async (bookTitle) => {
   try {
     const booksCollectionRef = collection(db, "books"); // Reference to the "books" collection
@@ -831,8 +738,6 @@ app.get("/api/book/getCopy", async (req, res) => {
 });
 
 
-
-
 app.post("/api/books/:id/waiting-list", async (req, res) => {
   const { id } = req.params;
   const { uid } = req.body;
@@ -879,7 +784,6 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to add user to waiting list: ${error.message || 'Unknown error'}` });
   }
 });
-
 
 
 // Endpoint to get copies by book title
@@ -972,8 +876,6 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to update borrowedTo field: ${error.message || 'Unknown error'}` });
   }
 });
-
-
 
 
 // Endpoint to delete a borrow request from the waiting list
@@ -1708,10 +1610,6 @@ app.post("/api/books/:id/addCopy", async (req, res) => {
     res.status(500).send("Failed to add copy");
   }
 });
-
-
-
-
 
 
 app.delete("/api/books/:id/removeCopy/:copyID", async (req, res) => {

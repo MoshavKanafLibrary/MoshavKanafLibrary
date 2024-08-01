@@ -120,7 +120,7 @@ const WaitingListPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-gray-500 text-white' : 'bg-gray-700 text-gray-300'}`}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-hover text-bg-navbar-custom' : 'bg-bg-hover text-bg-navbar-custom'}`}
         >
           {i}
         </button>
@@ -136,18 +136,18 @@ const WaitingListPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
-        <h1 className="text-3xl md:text-5xl font-extrabold text-center mb-8 tracking-wide">בקשות השאלה</h1>
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 " dir="rtl">
+        <h1 className="text-3xl md:text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">בקשות השאלה</h1>
         <input
           type="text"
           placeholder="חפש לפי שם, אימייל, תאריך או כותר הספר..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="mb-10 p-2 w-full border rounded-md"
+          className="mb-10 p-2 w-full border rounded-md bg-bg-navbar-custom text-bg-text"
         />
         <div className="flex flex-col space-y-2">
           {/* Header Row */}
-          <div className="hidden sm:grid sm:grid-cols-6 text-center font-bold bg-gray-600 p-4 rounded-lg text-white">
+          <div className="hidden sm:grid sm:grid-cols-6 text-center font-bold bg-bg-text p-4 rounded-lg text-bg-navbar-custom">
             <div>Uid</div>
             <div>שם פרטי</div>
             <div>שם משפחה</div>
@@ -159,7 +159,7 @@ const WaitingListPage = () => {
           {currentItems.length > 0 ? (
             currentItems.map((entry, index) => (
               <div key={index}
-                className={`grid grid-cols-1 sm:grid-cols-6 text-center bg-white hover:bg-gray-200 p-4 rounded-lg shadow cursor-pointer relative ${hoverIndex === index ? 'translate-x-10 text-blue-800' : ''}`}
+                className={`grid grid-cols-1 sm:grid-cols-6 text-center bg-bg-navbar-custom hover:bg-bg-hover hover:text-bg-navbar-custom p-4 rounded-lg shadow cursor-pointer relative`}
                 onMouseEnter={() => setHoverIndex(index)}
                 onMouseLeave={() => setHoverIndex(-1)}
                 onClick={() => handleRowClick(entry)}
@@ -184,13 +184,13 @@ const WaitingListPage = () => {
               </div>
             ))
           ) : (
-            <div className="text-center py-4">לא נמצאו בקשות</div>
+            <div className="text-center py-4 text-bg-navbar-custom">לא נמצאו בקשות</div>
           )}
         </div>
         {totalPages > 1 && (
           <div className="flex justify-center mt-8">
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
             >
@@ -198,7 +198,7 @@ const WaitingListPage = () => {
             </button>
             {renderPageNumbers()}
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
               onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
@@ -211,19 +211,19 @@ const WaitingListPage = () => {
       {/* Confirmation Popup */}
       {showConfirmPopup && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-4 sm:p-8 rounded-lg shadow-lg max-w-sm w-full mx-2">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4">אישור מחיקה</h2>
-            <p>האם אתה בטוח שברצונך למחוק את הבקשה?</p>
+          <div className="bg-bg-navbar-custom p-4 sm:p-8 rounded-lg shadow-lg max-w-sm w-full mx-2">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-bg-text">אישור מחיקה</h2>
+            <p className="text-bg-text">האם אתה בטוח שברצונך למחוק את הבקשה?</p>
             <div className="mt-6 flex justify-end">
               <button 
                 onClick={() => setShowConfirmPopup(false)}
-                className="mr-2 px-4 py-2 bg-gray-300 rounded"
+                className="mr-2 px-4 py-2 bg-gray-300 rounded text-bg-text"
               >
                 ביטול
               </button>
               <button 
                 onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded"
+                className="px-4 py-2 bg-red-600 text-bg-navbar-custom rounded"
               >
                 אישור
               </button>

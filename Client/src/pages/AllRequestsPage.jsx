@@ -105,7 +105,7 @@ const AllRequestsPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-gray-500 text-white' : 'bg-gray-700 text-gray-300'}`}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-hover text-bg-navbar-custom' : 'bg-bg-hover text-bg-navbar-custom'}`}
         >
           {i}
         </button>
@@ -127,17 +127,17 @@ const AllRequestsPage = () => {
             {successMessage}
           </div>
         )}
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide">כל הבקשות של המשתמשים</h1>
+        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">כל הבקשות של המשתמשים</h1>
         <input
           type="text"
-          className="w-full p-2 mb-4 text-lg"
+          className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom text-bg-text"
           placeholder="חפש בקשות..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
         <div className="overflow-x-auto mb-4">
-          <table className="min-w-full bg-white rounded-lg shadow-lg">
-            <thead className="bg-gray-800 text-white text-lg">
+          <table className="min-w-full bg-bg-navbar-custom rounded-lg shadow-lg">
+            <thead className="bg-bg-text text-bg-navbar-custom text-lg">
               <tr>
                 <th className="py-4 px-6 text-right">UID</th>
                 <th className="py-4 px-6 text-right">שם משתמש</th>
@@ -146,16 +146,16 @@ const AllRequestsPage = () => {
                 <th className="py-4 px-6 text-right">פעולות</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700">
+            <tbody className="text-bg-text">
               {currentRequests.length > 0 ? currentRequests.map((request, index) => (
-                <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
+                <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom">
                   <td className="py-4 px-6 text-right">{request.uid}</td>
                   <td className="py-4 px-6 text-right">{request.username}</td>
                   <td className="py-4 px-6 text-right">{request.requestText}</td>
                   <td className="py-4 px-6 text-right">
                     {new Date(request.timestamp.seconds * 1000).toLocaleString()}
                   </td>
-                  <td className="py-4 px-6 text-right flex space-x-2">
+                  <td className="py-4 px-6 text-right flex space-x-2 justify-center">
                     <button
                       onClick={() => notifyUser(request.uid)}
                       className="text-blue-500 hover:text-blue-700"
@@ -170,13 +170,13 @@ const AllRequestsPage = () => {
                     </button>
                   </td>
                 </tr>
-              )) : <tr><td colSpan="5" className="text-center py-4">לא נמצאו בקשות</td></tr>}
+              )) : <tr><td colSpan="5" className="text-center py-4 text-bg-navbar-custom">לא נמצאו בקשות</td></tr>}
             </tbody>
           </table>
         </div>
         <div className="flex justify-center mt-8">
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+            className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -184,7 +184,7 @@ const AllRequestsPage = () => {
           </button>
           {renderPageNumbers()}
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-gray-700 text-gray-300"
+            className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
           >

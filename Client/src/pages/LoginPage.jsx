@@ -56,24 +56,24 @@ function LoginPage() {
       {showAddMoreInfo ? (
         <MoreInfoPage userProp={user} />
       ) : (
-        <div className="mt-8 ">
-          <div className="flex items-center justify-center ">
+        <div className="mt-8">
+          <div className="flex items-center justify-center">
             <form
               className="bg-bg-navbar-custom shadow-2xl rounded md:px-8 px-2 pt-6 pb-8 w-full sm:w-1/2 lg:w-1/3"
               onSubmit={handleSubmit}
               dir="rtl"
             >
               <div className="text-center flex justify-center mb-3">
-                <h1 className="text-3xl text-gray-50 font-bold mb-5">התחבר</h1>
+                <h1 className="text-3xl text-bg-text font-bold mb-5">התחבר</h1>
               </div>
 
-              <div className="border-2 bg-gray-700 rounded-lg p-4 mb-4">
+              <div className="border-2 bg-bg-background-gradient-via rounded-lg p-4 mb-4">
                 <div className="mb-4">
-                  <label className="block text-gray-50 text-sm mb-2">
+                  <label className="block text-bg-navbar-custom text-sm mb-2">
                     כתובת אימייל
                   </label>
                   <input
-                    className="bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
+                    className="bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
                     type="text"
                     placeholder="הכנס כתובת אימייל"
                     value={email}
@@ -81,11 +81,11 @@ function LoginPage() {
                   />
                 </div>
                 <div className="mb-3">
-                  <label className="block text-gray-50 text-sm mb-2">
+                  <label className="block text-bg-navbar-custom text-sm mb-2">
                     סיסמה
                   </label>
                   <input
-                    className="bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
+                    className="bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
                     type="password"
                     placeholder="********"
                     value={password}
@@ -118,15 +118,15 @@ function LoginPage() {
                 </p>
               )}
               <div className="flex flex-col items-center justify-center">
-                <h2 className="text-center mb-2 text-gray-50">
+                <h2 className="text-center mb-2 text-bg-background-gradient-via">
                   או... התחבר עם
                 </h2>
                 <div className="flex space-x-8">
                   <GoogleLogin setShowAddMoreInfo={setShowAddMoreInfo} />
                 </div>
               </div>
-              <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-gray-600 rounded-md py-4">
-                <h2 className="text-gray-50">משתמש חדש?</h2>
+              <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-bg-background-gradient-from rounded-md py-4">
+                <h2 className="text-bg-background-gradient-via">משתמש חדש?</h2>
                 <Link
                   className="text-blue-500 rounded focus:outline-none focus:shadow-outline"
                   to="/signup"
@@ -134,8 +134,8 @@ function LoginPage() {
                   צור חשבון
                 </Link>
               </div>
-              <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-gray-600 rounded-md py-4">
-                <h2 className="text-gray-50">שכחת סיסמה?</h2>
+              <div className="flex flex-col items-center justify-center md:flex-row md:justify-center md:items-center space-y-4 md:space-x-4 md:space-y-0 mt-4 border-2 border-bg-background-gradient-from rounded-md py-4">
+                <h2 className="text-bg-background-gradient-via">שכחת סיסמה?</h2>
                 <Link
                   className="text-blue-500 rounded focus:outline-none focus:shadow-outline"
                   to="/resetpassword"

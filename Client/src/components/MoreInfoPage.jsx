@@ -45,53 +45,53 @@ const MoreInfoPage = () => {
         onSubmit={validateAndNavigate}
       >
         <div className="text-center flex justify-center mb-3">
-          <h1 className="text-3xl text-gray-50 font-bold mb-5">
+          <h1 className="text-3xl text-bg-text font-bold mb-5">
             מלא פרטים נוספים
           </h1>
         </div>
-        <div className="border-2 bg-gray-700 rounded-lg p-4 mb-4">
+        <div className="border-2 bg-bg-background-gradient-via rounded-lg p-4 mb-4">
           {user && user.email && (
             <div className="mb-3">
-              <label className="block text-gray-50 text-sm mb-2">
+              <label className="block text-bg-navbar-custom text-sm mb-2">
                 כתובת האימייל שלך: {user.email}
               </label>
             </div>
           )}
           {user && user.uid && (
             <div className="mb-3">
-              <label className="block text-gray-50 text-sm mb-2">
+              <label className="block text-bg-navbar-custom text-sm mb-2">
                 מזהה משתמש: {user.uid}
               </label>
             </div>
           )}
           <div className="mb-3">
-            <label className="block text-gray-50 text-sm mb-2">
+            <label className="block text-bg-navbar-custom text-sm mb-2">
               שם פרטי
             </label>
             <input
-              className="bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline"
               placeholder="הכנס את שמך הפרטי"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
             />
           </div>
           <div className="mb-3">
-            <label className="block text-gray-50 text-sm mb-2">
+            <label className="block text-bg-navbar-custom text-sm mb-2">
               שם משפחה
             </label>
             <input
-              className="bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline"
               placeholder="הכנס את שם משפחתך"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
             />
           </div>
           <div className="mb-3">
-            <label className="block text-gray-50 text-sm mb-2">
+            <label className="block text-bg-navbar-custom text-sm mb-2">
               פלאפון
             </label>
             <input
-              className="bg-bg-navbar-custom shadow appearance-none border rounded w-full py-2 px-3 text-gray-50 leading-tight focus:outline-none focus:shadow-outline"
+              className="bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline"
               placeholder="הכנס את מספר הפלאפון שלך"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -112,7 +112,7 @@ const MoreInfoPage = () => {
           ) : (
             <button
               type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-gray-50 font-bold py-2 px-4 mx-auto mb-4 rounded focus:outline-none focus:shadow-outline"
+              className="bg-red-900 hover:bg-blue-700 text-gray-50 font-bold py-2 px-4 mx-auto mb-4 rounded focus:outline-none focus:shadow-outline"
             >
               שמור
             </button>
@@ -127,6 +127,5 @@ const MoreInfoPage = () => {
     </div>
   );
 };
-
 
 export { MoreInfoPage };
