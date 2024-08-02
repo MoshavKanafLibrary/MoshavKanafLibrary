@@ -824,6 +824,9 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
       waitingList: bookData.waitingList
     });
 
+    // Update local books structure
+    updateLocalBooks(id, bookData);
+
     res.status(200).json({ success: true, message: "User added to waiting list" });
   } catch (error) {
     console.error("Detailed error:", error);
@@ -950,6 +953,10 @@ app.delete("/api/books/:id/waiting-list", async (req, res) => {
     await updateDoc(bookRef, {
       waitingList: newWaitingList
     });
+
+    // Update local books structure
+    bookData.waitingList = newWaitingList;
+    updateLocalBooks(id, bookData);
 
     res.status(200).json({ success: true, message: "User removed from waiting list" });
   } catch (error) {
