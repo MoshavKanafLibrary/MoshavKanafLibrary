@@ -7,14 +7,14 @@ import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyBmOPl5T6NZU_uuLpf923LWlUd-3VQ-CZ8",
-  authDomain: "library-eae50.firebaseapp.com",
-  databaseURL: "https://library-eae50-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "library-eae50",
-  storageBucket: "library-eae50.appspot.com",
-  messagingSenderId: "147258996344",
-  appId: "1:147258996344:web:2a4a3e23e7f9327f309f8d",
-  measurementId: "G-CKZ548XRFZ"
+  apiKey: "AIzaSyByaDx4DndDizE4OoSlJUZaZ-J8cLIw2o4",
+  authDomain: "moshavkanaflib-40ff5.firebaseapp.com",
+  databaseURL: "https://moshavkanaflib-40ff5-default-rtdb.firebaseio.com",
+  projectId: "moshavkanaflib-40ff5",
+  storageBucket: "moshavkanaflib-40ff5.appspot.com",
+  messagingSenderId: "749702864605",
+  appId: "1:749702864605:web:7a175341bdd48b9fd00534",
+  measurementId: "G-8BNEWE1E8X"
 };
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
