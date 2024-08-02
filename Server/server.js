@@ -1,11 +1,11 @@
 import express from 'express'; // Import express using ES module syntax
 import cors from 'cors'; // Import cors using ES module syntax
-import { db } from './db.js'
-import { collection, query, where, getDocs, addDoc, doc, updateDoc, setDoc, getDoc, limit, startAfter, orderBy, deleteDoc} from 'firebase/firestore/lite';
-import { getFirestore, getCountFromServer, arrayUnion, Timestamp  } from 'firebase/firestore';
+import { db } from './db.js';
+import { collection, query, where, getDocs, addDoc, doc, updateDoc, setDoc, getDoc, limit, startAfter, orderBy, deleteDoc } from 'firebase/firestore/lite';
+import { getFirestore, getCountFromServer, arrayUnion, Timestamp } from 'firebase/firestore';
 import axios from 'axios';
 import { Agent } from 'https';
-import cheerio from 'cheerio'
+import cheerio from 'cheerio';
 import fs from 'fs';
 import puppeteer from 'puppeteer';
 import { fileURLToPath } from "url";
@@ -13,8 +13,6 @@ import path from "path";
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 dotenv.config();
-
-let localBooks = {};
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,53 +50,50 @@ app.listen(process.env.PORT || 3000, () => {
   console.log(process.env.PORT);
 });
 
-const loadBooksIntoLocalStructure = async () => {
-  if (Object.keys(localBooks).length === 0) { // Check if localBooks is empty
-    try {
-      const booksCollection = collection(db, "books");
-      const booksSnapshot = await getDocs(booksCollection);
+// Local data caches
+let localUsersData = [];
+let localBooksData = [];
 
-      booksSnapshot.forEach((doc) => {
-        localBooks[doc.id] = doc.data();
-      });
+// Function to initialize local caches
+const initializeLocalData = async () => {
+  try {
+    // Initialize localUsersData
+    const usersCollection = collection(db, "users");
+    const usersSnapshot = await getDocs(usersCollection);
+    localUsersData = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      console.log("Local books structure loaded successfully");
-    } catch (error) {
-      console.error("Error loading books into local structure:", error);
-    }
-  } else {
-    console.log("Local books structure is already loaded");
+    // Initialize localBooksData
+    const booksCollection = collection(db, "books");
+    const booksSnapshot = await getDocs(booksCollection);
+    localBooksData = booksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Error initializing local data:", error);
   }
-  console.log("Current localBooks structure:", localBooks);
 };
 
-loadBooksIntoLocalStructure();
-
-// Update localBooks structure
-const updateLocalBooks = (id, newData) => {
-  localBooks[id] = newData;
-  console.log("Local books structure updated:", localBooks);
-};
-
-// Remove from localBooks structure
-const removeLocalBook = (id) => {
-  delete localBooks[id];
-  console.log("Local books structure updated:", localBooks);
-};
-
+// Call the function to initialize local data
+initializeLocalData();
 
 // get a user by his id
 app.get("/api/users/:uid", async (req, res) => {
   try {
-
     const { uid } = req.params;
+    
+    // Check local cache first
+    const user = localUsersData.find(user => user.id === uid);
+    if (user) {
+      return res.json(user);
+    }
 
-    // Use `doc` and `getDoc` to fetch a document by ID in Firestore
+    // If not in local cache, fetch from Firestore
     const userRef = doc(db, "users", uid);
     const userSnapshot = await getDoc(userRef);
 
     if (userSnapshot.exists()) {
-      res.json(userSnapshot.data());
+      const userData = userSnapshot.data();
+      // Update local cache
+      localUsersData.push({ id: uid, ...userData });
+      res.json(userData);
     } else {
       res.status(404).send("User not found");
     }
@@ -130,13 +125,15 @@ app.put("/api/users/:uid", async (req, res) => {
     // Update the user document with new data
     await updateDoc(userRef, { firstName, lastName, phone });
 
+    // Update local cache
+    localUsersData = localUsersData.map(user => user.id === uid ? { ...user, firstName, lastName, phone } : user);
+
     res.status(200).json({ success: true, message: "User data updated successfully" });
   } catch (error) {
     console.error("Error updating user data", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
-
 
 app.get('/api/users/:uid/historyBooks', async (req, res) => {
   console.log("Endpoint Hit: /api/users/:uid/historyBooks");
@@ -150,6 +147,23 @@ app.get('/api/users/:uid/historyBooks', async (req, res) => {
   }
 
   try {
+    // Check local cache first
+    const user = localUsersData.find(user => user.id === uid);
+    if (user) {
+      const historyBooks = user.historyBooks || [];
+      console.log("Initial History Books found:", historyBooks.length);
+
+      // Fetch each book's title using the copyID
+      const booksDetails = historyBooks.map(historyBook => ({
+        title: historyBook.title,
+        readDate: historyBook.readDate
+      }));
+
+      console.log("Processed History Books:", booksDetails.length);
+      console.log(booksDetails);
+      return res.status(200).json({ success: true, historyBooks: booksDetails });
+    }
+
     const userRef = doc(db, "users", uid);
     const userSnapshot = await getDoc(userRef);
     
@@ -173,6 +187,10 @@ app.get('/api/users/:uid/historyBooks', async (req, res) => {
 
     console.log("Processed History Books:", booksDetails.length);
     console.log(booksDetails);
+
+    // Update local cache
+    localUsersData.push({ id: uid, ...userData });
+
     return res.status(200).json({ success: true, historyBooks: booksDetails });
   } catch (error) {
     console.error('Error fetching user history books:', error);
@@ -200,7 +218,6 @@ const getUniqueCopyID = async () => {
   return newCopyID;
 };
 
-
 // Handler for validating display name
 app.get("/api/displaynames/:displayName", async (req, res) => {
   try {
@@ -223,7 +240,6 @@ app.get("/api/displaynames/:displayName", async (req, res) => {
   }
 });
 
-
 // Handler for updating display name by UID
 app.put("/api/displaynames/:uid", async (req, res) => {
   try {
@@ -236,13 +252,15 @@ app.put("/api/displaynames/:uid", async (req, res) => {
     // Update the displayName field in the user document
     await updateDoc(userRef, { displayName });
 
+    // Update local cache
+    localUsersData = localUsersData.map(user => user.id === uid ? { ...user, displayName } : user);
+
     res.status(200).json({ success: true });
   } catch (error) {
     console.error("Error updating user data", error);
     res.status(500).send("Server error");
   }
 });
-
 
 // Handler for user sign up
 app.post("/api/users/signUp", async (req, res) => {
@@ -270,6 +288,10 @@ app.post("/api/users/signUp", async (req, res) => {
 
     console.log("User created successfully"); // Log success message
     // Respond with a success message
+
+    // Update local cache
+    localUsersData.push({ id: uid, uid, email, displayName, firstName, lastName, phone, random, isManager: false, historyBooks: [] });
+
     res.status(200).json({ success: true });
   } catch (error) {
     // Handle errors
@@ -277,7 +299,6 @@ app.post("/api/users/signUp", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
-
 
 const fetchTotalBookCount = async (searchQuery = "", selectedCategories = [], selectedAuthors = []) => {
   try {
@@ -312,9 +333,18 @@ const fetchTotalBookCount = async (searchQuery = "", selectedCategories = [], se
   }
 };
 
-
 app.get('/api/books/getCategoriesAndAuthors', async (req, res) => {
   try {
+    // Use local cache first
+    if (localBooksData.length > 0) {
+      const categories = [...new Set(localBooksData.map(book => book.category))].sort();
+      const authors = [...new Set(localBooksData.map(book => book.author))].sort();
+      return res.status(200).json({
+        categories,
+        authors,
+      });
+    }
+
     const booksCollection = collection(db, 'books');
     const booksSnapshot = await getDocs(booksCollection);
 
@@ -327,17 +357,18 @@ app.get('/api/books/getCategoriesAndAuthors', async (req, res) => {
       categories,
       authors,
     });
+
+    // Update local cache
+    localBooksData = booksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
     console.error('Error fetching categories and authors:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-
 axios.defaults.httpsAgent = new Agent({
   rejectUnauthorized: false,
 });
-
 
 async function fetchTitles(productId) {
   // Launch Puppeteer
@@ -433,6 +464,13 @@ async function fetchBookTitles(bookName) {
 app.get("/api/books/getAllBooksData", async (req, res) => {
   try {
     console.log("Fetching all books data...");
+
+    // בדוק אם יש נתונים במטמון המקומי
+    if (localBooksData.length > 0) {
+      console.log("Using local cache for books data:", localBooksData);
+      return res.status(200).json({ success: true, books: localBooksData });
+    }
+
     const booksCollection = collection(db, "books");
     const booksQuery = query(booksCollection);
     const querySnapshot = await getDocs(booksQuery);
@@ -454,12 +492,18 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
     }));
 
     console.log("Books fetched successfully:", books);
+
+    // עדכן את המטמון המקומי
+    localBooksData = books;
+
     res.status(200).json({ success: true, books });
   } catch (error) {
     console.error("Error fetching all books:", error);
     res.status(500).json({ success: false, message: "Failed to fetch all books" });
   }
-})
+});
+
+
 
 
 app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
@@ -490,23 +534,16 @@ app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
       ...doc.data(),
     }));
 
+    // Update local cache
+    localBooksData = localBooksData.concat(booksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 
     // Send the response with the matching books
-    res.json(books.slice(0,5));
+    res.json(books.slice(0, 5));
   } catch (error) {
     console.error("Error fetching books:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
-
-// const resetCounter = async () => {
-//   const counterRef = doc(db, 'counters', 'bookCounter');
-//   await setDoc(counterRef, { count: 6000 });
-//   console.log("Counter reset to 6000");
-// };
-
-// resetCounter(); // 
-
 
 const getAndUpdateCounter = async (incrementBy) => {
   const counterRef = doc(db, 'counters', 'bookCounter');
@@ -522,8 +559,6 @@ const getAndUpdateCounter = async (incrementBy) => {
     return currentCount;
   }
 };
-
-
 
 const generateCopiesID = async (numCopies) => {
   const startID = await getAndUpdateCounter(numCopies);
@@ -545,9 +580,6 @@ app.post("/api/books/add", async (req, res) => {
     // Create a new document in the "books" collection
     const docRef = await addDoc(booksCollection, newBookData);
 
-    // Update local data structure
-    updateLocalBooks(docRef.id, newBookData);
-
     // Create new copies in the "copies" collection for each copyID
     const copiesPromises = copiesID.map(copyID => {
       return addDoc(copiesCollection, {
@@ -563,13 +595,15 @@ app.post("/api/books/add", async (req, res) => {
 
     // Respond with a success message and the new document ID
     res.status(200).json({ success: true, docId: docRef.id });
+
+    // Update local cache
+    localBooksData.push({ id: docRef.id, ...newBookData });
   } catch (error) {
     // Handle errors
     console.error("Error adding book:", error);
     res.status(500).send("Failed to add book");
   }
 });
-
 
 // Handler for updating an existing book
 app.put("/api/books/update/:id", async (req, res) => {
@@ -586,9 +620,6 @@ app.put("/api/books/update/:id", async (req, res) => {
 
     // Update the book document with the new data
     await updateDoc(bookRef, updatedData);
-
-    // Update localBooks structure
-    updateLocalBooks(id, { ...bookData, ...updatedData });
 
     // Check if title has changed and update copies collection if necessary
     if (updatedData.title && updatedData.title !== bookData.title) {
@@ -631,6 +662,9 @@ app.put("/api/books/update/:id", async (req, res) => {
 
     // Respond with a success message
     res.status(200).json({ success: true });
+
+    // Update local cache
+    localBooksData = localBooksData.map(book => book.id === id ? { ...book, ...updatedData } : book);
   } catch (error) {
     // Handle errors
     console.error("Error updating book:", error);
@@ -638,10 +672,20 @@ app.put("/api/books/update/:id", async (req, res) => {
   }
 });
 
-
 // Endpoint to get all book names
 app.get("/api/books/names", async (req, res) => {
   try {
+    // Use local cache first
+    if (localBooksData.length > 0) {
+      const bookNames = localBooksData.map(book => ({
+        id: book.id,
+        title: book.title,
+        author: book.author,
+        imageURL: book.imageURL,
+      }));
+      return res.status(200).json({ success: true, bookNames });
+    }
+
     const booksCollectionRef = collection(db, "books"); // Reference to the "books" collection
     const querySnapshot = await getDocs(booksCollectionRef); // Get all documents in the collection
 
@@ -653,6 +697,9 @@ app.get("/api/books/names", async (req, res) => {
     })); // Extract book data
     
     res.status(200).json({ success: true, bookNames }); // Respond with the list of book names
+
+    // Update local cache
+    localBooksData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
     console.error("Error fetching book names:", error);
     res.status(500).json({ success: false, message: "Failed to fetch book names" });
@@ -664,6 +711,12 @@ app.get("/api/books/:id", async (req, res) => {
   const { id } = req.params; // Get the book ID from the request parameters
 
   try {
+    // Check local cache first
+    const book = localBooksData.find(book => book.id === id);
+    if (book) {
+      return res.status(200).json({ success: true, bookData: book });
+    }
+
     const bookRef = doc(db, "books", id); // Reference to the specific book document
     const docSnapshot = await getDoc(bookRef); // Fetch the book data
 
@@ -675,6 +728,9 @@ app.get("/api/books/:id", async (req, res) => {
       }; // Extract the book data and keep the image URL
 
       res.status(200).json({ success: true, bookData }); // Respond with the book data
+
+      // Update local cache
+      localBooksData.push({ id: docSnapshot.id, ...docSnapshot.data() });
     } else {
       res.status(404).json({ success: false, message: "Book not found" }); // If the book doesn't exist
     }
@@ -684,7 +740,7 @@ app.get("/api/books/:id", async (req, res) => {
   }
 });
 
-// Handler for deleting a book by its ID
+// Endpoint to delete a book by its ID
 app.delete("/api/books/:id", async (req, res) => {
   try {
     const { id } = req.params; // Get the book ID from the URL parameter
@@ -702,9 +758,6 @@ app.delete("/api/books/:id", async (req, res) => {
 
     // Delete the book document from Firestore
     await deleteDoc(bookRef);
-
-    // Remove from localBooks structure
-    removeLocalBook(id);
 
     // Also delete all associated copies if they exist
     if (bookData.copiesID && bookData.copiesID.length > 0) {
@@ -724,15 +777,23 @@ app.delete("/api/books/:id", async (req, res) => {
 
     // Respond with a success message
     res.status(200).json({ success: true, message: `Book with ID ${id} and all associated copies deleted successfully` });
+
+    // Update local cache
+    localBooksData = localBooksData.filter(book => book.id !== id);
   } catch (error) {
     console.error("Error deleting book:", error);
     res.status(500).json({ success: false, message: "Failed to delete book" });
   }
 });
 
-
 const getCopiesIdByTitle = async (bookTitle) => {
   try {
+    // Use local cache first
+    const book = localBooksData.find(book => book.title === bookTitle);
+    if (book) {
+      return book.copiesID;
+    }
+
     const booksCollectionRef = collection(db, "books"); // Reference to the "books" collection
     const querySnapshot = await getDocs(booksCollectionRef); // Get all documents in the collection
 
@@ -756,7 +817,6 @@ const getCopiesIdByTitle = async (bookTitle) => {
   const copiesIdArray = await getCopiesIdByTitle(title);
   console.log(copiesIdArray); // Log or process the copies ID array as needed
 })();
-
 
 // Endpoint to get a copy by CopyID
 app.get("/api/book/getCopy", async (req, res) => {
@@ -782,7 +842,6 @@ app.get("/api/book/getCopy", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch copy by ID" });
   }
 });
-
 
 app.post("/api/books/:id/waiting-list", async (req, res) => {
   const { id } = req.params;
@@ -816,7 +875,6 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
     if (index === -1) { // User not in the waiting list
       bookData.waitingList.push(newEntry);
     } else {
-      // Optionally update the existing entry if needed, or handle as an error
       return res.status(409).json({ success: false, message: "User already in the waiting list" });
     }
 
@@ -824,8 +882,12 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
       waitingList: bookData.waitingList
     });
 
-    // Update local books structure
-    updateLocalBooks(id, bookData);
+    // Update local cache
+    localBooksData = localBooksData.map(book => book.id === id ? { ...book, waitingList: bookData.waitingList } : book);
+
+    // Print updated waiting list from local cache
+    const updatedBook = localBooksData.find(book => book.id === id);
+    console.log(`Updated waiting list for book ID ${id}:`, updatedBook.waitingList);
 
     res.status(200).json({ success: true, message: "User added to waiting list" });
   } catch (error) {
@@ -833,6 +895,9 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to add user to waiting list: ${error.message || 'Unknown error'}` });
   }
 });
+
+
+
 
 
 // Endpoint to get copies by book title
@@ -859,7 +924,6 @@ app.get("/api/book/getCopiesByTitle", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch copies by title" });
   }
 });
-
 
 // Endpoint to update the borrowedTo field in the copies collection with the user's first name, last name, phone, and UID
 app.put("/api/copies/updateBorrowedTo", async (req, res) => {
@@ -926,8 +990,6 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
   }
 });
 
-
-// Endpoint to delete a borrow request from the waiting list
 app.delete("/api/books/:id/waiting-list", async (req, res) => {
   const { id } = req.params;
   const { uid } = req.body;
@@ -954,9 +1016,12 @@ app.delete("/api/books/:id/waiting-list", async (req, res) => {
       waitingList: newWaitingList
     });
 
-    // Update local books structure
-    bookData.waitingList = newWaitingList;
-    updateLocalBooks(id, bookData);
+    // Update local cache
+    localBooksData = localBooksData.map(book => book.id === id ? { ...book, waitingList: newWaitingList } : book);
+
+    // Print updated waiting list from local cache
+    const updatedBook = localBooksData.find(book => book.id === id);
+    console.log(`Updated waiting list for book ID ${id}:`, updatedBook.waitingList);
 
     res.status(200).json({ success: true, message: "User removed from waiting list" });
   } catch (error) {
@@ -965,8 +1030,15 @@ app.delete("/api/books/:id/waiting-list", async (req, res) => {
   }
 });
 
+
+
 app.get("/api/users", async (req, res) => {
   try {
+    // Use local cache first
+    if (localUsersData.length > 0) {
+      return res.status(200).json({ success: true, users: localUsersData });
+    }
+
     const usersCollection = collection(db, "users");
     const querySnapshot = await getDocs(usersCollection);
     const users = querySnapshot.docs.map(doc => ({
@@ -975,12 +1047,14 @@ app.get("/api/users", async (req, res) => {
     }));
 
     res.status(200).json({ success: true, users });
+
+    // Update local cache
+    localUsersData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
     console.error("Error fetching users:", error);
     res.status(500).send("Server error");
   }
 });
-
 
 // Endpoint to get all borrowed copies
 app.get("/api/copies/borrowed", async (req, res) => {
@@ -1056,13 +1130,15 @@ app.put("/api/users/:uid/isManager", async (req, res) => {
     // Update the isManager field in the user document
     await updateDoc(userRef, { isManager });
 
+    // Update local cache
+    localUsersData = localUsersData.map(user => user.id === uid ? { ...user, isManager } : user);
+
     res.status(200).json({ success: true, message: "User's isManager status updated successfully" });
   } catch (error) {
     console.error("Error updating user's isManager status", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
-
 
 app.post("/api/users/:uid/borrow-books-list", async (req, res) => {
   const { uid } = req.params;
@@ -1098,6 +1174,9 @@ app.post("/api/users/:uid/borrow-books-list", async (req, res) => {
     await updateDoc(userRef, {
       borrowBooksList: userData.borrowBooksList
     });
+
+    // Update local cache
+    localUsersData = localUsersData.map(user => user.id === uid ? { ...user, borrowBooksList: userData.borrowBooksList } : user);
 
     res.status(200).json({ success: true, message: "Borrow books list updated successfully" });
   } catch (error) {
@@ -1140,13 +1219,15 @@ app.put("/api/users/:uid/borrow-books-list/update-status", async (req, res) => {
       borrowBooksList: userData.borrowBooksList
     });
 
+    // Update local cache
+    localUsersData = localUsersData.map(user => user.id === uid ? { ...user, borrowBooksList: userData.borrowBooksList } : user);
+
     res.status(200).json({ success: true, message: "Borrow books list updated successfully with new status and times" });
   } catch (error) {
     console.error("Error updating borrow books list:", error);
     res.status(500).json({ success: false, message: `Failed to update borrow books list: ${error.message || 'Unknown error'}` });
   }
 });
-
 
 // Endpoint to fetch all borrowBooks-list for a specific user
 app.get("/api/users/:uid/present-borrow-books-list", async (req, res) => {
@@ -1168,6 +1249,9 @@ app.get("/api/users/:uid/present-borrow-books-list", async (req, res) => {
     }
 
     res.status(200).json({ success: true, borrowBooksList: userData.borrowBooksList });
+
+    // Update local cache
+    localUsersData.push({ id: uid, ...userData });
   } catch (error) {
     console.error("Error fetching borrow books list:", error);
     res.status(500).json({ success: false, message: `Failed to fetch borrow books list: ${error.message || 'Unknown error'}` });
@@ -1194,7 +1278,7 @@ app.delete("/api/users/:uid/borrow-books-list/deletebookfromborrowlist", async (
 
     let userData = userSnap.data();
 
-    // Check if the borrowBooksList exists and the book entry is present
+        // Check if the borrowBooksList exists and the book entry is present
     if (!userData.borrowBooksList || !userData.borrowBooksList[title]) {
       return res.status(404).json({ success: false, message: "Book entry not found in borrowBooks-list" });
     }
@@ -1206,6 +1290,9 @@ app.delete("/api/users/:uid/borrow-books-list/deletebookfromborrowlist", async (
     await updateDoc(userRef, {
       borrowBooksList: userData.borrowBooksList
     });
+
+    // Update local cache
+    localUsersData = localUsersData.map(user => user.id === uid ? { ...user, borrowBooksList: userData.borrowBooksList } : user);
 
     res.status(200).json({ success: true, message: "Book entry deleted from borrowBooks-list successfully" });
   } catch (error) {
@@ -1244,13 +1331,15 @@ app.put('/api/users/:uid/addToHistory', async (req, res) => {
     // Update the user's document with the new history
     await updateDoc(userRef, { historyBooks });
 
+    // Update local cache
+    localUsersData = localUsersData.map(user => user.id === uid ? { ...user, historyBooks } : user);
+
     return res.status(200).json({ success: true, message: "Book added to history successfully" });
   } catch (error) {
     console.error("Error adding book to history:", error);
     return res.status(500).json({ success: false, message: `Failed to add book to history: ${error.message}` });
   }
 });
-
 
 // Handler for adding a notification for a user
 app.post("/api/users/:uid/notifications", async (req, res) => {
@@ -1287,6 +1376,9 @@ app.post("/api/users/:uid/notifications", async (req, res) => {
     // Update the user's document with the new notification
     await updateDoc(userRef, { notifications });
 
+    // Update local cache
+    localUsersData = localUsersData.map(user => user.id === uid ? { ...user, notifications } : user);
+
     return res.status(200).json({ success: true, message: "Notification added successfully" });
   } catch (error) {
     console.error("Error adding notification:", error);
@@ -1294,12 +1386,18 @@ app.post("/api/users/:uid/notifications", async (req, res) => {
   }
 });
 
-
 // Handler for getting notifications for a user
 app.get("/api/users/:uid/notifications", async (req, res) => {
   const { uid } = req.params;
 
   try {
+    // Check local cache first
+    const user = localUsersData.find(user => user.id === uid);
+    if (user) {
+      const notifications = user.notifications || [];
+      return res.status(200).json({ success: true, notifications });
+    }
+
     const userRef = doc(db, "users", uid);
     const userSnap = await getDoc(userRef);
 
@@ -1311,12 +1409,14 @@ app.get("/api/users/:uid/notifications", async (req, res) => {
     const notifications = userData.notifications || [];
 
     return res.status(200).json({ success: true, notifications });
+
+    // Update local cache
+    localUsersData.push({ id: uid, ...userData });
   } catch (error) {
     console.error("Error fetching notifications:", error);
     return res.status(500).json({ success: false, message: `Failed to fetch notifications: ${error.message}` });
   }
 });
-
 
 // Handler for marking notifications as read
 app.put("/api/users/:uid/notifications/markAsRead", async (req, res) => {
@@ -1339,6 +1439,9 @@ app.put("/api/users/:uid/notifications/markAsRead", async (req, res) => {
     }));
 
     await updateDoc(userRef, { notifications: updatedNotifications });
+
+    // Update local cache
+    localUsersData = localUsersData.map(user => user.id === uid ? { ...user, notifications: updatedNotifications } : user);
 
     res.status(200).json({ success: true, message: "Notifications marked as read" });
   } catch (error) {
@@ -1396,7 +1499,6 @@ app.post('/api/users/:uid/send-email', async (req, res) => {
   }
 });
 
-
 // Endpoint to rate a book
 app.post("/api/books/:id/rate", async (req, res) => {
   const { id } = req.params;
@@ -1445,13 +1547,15 @@ app.post("/api/books/:id/rate", async (req, res) => {
       averageRating: averageRating
     });
 
+    // Update local cache
+    localBooksData = localBooksData.map(book => book.id === id ? { ...book, ratings: bookData.ratings, averageRating } : book);
+
     res.status(200).json({ success: true, averageRating: averageRating });
   } catch (error) {
     console.error("Error rating the book:", error);
     res.status(500).json({ success: false, message: `Failed to rate the book: ${error.message}` });
   }
 });
-
 
 // Endpoint to check if a user has already rated a book
 app.get("/api/books/:id/rating-status", async (req, res) => {
@@ -1531,7 +1635,6 @@ app.get("/api/requests", async (req, res) => {
   }
 });
 
-
 // Handler for deleting a request by ID
 app.delete("/api/requests/:id", async (req, res) => {
   const { id } = req.params;
@@ -1591,6 +1694,9 @@ app.post("/api/books/:id/reviews", async (req, res) => {
     // Update the document with the new reviews
     await updateDoc(bookRef, { reviews: bookData.reviews });
 
+    // Update local cache
+    localBooksData = localBooksData.map(book => book.id === id ? { ...book, reviews: bookData.reviews } : book);
+
     res.status(200).json({ success: true, message: "Review added successfully" });
   } catch (error) {
     console.error("Error adding review:", error);
@@ -1598,12 +1704,18 @@ app.post("/api/books/:id/reviews", async (req, res) => {
   }
 });
 
-
 // Handler for fetching all reviews for a book
 app.get("/api/books/:id/reviews", async (req, res) => {
   const { id } = req.params;
 
   try {
+    // Check local cache first
+    const book = localBooksData.find(book => book.id === id);
+    if (book) {
+      const reviews = book.reviews ? book.reviews.reverse() : [];
+      return res.status(200).json({ success: true, reviews });
+    }
+
     const bookRef = doc(db, "books", id);
     const docSnap = await getDoc(bookRef);
 
@@ -1615,13 +1727,14 @@ app.get("/api/books/:id/reviews", async (req, res) => {
     const reviews = bookData.reviews ? bookData.reviews.reverse() : [];
 
     res.status(200).json({ success: true, reviews });
+
+    // Update local cache
+    localBooksData = localBooksData.map(book => book.id === id ? { ...book, reviews } : book);
   } catch (error) {
     console.error("Error fetching reviews:", error);
     res.status(500).json({ success: false, message: `Failed to fetch reviews: ${error.message}` });
   }
 });
-
-
 
 app.post("/api/books/:id/addCopy", async (req, res) => {
   try {
@@ -1658,12 +1771,14 @@ app.post("/api/books/:id/addCopy", async (req, res) => {
     });
 
     res.status(200).json({ success: true, copyID: newCopyID, message: "Copy added successfully" });
+
+    // Update local cache
+    localBooksData = localBooksData.map(book => book.id === id ? { ...book, copies: bookData.copies + 1, copiesID: updatedCopiesID } : book);
   } catch (error) {
     console.error("Error adding copy:", error);
     res.status(500).send("Failed to add copy");
   }
 });
-
 
 app.delete("/api/books/:id/removeCopy/:copyID", async (req, res) => {
   try {
@@ -1703,11 +1818,12 @@ app.delete("/api/books/:id/removeCopy/:copyID", async (req, res) => {
     });
 
     res.status(200).json({ success: true, message: "Copy removed successfully" });
+
+    // Update local cache
+    localBooksData = localBooksData.map(book => book.id === id ? { ...book, copies: bookData.copies - 1, copiesID: updatedCopiesID } : book);
   } catch (error) {
     console.error("Error removing copy:", error);
     res.status(500).send("Failed to remove copy");
   }
 });
-
-
 

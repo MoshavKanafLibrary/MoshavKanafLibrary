@@ -21,16 +21,19 @@ const WaitingListPage = () => {
       setLoading(true);
       try {
         const { data: booksData } = await axios.get("/api/books/getAllBooksData");
+        console.log("Fetched books data:", booksData);
         if (booksData.success) {
           const waitingListUsersPromises = booksData.books
             .filter(book => book.waitingList && book.waitingList.length > 0)
             .flatMap(book => book.waitingList.map(async waitingEntry => {
               try {
                 const { data: userData } = await axios.get(`/api/users/${waitingEntry.uid}`);
+                const waitingDate = waitingEntry.Time && waitingEntry.Time.seconds ? new Date(waitingEntry.Time.seconds * 1000) : new Date();
+                const formattedWaitingDate = isValid(waitingDate) ? format(waitingDate, "MMM dd, yyyy p") : 'DATE UNKNOWN';
                 return {
                   ...userData,
                   bookTitle: book.title,
-                  waitingDate: waitingEntry.Time ? format(new Date(waitingEntry.Time.seconds * 1000), "MMM dd, yyyy p") : 'Date unknown',
+                  waitingDate: formattedWaitingDate,
                   uid: waitingEntry.uid,
                   email: userData.email,
                   firstName: userData.firstName, // Adding firstName
@@ -44,6 +47,7 @@ const WaitingListPage = () => {
             }));
 
           const waitingListUsers = (await Promise.all(waitingListUsersPromises)).filter(Boolean); // Filter out null values
+          console.log("Waiting list users:", waitingListUsers);
           setWaitingList(waitingListUsers);
           setFilteredWaitingList(waitingListUsers);
         } else {
@@ -72,6 +76,10 @@ const WaitingListPage = () => {
     setCurrentPage(1); // Reset to first page on new search
   }, [searchQuery, waitingList]);
 
+  const isValid = (date) => {
+    return date instanceof Date && !isNaN(date.getTime());
+  };
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredWaitingList.slice(indexOfFirstItem, indexOfLastItem);
@@ -91,10 +99,42 @@ const WaitingListPage = () => {
   const confirmDelete = async () => {
     if (deleteEntry) {
       try {
+        // מחיקת הפריט
         await axios.delete(`/api/books/${deleteEntry.bookId}/waiting-list`, { data: { uid: deleteEntry.uid } });
         await axios.delete(`/api/users/${deleteEntry.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title: deleteEntry.bookTitle } });
-        setWaitingList(prevList => prevList.filter(entry => entry.uid !== deleteEntry.uid));
-        setFilteredWaitingList(prevList => prevList.filter(entry => entry.uid !== deleteEntry.uid));
+  
+        // קריאה מחודשת לשרת לקבלת הרשימה המעודכנת
+        const { data: booksData } = await axios.get("/api/books/getAllBooksData");
+        if (booksData.success) {
+          const waitingListUsersPromises = booksData.books
+            .filter(book => book.waitingList && book.waitingList.length > 0)
+            .flatMap(book => book.waitingList.map(async waitingEntry => {
+              try {
+                const { data: userData } = await axios.get(`/api/users/${waitingEntry.uid}`);
+                const waitingDate = waitingEntry.Time && waitingEntry.Time.seconds ? new Date(waitingEntry.Time.seconds * 1000) : new Date();
+                const formattedWaitingDate = isValid(waitingDate) ? format(waitingDate, "MMM dd, yyyy p") : 'DATE UNKNOWN';
+                return {
+                  ...userData,
+                  bookTitle: book.title,
+                  waitingDate: formattedWaitingDate,
+                  uid: waitingEntry.uid,
+                  email: userData.email,
+                  firstName: userData.firstName,
+                  lastName: userData.lastName,
+                  bookId: book.id
+                };
+              } catch (userError) {
+                console.error(`Error fetching user data for UID ${waitingEntry.uid}:`, userError);
+                return null;
+              }
+            }));
+  
+          const waitingListUsers = (await Promise.all(waitingListUsersPromises)).filter(Boolean);
+          setWaitingList(waitingListUsers);
+          setFilteredWaitingList(waitingListUsers);
+        } else {
+          console.error("Error fetching books data:", booksData);
+        }
       } catch (error) {
         console.error("Error deleting request:", error);
       } finally {
@@ -103,6 +143,7 @@ const WaitingListPage = () => {
       }
     }
   };
+  
 
   const renderPageNumbers = () => {
     const pages = [];
@@ -175,62 +216,57 @@ const WaitingListPage = () => {
                 <div className="sm:block">{entry.waitingDate}</div>
                 <div className="sm:block">{entry.bookTitle}</div>
                 <FaTimes
-                  className="absolute top-0 right-0 m-2 text-red-600 cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteClick(entry);
-                  }}
+                  className="absolute top-2 right-2 text-red-500 cursor-pointer hover:text-red-700"
+                  onClick={(e) => { e.stopPropagation(); handleDeleteClick(entry); }}
                 />
               </div>
             ))
           ) : (
-            <div className="text-center py-4 text-bg-navbar-custom">לא נמצאו בקשות</div>
+            <div className="text-center text-bg-navbar-custom">לא נמצאו תוצאות</div>
           )}
         </div>
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-8">
+        {filteredWaitingList.length > itemsPerPage && (
+          <div className="flex justify-between mt-4">
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
-              onClick={() => paginate(currentPage - 1)}
+              className="px-4 py-2 mx-1 rounded-lg bg-bg-hover text-bg-navbar-custom"
+              onClick={() => paginate(currentPage > 1 ? currentPage - 1 : 1)}
               disabled={currentPage === 1}
             >
-              {'<'}
+              &lt;
             </button>
             {renderPageNumbers()}
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
-              onClick={() => paginate(currentPage + 1)}
+              className="px-4 py-2 mx-1 rounded-lg bg-bg-hover text-bg-navbar-custom"
+              onClick={() => paginate(currentPage < totalPages ? currentPage + 1 : totalPages)}
               disabled={currentPage === totalPages}
             >
-              {'>'}
+              &gt;
             </button>
           </div>
         )}
-      </div>
-
-      {/* Confirmation Popup */}
-      {showConfirmPopup && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-bg-navbar-custom p-4 sm:p-8 rounded-lg shadow-lg max-w-sm w-full mx-2">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-bg-text">אישור מחיקה</h2>
-            <p className="text-bg-text">האם אתה בטוח שברצונך למחוק את הבקשה?</p>
-            <div className="mt-6 flex justify-end">
-              <button 
-                onClick={() => setShowConfirmPopup(false)}
-                className="mr-2 px-4 py-2 bg-gray-300 rounded text-bg-text"
-              >
-                ביטול
-              </button>
-              <button 
-                onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 text-bg-navbar-custom rounded"
-              >
-                אישור
-              </button>
+        {showConfirmPopup && (
+          <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <h2 className="text-xl font-bold mb-4">אישור מחיקה</h2>
+              <p>האם אתה בטוח שברצונך למחוק את הבקשה של {deleteEntry?.firstName} {deleteEntry?.lastName}?</p>
+              <div className="mt-4 flex justify-between">
+                <button
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg"
+                  onClick={confirmDelete}
+                >
+                  אישור
+                </button>
+                <button
+                  className="px-4 py-2 bg-gray-300 text-black rounded-lg"
+                  onClick={() => setShowConfirmPopup(false)}
+                >
+                  ביטול
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 };
