@@ -14,6 +14,7 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 dotenv.config();
 
+let localBooks = {};
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,6 +51,41 @@ app.listen(process.env.PORT || 3000, () => {
   console.log(`Server is listening on port 3000? Thanks`);
   console.log(process.env.PORT);
 });
+
+const loadBooksIntoLocalStructure = async () => {
+  if (Object.keys(localBooks).length === 0) { // Check if localBooks is empty
+    try {
+      const booksCollection = collection(db, "books");
+      const booksSnapshot = await getDocs(booksCollection);
+
+      booksSnapshot.forEach((doc) => {
+        localBooks[doc.id] = doc.data();
+      });
+
+      console.log("Local books structure loaded successfully");
+    } catch (error) {
+      console.error("Error loading books into local structure:", error);
+    }
+  } else {
+    console.log("Local books structure is already loaded");
+  }
+  console.log("Current localBooks structure:", localBooks);
+};
+
+loadBooksIntoLocalStructure();
+
+// Update localBooks structure
+const updateLocalBooks = (id, newData) => {
+  localBooks[id] = newData;
+  console.log("Local books structure updated:", localBooks);
+};
+
+// Remove from localBooks structure
+const removeLocalBook = (id) => {
+  delete localBooks[id];
+  console.log("Local books structure updated:", localBooks);
+};
+
 
 // get a user by his id
 app.get("/api/users/:uid", async (req, res) => {
@@ -509,6 +545,9 @@ app.post("/api/books/add", async (req, res) => {
     // Create a new document in the "books" collection
     const docRef = await addDoc(booksCollection, newBookData);
 
+    // Update local data structure
+    updateLocalBooks(docRef.id, newBookData);
+
     // Create new copies in the "copies" collection for each copyID
     const copiesPromises = copiesID.map(copyID => {
       return addDoc(copiesCollection, {
@@ -547,6 +586,9 @@ app.put("/api/books/update/:id", async (req, res) => {
 
     // Update the book document with the new data
     await updateDoc(bookRef, updatedData);
+
+    // Update localBooks structure
+    updateLocalBooks(id, { ...bookData, ...updatedData });
 
     // Check if title has changed and update copies collection if necessary
     if (updatedData.title && updatedData.title !== bookData.title) {
@@ -596,6 +638,7 @@ app.put("/api/books/update/:id", async (req, res) => {
   }
 });
 
+
 // Endpoint to get all book names
 app.get("/api/books/names", async (req, res) => {
   try {
@@ -641,7 +684,7 @@ app.get("/api/books/:id", async (req, res) => {
   }
 });
 
-// Endpoint to delete a book by its ID
+// Handler for deleting a book by its ID
 app.delete("/api/books/:id", async (req, res) => {
   try {
     const { id } = req.params; // Get the book ID from the URL parameter
@@ -659,6 +702,9 @@ app.delete("/api/books/:id", async (req, res) => {
 
     // Delete the book document from Firestore
     await deleteDoc(bookRef);
+
+    // Remove from localBooks structure
+    removeLocalBook(id);
 
     // Also delete all associated copies if they exist
     if (bookData.copiesID && bookData.copiesID.length > 0) {
