@@ -53,6 +53,7 @@ app.listen(process.env.PORT || 3000, () => {
 // Local data caches
 let localUsersData = [];
 let localBooksData = [];
+let localCopiesData = [];
 
 // Function to initialize local caches
 const initializeLocalData = async () => {
@@ -66,6 +67,11 @@ const initializeLocalData = async () => {
     const booksCollection = collection(db, "books");
     const booksSnapshot = await getDocs(booksCollection);
     localBooksData = booksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Initialize localCopiesData
+    const copiesCollection = collection(db, "copies");
+    const copiesSnapshot = await getDocs(copiesCollection);
+    localCopiesData = copiesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
     console.error("Error initializing local data:", error);
   }
@@ -503,9 +509,6 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
   }
 });
 
-
-
-
 app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
   try {
     const searchQuery = req.query.bookName || ""; // Book name search parameter
@@ -599,6 +602,7 @@ app.post("/api/books/add", async (req, res) => {
 
     // Update local cache
     localBooksData.push({ id: docRef.id, ...newBookData });
+    localCopiesData = [...localCopiesData, ...copiesPromises];
   } catch (error) {
     // Handle errors
     console.error("Error adding book:", error);
@@ -630,6 +634,9 @@ app.put("/api/books/update/:id", async (req, res) => {
         return updateDoc(doc.ref, { title: updatedData.title });
       });
       await Promise.all(copiesUpdates);
+
+      // Update local cache for copies
+      localCopiesData = localCopiesData.map(copy => copy.title === bookData.title ? { ...copy, title: updatedData.title } : copy);
     }
 
     // Update copiesID if provided
@@ -659,12 +666,23 @@ app.put("/api/books/update/:id", async (req, res) => {
       });
 
       await Promise.all([...addPromises, ...removePromises.flat()]);
+
+      // Update local cache for copies
+      localCopiesData = [
+        ...localCopiesData.filter(copy => !copiesToRemove.includes(copy.copyID)),
+        ...copiesToAdd.map(copyID => ({
+          title: updatedData.title || bookData.title,
+          isBorrowed: false,
+          borrowedTo: null,
+          copyID: copyID
+        }))
+      ];
     }
 
     // Respond with a success message
     res.status(200).json({ success: true });
 
-    // Update local cache
+    // Update local cache for books
     localBooksData = localBooksData.map(book => book.id === id ? { ...book, ...updatedData } : book);
   } catch (error) {
     // Handle errors
@@ -781,6 +799,7 @@ app.delete("/api/books/:id", async (req, res) => {
 
     // Update local cache
     localBooksData = localBooksData.filter(book => book.id !== id);
+    localCopiesData = localCopiesData.filter(copy => !bookData.copiesID.includes(copy.copyID));
   } catch (error) {
     console.error("Error deleting book:", error);
     res.status(500).json({ success: false, message: "Failed to delete book" });
@@ -828,8 +847,14 @@ app.get("/api/book/getCopy", async (req, res) => {
   }
 
   try {
+    // Check local cache first
+    const copy = localCopiesData.find(copy => copy.copyID === parseInt(copyID));
+    if (copy) {
+      return res.status(200).json({ success: true, copy });
+    }
+
     const copiesCollectionRef = collection(db, "copies"); // Reference to the "copies" collection
-    const q = query(copiesCollectionRef, where("copyID", "==", copyID)); // Query to find the matching copyID
+    const q = query(copiesCollectionRef, where("copyID", "==", parseInt(copyID))); // Query to find the matching copyID
     const querySnapshot = await getDocs(q); // Execute the query
 
     if (querySnapshot.empty) {
@@ -837,6 +862,9 @@ app.get("/api/book/getCopy", async (req, res) => {
     } else {
       const copyData = querySnapshot.docs.map(doc => doc.data())[0]; // Assuming only one match, get the data
       res.status(200).json({ success: true, copy: copyData });
+
+      // Update local cache
+      localCopiesData.push(copyData);
     }
   } catch (error) {
     console.error("Error fetching copy by ID:", error);
@@ -903,10 +931,6 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
   }
 });
 
-
-
-
-
 // Endpoint to get copies by book title
 app.get("/api/book/getCopiesByTitle", async (req, res) => {
   const { title } = req.query; // Get the book title from query parameters
@@ -916,6 +940,12 @@ app.get("/api/book/getCopiesByTitle", async (req, res) => {
   }
 
   try {
+    // Check local cache first
+    const copies = localCopiesData.filter(copy => copy.title === title);
+    if (copies.length > 0) {
+      return res.status(200).json({ success: true, copies });
+    }
+
     const copiesCollectionRef = collection(db, "copies"); // Reference to the "copies" collection
     const q = query(copiesCollectionRef, where("title", "==", title)); // Query to find all copies with the matching title
     const querySnapshot = await getDocs(q); // Execute the query
@@ -925,6 +955,9 @@ app.get("/api/book/getCopiesByTitle", async (req, res) => {
     } else {
       const copiesData = querySnapshot.docs.map(doc => doc.data());
       res.status(200).json({ success: true, copies: copiesData });
+
+      // Update local cache
+      localCopiesData = [...localCopiesData, ...copiesData];
     }
   } catch (error) {
     console.error("Error fetching copies by title:", error);
@@ -990,6 +1023,9 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
     // Update the borrowedTo field with the updated list
     await updateDoc(copyDocRef, { borrowedTo: borrowedToList });
 
+    // Update local cache
+    localCopiesData = localCopiesData.map(copy => copy.copyID === parseInt(copyID) ? { ...copy, borrowedTo: borrowedToList } : copy);
+
     res.status(200).json({ success: true, message: "BorrowedTo field updated successfully" });
   } catch (error) {
     console.error("Error updating borrowedTo field:", error);
@@ -1041,9 +1077,6 @@ app.delete("/api/books/:id/waiting-list", async (req, res) => {
   }
 });
 
-
-
-
 app.get("/api/users", async (req, res) => {
   try {
     // Use local cache first
@@ -1071,6 +1104,12 @@ app.get("/api/users", async (req, res) => {
 // Endpoint to get all borrowed copies
 app.get("/api/copies/borrowed", async (req, res) => {
   try {
+    // Check local cache first
+    const borrowedCopies = localCopiesData.filter(copy => copy.borrowedTo && copy.borrowedTo.length > 0);
+    if (borrowedCopies.length > 0) {
+      return res.status(200).json({ success: true, borrowedCopies });
+    }
+
     const copiesCollection = collection(db, "copies"); // Reference to the "copies" collection
     const q = query(copiesCollection, where("borrowedTo", "!=", null)); // Query to find all copies with borrowedTo not null
     const querySnapshot = await getDocs(q); // Execute the query
@@ -1078,8 +1117,11 @@ app.get("/api/copies/borrowed", async (req, res) => {
     if (querySnapshot.empty) {
       res.status(404).json({ success: false, message: "No borrowed copies found" });
     } else {
-      const borrowedCopies = querySnapshot.docs.map(doc => doc.data());
-      res.status(200).json({ success: true, borrowedCopies });
+      const borrowedCopiesData = querySnapshot.docs.map(doc => doc.data());
+      res.status(200).json({ success: true, borrowedCopies: borrowedCopiesData });
+
+      // Update local cache
+      localCopiesData = [...localCopiesData, ...borrowedCopiesData];
     }
   } catch (error) {
     console.error("Error fetching borrowed copies:", error);
@@ -1111,6 +1153,9 @@ app.put("/api/copies/returnCopy", async (req, res) => {
 
     // Update the borrowedTo field to null
     await updateDoc(copyDocRef, { borrowedTo: null });
+
+    // Update local cache
+    localCopiesData = localCopiesData.map(copy => copy.copyID === parseInt(copyID) ? { ...copy, borrowedTo: null } : copy);
 
     res.status(200).json({ success: true, message: "BorrowedTo field updated to null successfully" });
   } catch (error) {
@@ -1270,7 +1315,6 @@ app.get("/api/users/:uid/present-borrow-books-list", async (req, res) => {
   }
 });
 
-
 // Endpoint to delete a specific book from the borrowBooks-list for a specific user
 app.delete("/api/users/:uid/borrow-books-list/deletebookfromborrowlist", async (req, res) => {
   const { uid } = req.params;
@@ -1290,7 +1334,7 @@ app.delete("/api/users/:uid/borrow-books-list/deletebookfromborrowlist", async (
 
     let userData = userSnap.data();
 
-        // Check if the borrowBooksList exists and the book entry is present
+    // Check if the borrowBooksList exists and the book entry is present
     if (!userData.borrowBooksList || !userData.borrowBooksList[title]) {
       return res.status(404).json({ success: false, message: "Book entry not found in borrowBooks-list" });
     }
@@ -1786,6 +1830,12 @@ app.post("/api/books/:id/addCopy", async (req, res) => {
 
     // Update local cache
     localBooksData = localBooksData.map(book => book.id === id ? { ...book, copies: bookData.copies + 1, copiesID: updatedCopiesID } : book);
+    localCopiesData.push({
+      title: bookData.title,
+      isBorrowed: false,
+      borrowedTo: null,
+      copyID: newCopyID
+    });
   } catch (error) {
     console.error("Error adding copy:", error);
     res.status(500).send("Failed to add copy");
@@ -1833,9 +1883,9 @@ app.delete("/api/books/:id/removeCopy/:copyID", async (req, res) => {
 
     // Update local cache
     localBooksData = localBooksData.map(book => book.id === id ? { ...book, copies: bookData.copies - 1, copiesID: updatedCopiesID } : book);
+    localCopiesData = localCopiesData.filter(copy => copy.copyID !== parseInt(copyID));
   } catch (error) {
     console.error("Error removing copy:", error);
     res.status(500).send("Failed to remove copy");
   }
 });
-
