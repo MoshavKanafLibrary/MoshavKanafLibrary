@@ -545,6 +545,7 @@ app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
   }
 });
 
+
 const getAndUpdateCounter = async (incrementBy) => {
   const counterRef = doc(db, 'counters', 'bookCounter');
   const counterDoc = await getDoc(counterRef);
@@ -851,15 +852,21 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
     return res.status(400).json({ success: false, message: "User ID is required" });
   }
 
-  const bookRef = doc(db, "books", id);
-
   try {
-    const docSnap = await getDoc(bookRef);
-    if (!docSnap.exists()) {
-      return res.status(404).json({ success: false, message: "Book not found" });
+    let bookData = localBooksData.find(book => book.id === id);
+
+    if (!bookData) {
+      const bookRef = doc(db, "books", id);
+      const docSnap = await getDoc(bookRef);
+
+      if (!docSnap.exists()) {
+        return res.status(404).json({ success: false, message: "Book not found" });
+      }
+
+      bookData = { id: docSnap.id, ...docSnap.data() };
+      localBooksData.push(bookData);
     }
 
-    let bookData = docSnap.data();
     const newEntry = {
       uid: uid,
       Time: new Date()  // Using JavaScript Date object directly
@@ -878,11 +885,11 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
       return res.status(409).json({ success: false, message: "User already in the waiting list" });
     }
 
+    const bookRef = doc(db, "books", id);
     await updateDoc(bookRef, {
       waitingList: bookData.waitingList
     });
 
-    // Update local cache
     localBooksData = localBooksData.map(book => book.id === id ? { ...book, waitingList: bookData.waitingList } : book);
 
     // Print updated waiting list from local cache
@@ -998,25 +1005,29 @@ app.delete("/api/books/:id/waiting-list", async (req, res) => {
     return res.status(400).json({ success: false, message: "User ID is required" });
   }
 
-  const bookRef = doc(db, "books", id);
-
   try {
-    const docSnap = await getDoc(bookRef);
-    if (!docSnap.exists()) {
-      return res.status(404).json({ success: false, message: "Book not found" });
-    }
+    let bookData = localBooksData.find(book => book.id === id);
 
-    let bookData = docSnap.data();
+    if (!bookData) {
+      const bookRef = doc(db, "books", id);
+      const docSnap = await getDoc(bookRef);
+
+      if (!docSnap.exists()) {
+        return res.status(404).json({ success: false, message: "Book not found" });
+      }
+
+      bookData = { id: docSnap.id, ...docSnap.data() };
+      localBooksData.push(bookData);
+    }
 
     // Filter out the entry with the given uid
     const newWaitingList = bookData.waitingList.filter(entry => entry.uid !== uid);
 
-    // Update the document with the new waiting list
+    const bookRef = doc(db, "books", id);
     await updateDoc(bookRef, {
       waitingList: newWaitingList
     });
 
-    // Update local cache
     localBooksData = localBooksData.map(book => book.id === id ? { ...book, waitingList: newWaitingList } : book);
 
     // Print updated waiting list from local cache
@@ -1029,6 +1040,7 @@ app.delete("/api/books/:id/waiting-list", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to remove user from waiting list: ${error.message || 'Unknown error'}` });
   }
 });
+
 
 
 

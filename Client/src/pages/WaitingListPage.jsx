@@ -36,17 +36,17 @@ const WaitingListPage = () => {
                   waitingDate: formattedWaitingDate,
                   uid: waitingEntry.uid,
                   email: userData.email,
-                  firstName: userData.firstName, // Adding firstName
-                  lastName: userData.lastName, // Adding lastName
+                  firstName: userData.firstName,
+                  lastName: userData.lastName,
                   bookId: book.id
                 };
               } catch (userError) {
                 console.error(`Error fetching user data for UID ${waitingEntry.uid}:`, userError);
-                return null; // Skip this entry if user data fetch fails
+                return null;
               }
             }));
 
-          const waitingListUsers = (await Promise.all(waitingListUsersPromises)).filter(Boolean); // Filter out null values
+          const waitingListUsers = (await Promise.all(waitingListUsersPromises)).filter(Boolean);
           console.log("Waiting list users:", waitingListUsers);
           setWaitingList(waitingListUsers);
           setFilteredWaitingList(waitingListUsers);
@@ -73,7 +73,7 @@ const WaitingListPage = () => {
       (entry.waitingDate?.toLowerCase() || '').includes(lowerCaseQuery)
     );
     setFilteredWaitingList(filtered);
-    setCurrentPage(1); // Reset to first page on new search
+    setCurrentPage(1);
   }, [searchQuery, waitingList]);
 
   const isValid = (date) => {
@@ -99,41 +99,21 @@ const WaitingListPage = () => {
   const confirmDelete = async () => {
     if (deleteEntry) {
       try {
-        // מחיקת הפריט
-        await axios.delete(`/api/books/${deleteEntry.bookId}/waiting-list`, { data: { uid: deleteEntry.uid } });
-        await axios.delete(`/api/users/${deleteEntry.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title: deleteEntry.bookTitle } });
-  
-        // קריאה מחודשת לשרת לקבלת הרשימה המעודכנת
-        const { data: booksData } = await axios.get("/api/books/getAllBooksData");
-        if (booksData.success) {
-          const waitingListUsersPromises = booksData.books
-            .filter(book => book.waitingList && book.waitingList.length > 0)
-            .flatMap(book => book.waitingList.map(async waitingEntry => {
-              try {
-                const { data: userData } = await axios.get(`/api/users/${waitingEntry.uid}`);
-                const waitingDate = waitingEntry.Time && waitingEntry.Time.seconds ? new Date(waitingEntry.Time.seconds * 1000) : new Date();
-                const formattedWaitingDate = isValid(waitingDate) ? format(waitingDate, "MMM dd, yyyy p") : 'DATE UNKNOWN';
-                return {
-                  ...userData,
-                  bookTitle: book.title,
-                  waitingDate: formattedWaitingDate,
-                  uid: waitingEntry.uid,
-                  email: userData.email,
-                  firstName: userData.firstName,
-                  lastName: userData.lastName,
-                  bookId: book.id
-                };
-              } catch (userError) {
-                console.error(`Error fetching user data for UID ${waitingEntry.uid}:`, userError);
-                return null;
-              }
-            }));
-  
-          const waitingListUsers = (await Promise.all(waitingListUsersPromises)).filter(Boolean);
-          setWaitingList(waitingListUsers);
-          setFilteredWaitingList(waitingListUsers);
+        console.log("Deleting entry:", deleteEntry);
+        const responseBook = await axios.delete(`/api/books/${deleteEntry.bookId}/waiting-list`, { data: { uid: deleteEntry.uid } });
+        const responseUser = await axios.delete(`/api/users/${deleteEntry.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title: deleteEntry.bookTitle } });
+        
+        if (responseBook.status === 200 && responseUser.status === 200) {
+          console.log("Both delete requests were successful");
+          // הסרת הפריט שנמחק מהרשימות הנוכחיות
+          const updatedWaitingList = waitingList.filter(entry => !(entry.uid === deleteEntry.uid && entry.bookId === deleteEntry.bookId));
+          const updatedFilteredWaitingList = filteredWaitingList.filter(entry => !(entry.uid === deleteEntry.uid && entry.bookId === deleteEntry.bookId));
+          
+          // עדכון ה-state
+          setWaitingList(updatedWaitingList);
+          setFilteredWaitingList(updatedFilteredWaitingList);
         } else {
-          console.error("Error fetching books data:", booksData);
+          console.error("Error in one of the delete requests:", responseBook, responseUser);
         }
       } catch (error) {
         console.error("Error deleting request:", error);
@@ -143,7 +123,6 @@ const WaitingListPage = () => {
       }
     }
   };
-  
 
   const renderPageNumbers = () => {
     const pages = [];
@@ -187,7 +166,6 @@ const WaitingListPage = () => {
           className="mb-10 p-2 w-full border rounded-md bg-bg-navbar-custom text-bg-text"
         />
         <div className="flex flex-col space-y-2">
-          {/* Header Row */}
           <div className="hidden sm:grid sm:grid-cols-6 text-center font-bold bg-bg-text p-4 rounded-lg text-bg-navbar-custom">
             <div>Uid</div>
             <div>שם פרטי</div>
@@ -196,7 +174,6 @@ const WaitingListPage = () => {
             <div>תאריך בקשה</div>
             <div>כותר הספר</div>
           </div>
-          {/* Entries */}
           {currentItems.length > 0 ? (
             currentItems.map((entry, index) => (
               <div key={index}
