@@ -13,8 +13,23 @@ const ProfilePage = () => {
   const [ratings, setRatings] = useState({});
   const [hasRated, setHasRated] = useState({});
   const [ratingLoading, setRatingLoading] = useState(true);
+  const [userDetails, setUserDetails] = useState(null);
 
   useEffect(() => {
+    const fetchUserDetails = async () => {
+      if (!user) {
+        console.error("No user is currently logged in.");
+        return;
+      }
+
+      try {
+        const response = await axios.get(`/api/users/${user.uid}`);
+        setUserDetails(response.data);
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+      }
+    };
+
     const fetchUserHistoryBooks = async () => {
       if (!user) {
         console.error("No user is currently logged in.");
@@ -80,6 +95,7 @@ const ProfilePage = () => {
     };
 
     if (user) {
+      fetchUserDetails();
       fetchUserHistoryBooks();
       fetchBorrowedBooks();
     }
@@ -189,6 +205,15 @@ const ProfilePage = () => {
           </div>
         ) : (
           <div>
+            {userDetails && (
+  <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mb-8 ">
+    <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.firstName} {userDetails.lastName} :שם מלא</h3>
+    <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.email} :אימייל</h3>
+    <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.phone} :פלאפון</h3>
+    <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.random} :קוד משתמש</h3>
+  </div>
+)}
+
             <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center">
               <h3 className="mt-6 text-2xl text-bg-text">ספרים מושאלים</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
@@ -304,7 +329,6 @@ const ProfilePage = () => {
       )}
     </div>
   );
-  
 };
 
 export default ProfilePage;
