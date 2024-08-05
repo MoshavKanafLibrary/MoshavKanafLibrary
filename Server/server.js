@@ -474,7 +474,7 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
     // בדוק אם יש נתונים במטמון המקומי
     if (localBooksData.length > 0) {
       console.log("Using local cache for books data:");
-      console.log(localBooksData); // הדפס את הרשימה המקומית
+      console.log(`@@@@ Local cache size: ${localBooksData.length} @@@@`); // הדפס את גודל הרשימה המקומית
       return res.status(200).json({ success: true, books: localBooksData });
     }
 
@@ -499,13 +499,13 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
     }));
 
     console.log("Books fetched successfully:");
-    console.log(books); // הדפס את הספרים שהושגו
+    console.log(`@@@@ Fetched books count: ${books.length} @@@@`); // הדפס את מספר הספרים שהושגו
 
     // עדכן את המטמון המקומי
     localBooksData = books;
 
     console.log("Updated local cache for books data:");
-    console.log(localBooksData); // הדפס את הרשימה המקומית לאחר עדכון
+    console.log(`@@@@ Updated local cache size: ${localBooksData.length} @@@@`); // הדפס את גודל הרשימה המקומית לאחר עדכון
 
     res.status(200).json({ success: true, books });
   } catch (error) {
@@ -513,6 +513,7 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch all books" });
   }
 });
+
 
 
 app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
