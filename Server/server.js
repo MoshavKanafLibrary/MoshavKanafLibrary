@@ -84,7 +84,7 @@ initializeLocalData();
 app.get("/api/users/:uid", async (req, res) => {
   try {
     const { uid } = req.params;
-
+    
     // Check local cache first
     const user = localUsersData.find(user => user.id === uid);
     if (user) {
@@ -172,7 +172,7 @@ app.get('/api/users/:uid/historyBooks', async (req, res) => {
 
     const userRef = doc(db, "users", uid);
     const userSnapshot = await getDoc(userRef);
-
+    
     if (!userSnapshot.exists()) {
       console.log("No user found for UID:", uid);
       return res.status(404).json({ success: false, message: "User not found" });
@@ -207,22 +207,17 @@ app.get('/api/users/:uid/historyBooks', async (req, res) => {
 const getUniqueCopyID = async () => {
   let isUnique = false;
   let newCopyID = await getAndUpdateCounter(1);
+  
+  const copiesCollection = collection(db, 'copies');
 
   while (!isUnique) {
-    const copyInCache = localCopiesData.find(copy => copy.copyID === newCopyID);
+    const q = query(copiesCollection, where("copyID", "==", newCopyID));
+    const querySnapshot = await getDocs(q);
 
-    if (!copyInCache) {
-      const copiesCollection = collection(db, 'copies');
-      const q = query(copiesCollection, where("copyID", "==", newCopyID));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        isUnique = true;
-      } else {
-        newCopyID += 1;
-      }
-    } else {
+    if (querySnapshot.empty) {
       isUnique = true;
+    } else {
+      newCopyID += 1;
     }
   }
 
@@ -233,12 +228,6 @@ const getUniqueCopyID = async () => {
 app.get("/api/displaynames/:displayName", async (req, res) => {
   try {
     const { displayName } = req.params;
-
-    // Check local cache first
-    const user = localUsersData.find(user => user.displayName === displayName);
-    if (user) {
-      return res.json({ valid: false });
-    }
 
     // Create a query to find documents with matching display name
     const usersCollection = collection(db, "users");
@@ -319,25 +308,31 @@ app.post("/api/users/signUp", async (req, res) => {
 
 const fetchTotalBookCount = async (searchQuery = "", selectedCategories = [], selectedAuthors = []) => {
   try {
-    // Use local cache first
-    let filteredBooks = localBooksData;
+    const booksCollection = collection(db, "books");
+    let booksQuery = query(booksCollection);
 
     // Apply category filter
     if (selectedCategories.length > 0) {
-      filteredBooks = filteredBooks.filter(book => selectedCategories.includes(book.category));
+      booksQuery = query(booksQuery, where("category", "in", selectedCategories));
     }
 
     // Apply author filter
     if (selectedAuthors.length > 0) {
-      filteredBooks = filteredBooks.filter(book => selectedAuthors.includes(book.author));
+      booksQuery = query(booksQuery, where("author", "in", selectedAuthors));
     }
 
     // Apply search query
     if (searchQuery) {
-      filteredBooks = filteredBooks.filter(book => book.title.toLowerCase().includes(searchQuery.toLowerCase()));
+      booksQuery = query(
+        booksQuery,
+        where("title", ">=", searchQuery.toLowerCase()),
+        where("title", "<", searchQuery.toLowerCase() + "\uf8ff")
+      );
     }
 
-    return filteredBooks.length;
+    const booksSnapshot = await getDocs(booksQuery);
+    const bookCount = booksSnapshot.size; // Correct count
+    return bookCount;
   } catch (error) {
     console.error("Error fetching book count:", error);
     return 0; // Return zero if there's an error
@@ -514,7 +509,6 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
   }
 });
 
-
 app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
   try {
     const searchQuery = req.query.bookName || ""; // Book name search parameter
@@ -524,40 +518,36 @@ app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
     // Remove duplicate titles and filter out the search query book name
     const uniqueTitles = Array.from(new Set(titles.filter(title => title !== searchQuery)));
 
-    // Use local cache to filter books matching the titles
-    let matchingBooks = localBooksData.filter(book => uniqueTitles.includes(book.title));
-
-    if (matchingBooks.length === 0) {
-      // Fetch books from the database that match the fetched titles
-      const booksCollection = collection(db, "books");
-      console.log(booksCollection);
-      let booksQuery = query(booksCollection, orderBy("title"));
-      
-      if (uniqueTitles.length > 0) {
-        booksQuery = query(
-          booksQuery,
-          where("title", "in", uniqueTitles) // Limit to 5 unique titles
-        );
-      }
-
-      // Execute the query
-      const booksSnapshot = await getDocs(booksQuery);
-      matchingBooks = booksSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      // Update local cache
-      localBooksData = localBooksData.concat(booksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    // Fetch books from the database that match the fetched titles
+    const booksCollection = collection(db, "books");
+    console.log(booksCollection);
+    let booksQuery = query(booksCollection, orderBy("title"));
+    
+    if (uniqueTitles.length > 0) {
+      booksQuery = query(
+        booksQuery,
+        where("title", "in", uniqueTitles) // Limit to 5 unique titles
+      );
     }
 
+    // Execute the query
+    const booksSnapshot = await getDocs(booksQuery);
+    const books = booksSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    // Update local cache
+    localBooksData = localBooksData.concat(booksSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
     // Send the response with the matching books
-    res.json(matchingBooks.slice(0, 5));
+    res.json(books.slice(0, 5));
   } catch (error) {
     console.error("Error fetching books:", error.message);
     res.status(500).json({ error: error.message });
   }
 });
+
 
 const getAndUpdateCounter = async (incrementBy) => {
   const counterRef = doc(db, 'counters', 'bookCounter');
@@ -612,12 +602,7 @@ app.post("/api/books/add", async (req, res) => {
 
     // Update local cache
     localBooksData.push({ id: docRef.id, ...newBookData });
-    localCopiesData = [...localCopiesData, ...copiesID.map(copyID => ({
-      title: title,
-      isBorrowed: false,
-      borrowedTo: null,
-      copyID: copyID
-    }))];
+    localCopiesData = [...localCopiesData, ...copiesPromises];
   } catch (error) {
     // Handle errors
     console.error("Error adding book:", error);
@@ -853,7 +838,6 @@ const getCopiesIdByTitle = async (bookTitle) => {
   console.log(copiesIdArray); // Log or process the copies ID array as needed
 })();
 
-
 // Endpoint to get a copy by CopyID
 app.get("/api/book/getCopy", async (req, res) => {
   const { copyID } = req.query; // Get the CopyID from query parameters
@@ -934,7 +918,6 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
       waitingList: bookData.waitingList
     });
 
-    // Update local cache without duplication
     localBooksData = localBooksData.map(book => book.id === id ? { ...book, waitingList: bookData.waitingList } : book);
 
     // Print updated waiting list from local cache
@@ -991,100 +974,64 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
   }
 
   try {
-    // Check local cache for user data
-    let userData = localUsersData.find(user => user.id === uid);
-    if (!userData) {
-      // Reference to the user document
-      const userRef = doc(db, "users", uid);
-      const userSnapshot = await getDoc(userRef);
+    // Reference to the user document
+    const userRef = doc(db, "users", uid);
+    const userSnapshot = await getDoc(userRef);
 
-      if (!userSnapshot.exists()) {
-        console.log(`User not found: uid=${uid}`);
-        return res.status(404).json({ success: false, message: "User not found" });
-      }
-
-      userData = userSnapshot.data();
-      localUsersData.push({ id: uid, ...userData });
+    if (!userSnapshot.exists()) {
+      console.log(`User not found: uid=${uid}`);
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
+    const userData = userSnapshot.data();
     const { firstName, lastName, phone } = userData;
 
     // Query to find the specific copy document by copyID field
-    const copy = localCopiesData.find(copy => copy.copyID === parseInt(copyID));
-    let copyDocRef;
-    if (!copy) {
-      const copiesCollectionRef = collection(db, "copies");
-      const q = query(copiesCollectionRef, where("copyID", "==", copyID));
-      const querySnapshot = await getDocs(q);
+    const copiesCollectionRef = collection(db, "copies");
+    const q = query(copiesCollectionRef, where("copyID", "==", copyID));
+    const querySnapshot = await getDocs(q);
 
-      if (querySnapshot.empty) {
-        console.log(`Copy not found: copyID=${copyID}`);
-        return res.status(404).json({ success: false, message: "Copy not found" });
-      }
-
-      copyDocRef = querySnapshot.docs[0].ref;
-      const copyData = querySnapshot.docs[0].data();
-
-      // Construct the new entry for the borrowedTo field
-      const newBorrowedEntry = { firstName, lastName, phone, uid };
-      let borrowedToList = copyData.borrowedTo || [];
-
-      // Check if the user already exists in the borrowedTo list
-      const existingEntryIndex = borrowedToList.findIndex(entry => entry.uid === uid);
-
-      if (existingEntryIndex !== -1) {
-        // If the user already exists in the list, update their firstName, lastName, and phone
-        borrowedToList[existingEntryIndex].firstName = firstName;
-        borrowedToList[existingEntryIndex].lastName = lastName;
-        borrowedToList[existingEntryIndex].phone = phone;
-      } else {
-        // Otherwise, add the new entry to the list
-        borrowedToList.push(newBorrowedEntry);
-      }
-
-      // Update the borrowedTo field with the updated list
-      await updateDoc(copyDocRef, { borrowedTo: borrowedToList });
-
-      // Update local cache
-      localCopiesData = localCopiesData.map(copy => copy.copyID === parseInt(copyID) ? { ...copy, borrowedTo: borrowedToList } : copy);
-
-      res.status(200).json({ success: true, message: "BorrowedTo field updated successfully" });
-    } else {
-      // Update the borrowedTo field for the copy found in local cache
-      const newBorrowedEntry = { firstName, lastName, phone, uid };
-      let borrowedToList = copy.borrowedTo || [];
-
-      // Check if the user already exists in the borrowedTo list
-      const existingEntryIndex = borrowedToList.findIndex(entry => entry.uid === uid);
-
-      if (existingEntryIndex !== -1) {
-        // If the user already exists in the list, update their firstName, lastName, and phone
-        borrowedToList[existingEntryIndex].firstName = firstName;
-        borrowedToList[existingEntryIndex].lastName = lastName;
-        borrowedToList[existingEntryIndex].phone = phone;
-      } else {
-        // Otherwise, add the new entry to the list
-        borrowedToList.push(newBorrowedEntry);
-      }
-
-      // Update the borrowedTo field with the updated list in local cache
-      copy.borrowedTo = borrowedToList;
-
-      // Update the document in Firestore
-      copyDocRef = doc(db, "copies", copy.id);
-      await updateDoc(copyDocRef, { borrowedTo: borrowedToList });
-
-      // Update local cache
-      localCopiesData = localCopiesData.map(c => c.copyID === parseInt(copyID) ? { ...c, borrowedTo: borrowedToList } : c);
-
-      res.status(200).json({ success: true, message: "BorrowedTo field updated successfully" });
+    if (querySnapshot.empty) {
+      console.log(`Copy not found: copyID=${copyID}`);
+      return res.status(404).json({ success: false, message: "Copy not found" });
     }
+
+    // Assuming copyID is unique and there will be only one document
+    const copyDocRef = querySnapshot.docs[0].ref;
+
+    // Construct the new entry for the borrowedTo field
+    const newBorrowedEntry = { firstName, lastName, phone, uid };
+
+    // Fetch the existing borrowedTo field, if it exists
+    const copySnapshot = await getDoc(copyDocRef);
+    const copyData = copySnapshot.data();
+    let borrowedToList = copyData.borrowedTo || [];
+
+    // Check if the user already exists in the borrowedTo list
+    const existingEntryIndex = borrowedToList.findIndex(entry => entry.uid === uid);
+
+    if (existingEntryIndex !== -1) {
+      // If the user already exists in the list, update their firstName, lastName, and phone
+      borrowedToList[existingEntryIndex].firstName = firstName;
+      borrowedToList[existingEntryIndex].lastName = lastName;
+      borrowedToList[existingEntryIndex].phone = phone;
+    } else {
+      // Otherwise, add the new entry to the list
+      borrowedToList.push(newBorrowedEntry);
+    }
+
+    // Update the borrowedTo field with the updated list
+    await updateDoc(copyDocRef, { borrowedTo: borrowedToList });
+
+    // Update local cache
+    localCopiesData = localCopiesData.map(copy => copy.copyID === parseInt(copyID) ? { ...copy, borrowedTo: borrowedToList } : copy);
+
+    res.status(200).json({ success: true, message: "BorrowedTo field updated successfully" });
   } catch (error) {
     console.error("Error updating borrowedTo field:", error);
     res.status(500).json({ success: false, message: `Failed to update borrowedTo field: ${error.message || 'Unknown error'}` });
   }
 });
-
 
 app.delete("/api/books/:id/waiting-list", async (req, res) => {
   const { id } = req.params;
@@ -1117,7 +1064,6 @@ app.delete("/api/books/:id/waiting-list", async (req, res) => {
       waitingList: newWaitingList
     });
 
-    // Update local cache without duplication
     localBooksData = localBooksData.map(book => book.id === id ? { ...book, waitingList: newWaitingList } : book);
 
     // Print updated waiting list from local cache
@@ -1193,46 +1139,30 @@ app.put("/api/copies/returnCopy", async (req, res) => {
 
   try {
     // Query to find the specific copy document by copyID field
-    const copy = localCopiesData.find(copy => copy.copyID === parseInt(copyID));
-    let copyDocRef;
-    if (!copy) {
-      const copiesCollectionRef = collection(db, "copies");
-      const q = query(copiesCollectionRef, where("copyID", "==", copyID));
-      const querySnapshot = await getDocs(q);
+    const copiesCollectionRef = collection(db, "copies");
+    const q = query(copiesCollectionRef, where("copyID", "==", copyID));
+    const querySnapshot = await getDocs(q);
 
-      if (querySnapshot.empty) {
-        console.log(`Copy not found: copyID=${copyID}`);
-        return res.status(404).json({ success: false, message: "Copy not found" });
-      }
-
-      copyDocRef = querySnapshot.docs[0].ref;
-
-      // Update the borrowedTo field to null
-      await updateDoc(copyDocRef, { borrowedTo: null });
-
-      // Update local cache
-      localCopiesData = localCopiesData.map(copy => copy.copyID === parseInt(copyID) ? { ...copy, borrowedTo: null } : copy);
-
-      res.status(200).json({ success: true, message: "BorrowedTo field updated to null successfully" });
-    } else {
-      // Update the borrowedTo field for the copy found in local cache
-      copy.borrowedTo = null;
-
-      // Update the document in Firestore
-      copyDocRef = doc(db, "copies", copy.id);
-      await updateDoc(copyDocRef, { borrowedTo: null });
-
-      // Update local cache
-      localCopiesData = localCopiesData.map(c => c.copyID === parseInt(copyID) ? { ...c, borrowedTo: null } : c);
-
-      res.status(200).json({ success: true, message: "BorrowedTo field updated to null successfully" });
+    if (querySnapshot.empty) {
+      console.log(`Copy not found: copyID=${copyID}`);
+      return res.status(404).json({ success: false, message: "Copy not found" });
     }
+
+    // Assuming copyID is unique and there will be only one document
+    const copyDocRef = querySnapshot.docs[0].ref;
+
+    // Update the borrowedTo field to null
+    await updateDoc(copyDocRef, { borrowedTo: null });
+
+    // Update local cache
+    localCopiesData = localCopiesData.map(copy => copy.copyID === parseInt(copyID) ? { ...copy, borrowedTo: null } : copy);
+
+    res.status(200).json({ success: true, message: "BorrowedTo field updated to null successfully" });
   } catch (error) {
     console.error("Error updating borrowedTo field to null:", error);
     res.status(500).json({ success: false, message: `Failed to update borrowedTo field: ${error.message || 'Unknown error'}` });
   }
 });
-
 
 // Handler for updating isManager field by UID
 app.put("/api/users/:uid/isManager", async (req, res) => {
@@ -1245,24 +1175,16 @@ app.put("/api/users/:uid/isManager", async (req, res) => {
       return res.status(400).json({ success: false, message: "isManager should be a boolean value" });
     }
 
-    // Check local cache for user data
-    let userData = localUsersData.find(user => user.id === uid);
-    if (!userData) {
-      // Reference the user document by UID
-      const userRef = doc(db, "users", uid);
+    // Reference the user document by UID
+    const userRef = doc(db, "users", uid);
 
-      // Check if the user exists
-      const userSnapshot = await getDoc(userRef);
-      if (!userSnapshot.exists()) {
-        return res.status(404).json({ success: false, message: "User not found" });
-      }
-
-      userData = userSnapshot.data();
-      localUsersData.push({ id: uid, ...userData });
+    // Check if the user exists
+    const userSnapshot = await getDoc(userRef);
+    if (!userSnapshot.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     // Update the isManager field in the user document
-    const userRef = doc(db, "users", uid);
     await updateDoc(userRef, { isManager });
 
     // Update local cache
@@ -1283,19 +1205,15 @@ app.post("/api/users/:uid/borrow-books-list", async (req, res) => {
     return res.status(400).json({ success: false, message: "Book title is required" });
   }
 
-  try {
-    // Check local cache for user data
-    let userData = localUsersData.find(user => user.id === uid);
-    if (!userData) {
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) {
-        return res.status(404).json({ success: false, message: "User not found" });
-      }
+  const userRef = doc(db, "users", uid);
 
-      userData = userSnap.data();
-      localUsersData.push({ id: uid, ...userData });
+  try {
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
+
+    let userData = userSnap.data();
 
     // Initialize borrowBooks-list if it does not exist
     if (!userData.borrowBooksList) {
@@ -1310,7 +1228,6 @@ app.post("/api/users/:uid/borrow-books-list", async (req, res) => {
     };
 
     // Update the user's borrowBooks-list
-    const userRef = doc(db, "users", uid);
     await updateDoc(userRef, {
       borrowBooksList: userData.borrowBooksList
     });
@@ -1325,7 +1242,6 @@ app.post("/api/users/:uid/borrow-books-list", async (req, res) => {
   }
 });
 
-
 // Endpoint to update the status from 'pending' to 'accepted' and set the start and end times
 app.put("/api/users/:uid/borrow-books-list/update-status", async (req, res) => {
   const { uid } = req.params;
@@ -1335,18 +1251,15 @@ app.put("/api/users/:uid/borrow-books-list/update-status", async (req, res) => {
     return res.status(400).json({ success: false, message: "Book title is required" });
   }
 
+  const userRef = doc(db, "users", uid);
+
   try {
-    let userData = localUsersData.find(user => user.id === uid);
-    
-    if (!userData) {
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) {
-        return res.status(404).json({ success: false, message: "User not found" });
-      }
-      userData = userSnap.data();
-      localUsersData.push({ id: uid, ...userData });
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
+
+    let userData = userSnap.data();
 
     // Check if the borrowBooksList exists and the book entry is present
     if (!userData.borrowBooksList || !userData.borrowBooksList[title]) {
@@ -1359,7 +1272,6 @@ app.put("/api/users/:uid/borrow-books-list/update-status", async (req, res) => {
     userData.borrowBooksList[title].endDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 2 weeks later
 
     // Update the user's borrowBooks-list
-    const userRef = doc(db, "users", uid);
     await updateDoc(userRef, {
       borrowBooksList: userData.borrowBooksList
     });
@@ -1378,18 +1290,15 @@ app.put("/api/users/:uid/borrow-books-list/update-status", async (req, res) => {
 app.get("/api/users/:uid/present-borrow-books-list", async (req, res) => {
   const { uid } = req.params;
 
+  const userRef = doc(db, "users", uid);
+
   try {
-    let userData = localUsersData.find(user => user.id === uid);
-    
-    if (!userData) {
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) {
-        return res.status(404).json({ success: false, message: "User not found" });
-      }
-      userData = userSnap.data();
-      localUsersData.push({ id: uid, ...userData });
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
+
+    const userData = userSnap.data();
 
     // Check if the borrowBooksList exists
     if (!userData.borrowBooksList) {
@@ -1397,6 +1306,9 @@ app.get("/api/users/:uid/present-borrow-books-list", async (req, res) => {
     }
 
     res.status(200).json({ success: true, borrowBooksList: userData.borrowBooksList });
+
+    // Update local cache
+    localUsersData.push({ id: uid, ...userData });
   } catch (error) {
     console.error("Error fetching borrow books list:", error);
     res.status(500).json({ success: false, message: `Failed to fetch borrow books list: ${error.message || 'Unknown error'}` });
@@ -1412,18 +1324,15 @@ app.delete("/api/users/:uid/borrow-books-list/deletebookfromborrowlist", async (
     return res.status(400).json({ success: false, message: "Book title is required" });
   }
 
+  const userRef = doc(db, "users", uid);
+
   try {
-    let userData = localUsersData.find(user => user.id === uid);
-    
-    if (!userData) {
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) {
-        return res.status(404).json({ success: false, message: "User not found" });
-      }
-      userData = userSnap.data();
-      localUsersData.push({ id: uid, ...userData });
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
+
+    let userData = userSnap.data();
 
     // Check if the borrowBooksList exists and the book entry is present
     if (!userData.borrowBooksList || !userData.borrowBooksList[title]) {
@@ -1434,7 +1343,6 @@ app.delete("/api/users/:uid/borrow-books-list/deletebookfromborrowlist", async (
     delete userData.borrowBooksList[title];
 
     // Update the user's borrowBooks-list
-    const userRef = doc(db, "users", uid);
     await updateDoc(userRef, {
       borrowBooksList: userData.borrowBooksList
     });
@@ -1459,18 +1367,14 @@ app.put('/api/users/:uid/addToHistory', async (req, res) => {
   }
 
   try {
-    let userData = localUsersData.find(user => user.id === uid);
-    
-    if (!userData) {
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) {
-        return res.status(404).json({ success: false, message: "User not found" });
-      }
-      userData = userSnap.data();
-      localUsersData.push({ id: uid, ...userData });
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
+    const userData = userSnap.data();
     const historyBooks = userData.historyBooks || [];
 
     // Add the new book to the history
@@ -1481,7 +1385,6 @@ app.put('/api/users/:uid/addToHistory', async (req, res) => {
     });
 
     // Update the user's document with the new history
-    const userRef = doc(db, "users", uid);
     await updateDoc(userRef, { historyBooks });
 
     // Update local cache
@@ -1504,18 +1407,14 @@ app.post("/api/users/:uid/notifications", async (req, res) => {
   }
 
   try {
-    let userData = localUsersData.find(user => user.id === uid);
-    
-    if (!userData) {
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) {
-        return res.status(404).json({ success: false, message: "User not found" });
-      }
-      userData = userSnap.data();
-      localUsersData.push({ id: uid, ...userData });
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
+    const userData = userSnap.data();
     let notifications = userData.notifications || [];
 
     // Add the new notification
@@ -1531,7 +1430,6 @@ app.post("/api/users/:uid/notifications", async (req, res) => {
     }
 
     // Update the user's document with the new notification
-    const userRef = doc(db, "users", uid);
     await updateDoc(userRef, { notifications });
 
     // Update local cache
@@ -1549,21 +1447,27 @@ app.get("/api/users/:uid/notifications", async (req, res) => {
   const { uid } = req.params;
 
   try {
-    let userData = localUsersData.find(user => user.id === uid);
-    
-    if (!userData) {
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) {
-        return res.status(404).json({ success: false, message: "User not found" });
-      }
-      userData = userSnap.data();
-      localUsersData.push({ id: uid, ...userData });
+    // Check local cache first
+    const user = localUsersData.find(user => user.id === uid);
+    if (user) {
+      const notifications = user.notifications || [];
+      return res.status(200).json({ success: true, notifications });
     }
 
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const userData = userSnap.data();
     const notifications = userData.notifications || [];
 
     return res.status(200).json({ success: true, notifications });
+
+    // Update local cache
+    localUsersData.push({ id: uid, ...userData });
   } catch (error) {
     console.error("Error fetching notifications:", error);
     return res.status(500).json({ success: false, message: `Failed to fetch notifications: ${error.message}` });
@@ -1575,18 +1479,14 @@ app.put("/api/users/:uid/notifications/markAsRead", async (req, res) => {
   const { uid } = req.params;
 
   try {
-    let userData = localUsersData.find(user => user.id === uid);
-    
-    if (!userData) {
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) {
-        return res.status(404).json({ success: false, message: "User not found" });
-      }
-      userData = userSnap.data();
-      localUsersData.push({ id: uid, ...userData });
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
+    const userData = userSnap.data();
     const notifications = userData.notifications || [];
 
     const updatedNotifications = notifications.map(notification => ({
@@ -1594,7 +1494,6 @@ app.put("/api/users/:uid/notifications/markAsRead", async (req, res) => {
       isRead: true,
     }));
 
-    const userRef = doc(db, "users", uid);
     await updateDoc(userRef, { notifications: updatedNotifications });
 
     // Update local cache
@@ -1607,6 +1506,16 @@ app.put("/api/users/:uid/notifications/markAsRead", async (req, res) => {
   }
 });
 
+const transporter = nodemailer.createTransport({
+  host: 'smtp.office365.com',
+  port: 587,
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.AUTH_EMAIL,
+    pass: process.env.AUTH_PASS,
+  },
+});
+
 app.post('/api/users/:uid/send-email', async (req, res) => {
   const { uid } = req.params;
   const { message } = req.body;
@@ -1616,21 +1525,17 @@ app.post('/api/users/:uid/send-email', async (req, res) => {
   }
 
   try {
-    let userData = localUsersData.find(user => user.id === uid);
-    
-    if (!userData) {
-      const userRef = doc(db, 'users', uid);
-      const userSnap = await getDoc(userRef);
-      if (!userSnap.exists()) {
-        return res.status(404).json({ success: false, message: 'User not found' });
-      }
-      userData = userSnap.data();
-      localUsersData.push({ id: uid, ...userData });
+    const userRef = doc(db, 'users', uid);
+    const userSnapshot = await getDoc(userRef);
+
+    if (!userSnapshot.exists()) {
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
+    const user = userSnapshot.data();
     const mailOptions = {
       from: process.env.AUTH_EMAIL,
-      to: userData.email,
+      to: user.email,
       subject: 'Book Borrow Notification',
       text: message,
     };
@@ -1659,19 +1564,16 @@ app.post("/api/books/:id/rate", async (req, res) => {
     return res.status(400).json({ success: false, message: "User ID and rating are required" });
   }
 
+  const bookRef = doc(db, "books", id);
+
   try {
-    let bookData = localBooksData.find(book => book.id === id);
-    
-    if (!bookData) {
-      const bookRef = doc(db, "books", id);
-      const docSnap = await getDoc(bookRef);
-      if (!docSnap.exists()) {
-        return res.status(404).json({ success: false, message: "Book not found" });
-      }
-      bookData = docSnap.data();
-      localBooksData.push({ id: id, ...bookData });
+    const docSnap = await getDoc(bookRef);
+    if (!docSnap.exists()) {
+      return res.status(404).json({ success: false, message: "Book not found" });
     }
 
+    let bookData = docSnap.data();
+    
     // Initialize ratings array if it does not exist
     if (!bookData.ratings) {
       bookData.ratings = [];
@@ -1696,7 +1598,6 @@ app.post("/api/books/:id/rate", async (req, res) => {
     const averageRating = totalRatings / bookData.ratings.length;
 
     // Update the document with the new ratings and average rating
-    const bookRef = doc(db, "books", id);
     await updateDoc(bookRef, {
       ratings: bookData.ratings,
       averageRating: averageRating
@@ -1722,18 +1623,14 @@ app.get("/api/books/:id/rating-status", async (req, res) => {
   }
 
   try {
-    let bookData = localBooksData.find(book => book.id === id);
-    
-    if (!bookData) {
-      const bookRef = doc(db, "books", id);
-      const docSnap = await getDoc(bookRef);
-      if (!docSnap.exists()) {
-        return res.status(404).json({ success: false, message: "Book not found" });
-      }
-      bookData = docSnap.data();
-      localBooksData.push({ id: id, ...bookData });
+    const bookRef = doc(db, "books", id);
+    const docSnap = await getDoc(bookRef);
+
+    if (!docSnap.exists()) {
+      return res.status(404).json({ success: false, message: "Book not found" });
     }
 
+    const bookData = docSnap.data();
     const hasRated = bookData.ratings ? bookData.ratings.some(r => r.uid === uid) : false;
 
     res.status(200).json({ success: true, hasRated });
@@ -1824,19 +1721,16 @@ app.post("/api/books/:id/reviews", async (req, res) => {
     return res.status(400).json({ success: false, message: "User ID, first name, last name, and review text are required" });
   }
 
+  const bookRef = doc(db, "books", id);
+
   try {
-    let bookData = localBooksData.find(book => book.id === id);
-    
-    if (!bookData) {
-      const bookRef = doc(db, "books", id);
-      const docSnap = await getDoc(bookRef);
-      if (!docSnap.exists()) {
-        return res.status(404).json({ success: false, message: "Book not found" });
-      }
-      bookData = docSnap.data();
-      localBooksData.push({ id: id, ...bookData });
+    const docSnap = await getDoc(bookRef);
+    if (!docSnap.exists()) {
+      return res.status(404).json({ success: false, message: "Book not found" });
     }
 
+    let bookData = docSnap.data();
+    
     // Initialize reviews array if it does not exist
     if (!bookData.reviews) {
       bookData.reviews = [];
@@ -1854,7 +1748,6 @@ app.post("/api/books/:id/reviews", async (req, res) => {
     bookData.reviews.push(newReview);
 
     // Update the document with the new reviews
-    const bookRef = doc(db, "books", id);
     await updateDoc(bookRef, { reviews: bookData.reviews });
 
     // Update local cache
@@ -1892,7 +1785,7 @@ app.get("/api/books/:id/reviews", async (req, res) => {
     res.status(200).json({ success: true, reviews });
 
     // Update local cache
-    localBooksData.push({ id: id, ...bookData });
+    localBooksData = localBooksData.map(book => book.id === id ? { ...book, reviews } : book);
   } catch (error) {
     console.error("Error fetching reviews:", error);
     res.status(500).json({ success: false, message: `Failed to fetch reviews: ${error.message}` });
@@ -1904,18 +1797,15 @@ app.post("/api/books/:id/addCopy", async (req, res) => {
     const { id } = req.params;
 
     // Reference to the specific book document
-    let bookData = localBooksData.find(book => book.id === id);
-    
-    if (!bookData) {
-      const bookRef = doc(db, "books", id);
-      const bookSnap = await getDoc(bookRef);
-      if (!bookSnap.exists()) {
-        res.status(404).json({ success: false, message: "Book not found" });
-        return;
-      }
-      bookData = bookSnap.data();
-      localBooksData.push({ id: id, ...bookData });
+    const bookRef = doc(db, "books", id);
+    const bookSnap = await getDoc(bookRef);
+
+    if (!bookSnap.exists()) {
+      res.status(404).json({ success: false, message: "Book not found" });
+      return;
     }
+
+    const bookData = bookSnap.data();
 
     // Generate a unique copy ID
     const newCopyID = await getUniqueCopyID();
@@ -1931,7 +1821,6 @@ app.post("/api/books/:id/addCopy", async (req, res) => {
 
     // Update the book document with the new copy ID and increment the number of copies
     const updatedCopiesID = [...bookData.copiesID, newCopyID];
-    const bookRef = doc(db, "books", id);
     await updateDoc(bookRef, {
       copies: bookData.copies + 1,
       copiesID: updatedCopiesID
@@ -1958,18 +1847,15 @@ app.delete("/api/books/:id/removeCopy/:copyID", async (req, res) => {
     const { id, copyID } = req.params;
 
     // Reference to the specific book document
-    let bookData = localBooksData.find(book => book.id === id);
-    
-    if (!bookData) {
-      const bookRef = doc(db, "books", id);
-      const bookSnap = await getDoc(bookRef);
-      if (!bookSnap.exists()) {
-        res.status(404).json({ success: false, message: "Book not found" });
-        return;
-      }
-      bookData = bookSnap.data();
-      localBooksData.push({ id: id, ...bookData });
+    const bookRef = doc(db, "books", id);
+    const bookSnap = await getDoc(bookRef);
+
+    if (!bookSnap.exists()) {
+      res.status(404).json({ success: false, message: "Book not found" });
+      return;
     }
+
+    const bookData = bookSnap.data();
 
     // Reference to the specific copy document
     const copiesCollection = collection(db, 'copies');
@@ -1988,7 +1874,6 @@ app.delete("/api/books/:id/removeCopy/:copyID", async (req, res) => {
 
     // Update the book document to remove the copy ID and decrement the number of copies
     const updatedCopiesID = bookData.copiesID.filter(id => id !== parseInt(copyID));
-    const bookRef = doc(db, "books", id);
     await updateDoc(bookRef, {
       copies: bookData.copies - 1,
       copiesID: updatedCopiesID
