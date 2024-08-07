@@ -540,12 +540,9 @@ app.post("/api/books/add", async (req, res) => {
   try {
     const { title, copies } = req.body; // Extract title and number of copies from request body
 
-    // Check if the book already exists in the database
-    const booksCollection = collection(db, 'books');
-    const existingBooksQuery = query(booksCollection, where("title", "==", title));
-    const existingBooksSnapshot = await getDocs(existingBooksQuery);
-
-    if (!existingBooksSnapshot.empty) {
+    // Check if the book already exists in the local cache
+    const bookExists = Array.from(localBooksData.values()).some(book => book.title === title);
+    if (bookExists) {
       return res.status(400).json({ success: false, message: "Book already exists" });
     }
 
@@ -553,6 +550,7 @@ app.post("/api/books/add", async (req, res) => {
     const copiesID = await generateCopiesID(copies);
 
     const newBookData = { ...req.body, copiesID };
+    const booksCollection = collection(db, 'books');
     const copiesCollection = collection(db, 'copies');
 
     // Create a new document in the "books" collection
@@ -590,6 +588,7 @@ app.post("/api/books/add", async (req, res) => {
     res.status(500).send("Failed to add book");
   }
 });
+
 
 
 
