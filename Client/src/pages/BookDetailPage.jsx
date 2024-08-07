@@ -27,11 +27,16 @@ const BookDetailPage = () => {
       params: { bookName: book.title }
     })
       .then(response => {
-        setBooks(response.data);
+        if (response.data.success) {
+          setBooks(response.data.books || []); // Ensure books is an array
+        } else {
+          setBooks([]);
+        }
         setLoading(false);
       })
       .catch(error => {
         setLoading(false);
+        setBooks([]);
         console.error("Error fetching books:", error.message);
       });
 

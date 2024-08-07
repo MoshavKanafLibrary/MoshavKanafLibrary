@@ -523,38 +523,33 @@ app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
 
     // Call the function to fetch titles for the given book name
     const titles = await fetchBookTitles(searchQuery);
-    // Remove duplicate titles and filter out the search query book name
-    const uniqueTitles = Array.from(new Set(titles.filter(title => title !== searchQuery)));
-
-    // Fetch books from the database that match the fetched titles
-    const booksCollection = collection(db, "books");
-    console.log(booksCollection);
-    let booksQuery = query(booksCollection, orderBy("title"));
-
-    if (uniqueTitles.length > 0) {
-      booksQuery = query(
-        booksQuery,
-        where("title", "in", uniqueTitles) // Limit to 5 unique titles
-      );
+    if (!titles || titles.length === 0) {
+      return res.json({ success: true, books: [] });
     }
 
-    // Execute the query
-    const booksSnapshot = await getDocs(booksQuery);
-    const books = booksSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    // Remove duplicate titles and filter out the search query book name
+    const uniqueTitlesSet = new Set(titles.filter(title => title !== searchQuery));
 
-    // Update local cache
-    booksSnapshot.docs.forEach(doc => localBooksData.set(doc.id, { id: doc.id, ...doc.data() }));
+    // Filter books from the local cache that match the fetched titles
+    const matchingBooks = [];
+    const localBooksArray = Array.from(localBooksData.values());
+    for (let i = 0; i < localBooksArray.length; i++) {
+      const book = localBooksArray[i];
+      if (uniqueTitlesSet.has(book.title)) {
+        matchingBooks.push(book);
+        if (matchingBooks.length >= 4) break; // Limit to 4 matching books
+      }
+    }
 
     // Send the response with the matching books
-    res.json(books.slice(0, 5));
+    res.json({ success: true, books: matchingBooks });
   } catch (error) {
     console.error("Error fetching books:", error.message);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ success: false, books: [], error: error.message });
   }
 });
+
+
 
 const getAndUpdateCounter = async (incrementBy) => {
   const counterRef = doc(db, 'counters', 'bookCounter');
