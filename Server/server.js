@@ -791,13 +791,6 @@ const getCopiesIdByTitle = async (bookTitle) => {
   }
 };
 
-// Usage example
-(async () => {
-  const title = "Example Book Title";
-  const copiesIdArray = await getCopiesIdByTitle(title);
-  console.log(copiesIdArray); // Log or process the copies ID array as needed
-})();
-
 // Endpoint to get a copy by CopyID
 app.get("/api/book/getCopy", async (req, res) => {
   const { copyID } = req.query;
