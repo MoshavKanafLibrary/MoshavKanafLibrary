@@ -209,13 +209,9 @@ const getUniqueCopyID = async () => {
   let isUnique = false;
   let newCopyID = await getAndUpdateCounter(1);
   
-  const copiesCollection = collection(db, 'copies');
-
   while (!isUnique) {
-    const q = query(copiesCollection, where("copyID", "==", newCopyID));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
+    // Check if the newCopyID exists in localCopiesData
+    if (!localCopiesData.has(newCopyID.toString())) {
       isUnique = true;
     } else {
       newCopyID += 1;
@@ -230,22 +226,22 @@ app.get("/api/displaynames/:displayName", async (req, res) => {
   try {
     const { displayName } = req.params;
 
-    // Create a query to find documents with matching display name
-    const usersCollection = collection(db, "users");
-    const q = query(usersCollection, where("displayName", "==", displayName));
-    const querySnapshot = await getDocs(q);
-
-    // If any documents match the display name, it's not valid
-    if (!querySnapshot.empty) {
-      res.json({ valid: false });
-    } else {
-      res.json({ valid: true });
+    // Check if any user in localUsersData has the same display name
+    let isValid = true;
+    for (let user of localUsersData.values()) {
+      if (user.displayName === displayName) {
+        isValid = false;
+        break;
+      }
     }
+
+    res.json({ valid: isValid });
   } catch (error) {
     console.error("Error validating display name", error);
     res.status(500).send("Server error");
   }
 });
+
 
 // Handler for updating display name by UID
 app.put("/api/displaynames/:uid", async (req, res) => {
@@ -309,38 +305,7 @@ app.post("/api/users/signUp", async (req, res) => {
   }
 });
 
-const fetchTotalBookCount = async (searchQuery = "", selectedCategories = [], selectedAuthors = []) => {
-  try {
-    const booksCollection = collection(db, "books");
-    let booksQuery = query(booksCollection);
 
-    // Apply category filter
-    if (selectedCategories.length > 0) {
-      booksQuery = query(booksQuery, where("category", "in", selectedCategories));
-    }
-
-    // Apply author filter
-    if (selectedAuthors.length > 0) {
-      booksQuery = query(booksQuery, where("author", "in", selectedAuthors));
-    }
-
-    // Apply search query
-    if (searchQuery) {
-      booksQuery = query(
-        booksQuery,
-        where("title", ">=", searchQuery.toLowerCase()),
-        where("title", "<", searchQuery.toLowerCase() + "\uf8ff")
-      );
-    }
-
-    const booksSnapshot = await getDocs(booksQuery);
-    const bookCount = booksSnapshot.size; // Correct count
-    return bookCount;
-  } catch (error) {
-    console.error("Error fetching book count:", error);
-    return 0; // Return zero if there's an error
-  }
-};
 
 app.get('/api/books/getCategoriesAndAuthors', async (req, res) => {
   try {
@@ -474,10 +439,9 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
   try {
     console.log("Fetching all books data...");
 
-    // בדוק אם יש נתונים במטמון המקומי
     if (localBooksData.size > 0) {
       console.log("Using local cache for books data:");
-      console.log(`@@@@ Local cache size: ${localBooksData.size} @@@@`); // הדפס את גודל הרשימה המקומית
+      console.log(`@@@@ Local cache size: ${localBooksData.size} @@@@`); 
       return res.status(200).json({ success: true, books: Array.from(localBooksData.values()) });
     }
 
@@ -502,13 +466,13 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
     }));
 
     console.log("Books fetched successfully:");
-    console.log(`@@@@ Fetched books count: ${books.length} @@@@`); // הדפס את מספר הספרים שהושגו
+    console.log(`@@@@ Fetched books count: ${books.length} @@@@`);
 
-    // עדכן את המטמון המקומי
+ 
     querySnapshot.docs.forEach(doc => localBooksData.set(doc.id, { id: doc.id, ...doc.data() }));
 
     console.log("Updated local cache for books data:");
-    console.log(`@@@@ Updated local cache size: ${localBooksData.size} @@@@`); // הדפס את גודל הרשימה המקומית לאחר עדכון
+    console.log(`@@@@ Updated local cache size: ${localBooksData.size} @@@@`); 
 
     res.status(200).json({ success: true, books });
   } catch (error) {
