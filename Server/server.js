@@ -54,6 +54,7 @@ app.listen(process.env.PORT || 3000, () => {
 let localUsersData = new Map();
 let localBooksData = new Map();
 let localCopiesData = new Map();
+let localRequestsData = new Map();
 
 // Function to initialize local caches
 const initializeLocalData = async () => {
@@ -72,9 +73,15 @@ const initializeLocalData = async () => {
     const copiesCollection = collection(db, "copies");
     const copiesSnapshot = await getDocs(copiesCollection);
     copiesSnapshot.docs.forEach(doc => localCopiesData.set(doc.id, { id: doc.id, ...doc.data() }));
+
+    // Initialize localRequestsData
+    const requestsCollection = collection(db, "requests");
+    const requestsSnapshot = await getDocs(requestsCollection);
+    requestsSnapshot.docs.forEach(doc => localRequestsData.set(doc.id, { id: doc.id, ...doc.data() }));
   } catch (error) {
     console.error("Error initializing local data:", error);
   }
+
 };
 
 // Call the function to initialize local data
@@ -1542,14 +1549,20 @@ app.get("/api/books/:id/rating-status", async (req, res) => {
   }
 
   try {
-    const bookRef = doc(db, "books", id);
-    const docSnap = await getDoc(bookRef);
+    // Check if book exists in local cache
+    if (!localBooksData.has(id)) {
+      const bookRef = doc(db, "books", id);
+      const docSnap = await getDoc(bookRef);
 
-    if (!docSnap.exists()) {
-      return res.status(404).json({ success: false, message: "Book not found" });
+      if (!docSnap.exists()) {
+        return res.status(404).json({ success: false, message: "Book not found" });
+      }
+
+      const bookData = docSnap.data();
+      localBooksData.set(id, bookData); // Update local cache
     }
 
-    const bookData = docSnap.data();
+    const bookData = localBooksData.get(id);
     const hasRated = bookData.ratings ? bookData.ratings.some(r => r.uid === uid) : false;
 
     res.status(200).json({ success: true, hasRated });
@@ -1558,6 +1571,7 @@ app.get("/api/books/:id/rating-status", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to check rating status: ${error.message}` });
   }
 });
+
 
 // Endpoint to create a new user request
 app.post("/api/requests", async (req, res) => {
@@ -1615,14 +1629,24 @@ app.delete("/api/requests/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const requestRef = doc(db, "requests", id);
-    const requestSnap = await getDoc(requestRef);
+    // Check if request exists in local cache
+    if (!localRequestsData.has(id)) {
+      const requestRef = doc(db, "requests", id);
+      const requestSnap = await getDoc(requestRef);
 
-    if (!requestSnap.exists()) {
-      return res.status(404).json({ success: false, message: "Request not found" });
+      if (!requestSnap.exists()) {
+        return res.status(404).json({ success: false, message: "Request not found" });
+      }
+
+      // Update local cache before deleting
+      localRequestsData.set(id, requestSnap.data());
     }
 
+    const requestRef = doc(db, "requests", id);
     await deleteDoc(requestRef);
+
+    // Remove from local cache
+    localRequestsData.delete(id);
 
     return res.status(200).json({ success: true, message: "Request deleted successfully" });
   } catch (error) {
