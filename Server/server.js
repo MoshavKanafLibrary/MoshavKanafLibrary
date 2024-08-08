@@ -606,20 +606,16 @@ app.put("/api/books/update/:id", async (req, res) => {
     const updatedData = req.body;
 
     const bookRef = doc(db, "books", id);
-    const bookSnap = await getDoc(bookRef);
-    const bookData = bookSnap.data();
-
-    // Update the book document with new data
     await updateDoc(bookRef, updatedData);
 
-    // Update copies if title changes
+    const bookData = localBooksData.get(id) || {};
+
     if (updatedData.title && updatedData.title !== bookData.title) {
       const copiesCollection = collection(db, "copies");
       const querySnapshot = await getDocs(query(copiesCollection, where("title", "==", bookData.title)));
       const copiesUpdates = querySnapshot.docs.map(doc => updateDoc(doc.ref, { title: updatedData.title }));
       await Promise.all(copiesUpdates);
 
-      // Update local copies cache
       querySnapshot.docs.forEach(doc => {
         const copy = localCopiesData.get(doc.id);
         if (copy) {
@@ -628,12 +624,11 @@ app.put("/api/books/update/:id", async (req, res) => {
       });
     }
 
-    // Update copies if copiesID changes
     if (updatedData.copiesID) {
-      const existingCopies = new Set(bookData.copiesID);
+      const existingCopies = new Set(bookData.copiesID || []);
       const updatedCopies = new Set(updatedData.copiesID);
       const copiesToAdd = updatedData.copiesID.filter(x => !existingCopies.has(x));
-      const copiesToRemove = bookData.copiesID.filter(x => !updatedCopies.has(x));
+      const copiesToRemove = (bookData.copiesID || []).filter(x => !updatedCopies.has(x));
 
       const copiesCollection = collection(db, "copies");
       const addPromises = copiesToAdd.map(copyID => addDoc(copiesCollection, {
@@ -650,7 +645,6 @@ app.put("/api/books/update/:id", async (req, res) => {
 
       await Promise.all([...addPromises, ...removePromises.flat()]);
 
-      // Update local copies cache
       copiesToRemove.forEach(copyID => localCopiesData.delete(copyID));
       copiesToAdd.forEach(copyID => {
         localCopiesData.set(copyID, {
@@ -662,7 +656,6 @@ app.put("/api/books/update/:id", async (req, res) => {
       });
     }
 
-    // Update local books cache
     localBooksData.set(id, { ...bookData, ...updatedData });
 
     res.status(200).json({ success: true });
@@ -671,6 +664,7 @@ app.put("/api/books/update/:id", async (req, res) => {
     res.status(500).send("Failed to update book");
   }
 });
+
 
 
 // Endpoint to get all book names
@@ -1490,16 +1484,21 @@ app.post("/api/books/:id/rate", async (req, res) => {
     return res.status(400).json({ success: false, message: "User ID and rating are required" });
   }
 
-  const bookRef = doc(db, "books", id);
-
   try {
-    const docSnap = await getDoc(bookRef);
-    if (!docSnap.exists()) {
-      return res.status(404).json({ success: false, message: "Book not found" });
+    // Check if book exists in local cache
+    let bookData = localBooksData.get(id);
+
+    if (!bookData) {
+      const bookRef = doc(db, "books", id);
+      const docSnap = await getDoc(bookRef);
+
+      if (!docSnap.exists()) {
+        return res.status(404).json({ success: false, message: "Book not found" });
+      }
+
+      bookData = docSnap.data();
     }
 
-    let bookData = docSnap.data();
-    
     // Initialize ratings array if it does not exist
     if (!bookData.ratings) {
       bookData.ratings = [];
@@ -1524,6 +1523,7 @@ app.post("/api/books/:id/rate", async (req, res) => {
     const averageRating = totalRatings / bookData.ratings.length;
 
     // Update the document with the new ratings and average rating
+    const bookRef = doc(db, "books", id);
     await updateDoc(bookRef, {
       ratings: bookData.ratings,
       averageRating: averageRating
@@ -1550,7 +1550,9 @@ app.get("/api/books/:id/rating-status", async (req, res) => {
 
   try {
     // Check if book exists in local cache
-    if (!localBooksData.has(id)) {
+    let bookData = localBooksData.get(id);
+
+    if (!bookData) {
       const bookRef = doc(db, "books", id);
       const docSnap = await getDoc(bookRef);
 
@@ -1558,11 +1560,10 @@ app.get("/api/books/:id/rating-status", async (req, res) => {
         return res.status(404).json({ success: false, message: "Book not found" });
       }
 
-      const bookData = docSnap.data();
+      bookData = docSnap.data();
       localBooksData.set(id, bookData); // Update local cache
     }
 
-    const bookData = localBooksData.get(id);
     const hasRated = bookData.ratings ? bookData.ratings.some(r => r.uid === uid) : false;
 
     res.status(200).json({ success: true, hasRated });
@@ -1571,6 +1572,7 @@ app.get("/api/books/:id/rating-status", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to check rating status: ${error.message}` });
   }
 });
+
 
 
 // Endpoint to create a new user request
