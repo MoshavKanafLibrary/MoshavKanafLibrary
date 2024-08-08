@@ -1586,12 +1586,16 @@ app.post("/api/requests", async (req, res) => {
     const requestsCollectionRef = collection(db, "requests");
 
     // Create a new document in the "requests" collection
-    await addDoc(requestsCollectionRef, {
+    const newDocRef = await addDoc(requestsCollectionRef, {
       uid,
       username,
       requestText,
       timestamp: new Date() // Optional: add a timestamp for when the request was made
     });
+
+    // Update local cache
+    const newDocSnap = await getDoc(newDocRef);
+    localRequestsData.set(newDocSnap.id, { id: newDocSnap.id, ...newDocSnap.data() });
 
     res.status(201).json({ success: true, message: "Request submitted successfully" });
   } catch (error) {
@@ -1603,15 +1607,16 @@ app.post("/api/requests", async (req, res) => {
 // Endpoint to get all user requests
 app.get("/api/requests", async (req, res) => {
   try {
-    // Reference to the "requests" collection
-    const requestsCollectionRef = collection(db, "requests");
-    
-    // Get all documents in the "requests" collection
-    const querySnapshot = await getDocs(requestsCollectionRef);
-    const requests = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    // Check if local cache is empty
+    if (localRequestsData.size === 0) {
+      const requestsCollectionRef = collection(db, "requests");
+      
+      // Get all documents in the "requests" collection
+      const querySnapshot = await getDocs(requestsCollectionRef);
+      querySnapshot.docs.forEach(doc => localRequestsData.set(doc.id, { id: doc.id, ...doc.data() }));
+    }
+
+    const requests = Array.from(localRequestsData.values());
 
     if (requests.length === 0) {
       return res.status(404).json({ success: false, message: "No requests found" });
