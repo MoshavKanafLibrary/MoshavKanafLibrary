@@ -903,7 +903,6 @@ app.get("/api/book/getCopiesByTitle", async (req, res) => {
     } else {
       const copiesData = querySnapshot.docs.map(doc => doc.data());
       res.status(200).json({ success: true, copies: copiesData });
-
       copiesData.forEach(copy => localCopiesData.set(copy.copyID, copy));
     }
   } catch (error) {
@@ -921,30 +920,28 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
   }
 
   try {
-    const userRef = doc(db, "users", uid);
-    const userSnapshot = await getDoc(userRef);
-
-    if (!userSnapshot.exists()) {
+    // Check if user exists in local cache
+    if (!localUsersData.has(uid)) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const userData = userSnapshot.data();
+    const userData = localUsersData.get(uid);
     const { firstName, lastName, phone } = userData;
 
-    const copiesCollectionRef = collection(db, "copies");
-    const q = query(copiesCollectionRef, where("copyID", "==", copyID));
-    const querySnapshot = await getDocs(q);
+    // Check if copy exists in local cache
+    let copyData = null;
+    for (let [key, value] of localCopiesData) {
+      if (value.copyID === copyID) {
+        copyData = value;
+        break;
+      }
+    }
 
-    if (querySnapshot.empty) {
+    if (!copyData) {
       return res.status(404).json({ success: false, message: "Copy not found" });
     }
 
-    const copyDocRef = querySnapshot.docs[0].ref;
-
     const newBorrowedEntry = { firstName, lastName, phone, uid };
-
-    const copySnapshot = await getDoc(copyDocRef);
-    const copyData = copySnapshot.data();
     let borrowedToList = copyData.borrowedTo || [];
 
     const existingEntryIndex = borrowedToList.findIndex(entry => entry.uid === uid);
@@ -957,8 +954,19 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
       borrowedToList.push(newBorrowedEntry);
     }
 
+    // Update Firestore document
+    const copiesCollectionRef = collection(db, "copies");
+    const q = query(copiesCollectionRef, where("copyID", "==", copyID));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return res.status(404).json({ success: false, message: "Copy not found" });
+    }
+
+    const copyDocRef = querySnapshot.docs[0].ref;
     await updateDoc(copyDocRef, { borrowedTo: borrowedToList });
 
+    // Update local cache
     localCopiesData.set(copyData.copyID, { ...copyData, borrowedTo: borrowedToList });
 
     res.status(200).json({ success: true, message: "BorrowedTo field updated successfully" });
@@ -967,6 +975,7 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to update borrowedTo field: ${error.message || 'Unknown error'}` });
   }
 });
+
 
 app.delete("/api/books/:id/waiting-list", async (req, res) => {
   const { id } = req.params;
@@ -1062,6 +1071,20 @@ app.put("/api/copies/returnCopy", async (req, res) => {
   }
 
   try {
+    // Check if copy exists in local cache
+    let copyData = null;
+    for (let [key, value] of localCopiesData) {
+      if (value.copyID === copyID) {
+        copyData = value;
+        break;
+      }
+    }
+
+    if (!copyData) {
+      return res.status(404).json({ success: false, message: "Copy not found" });
+    }
+
+    // Update Firestore document
     const copiesCollectionRef = collection(db, "copies");
     const q = query(copiesCollectionRef, where("copyID", "==", copyID));
     const querySnapshot = await getDocs(q);
@@ -1071,10 +1094,9 @@ app.put("/api/copies/returnCopy", async (req, res) => {
     }
 
     const copyDocRef = querySnapshot.docs[0].ref;
-
     await updateDoc(copyDocRef, { borrowedTo: null });
 
-    const copyData = querySnapshot.docs[0].data();
+    // Update local cache
     localCopiesData.set(copyID, { ...copyData, borrowedTo: null });
 
     res.status(200).json({ success: true, message: "BorrowedTo field updated to null successfully" });
@@ -1083,6 +1105,7 @@ app.put("/api/copies/returnCopy", async (req, res) => {
     res.status(500).json({ success: false, message: `Failed to update borrowedTo field: ${error.message || 'Unknown error'}` });
   }
 });
+
 
 
 // Handler for updating isManager field by UID
@@ -1196,28 +1219,33 @@ app.put("/api/users/:uid/borrow-books-list/update-status", async (req, res) => {
 app.get("/api/users/:uid/present-borrow-books-list", async (req, res) => {
   const { uid } = req.params;
 
-  const userRef = doc(db, "users", uid);
-
   try {
-    const userSnap = await getDoc(userRef);
-    if (!userSnap.exists()) {
-      return res.status(404).json({ success: false, message: "User not found" });
+    // Check if user exists in local cache
+    if (!localUsersData.has(uid)) {
+      const userRef = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
+      
+      if (!userSnap.exists()) {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+
+      const userData = userSnap.data();
+      localUsersData.set(uid, userData); // Update local cache
     }
 
-    const userData = userSnap.data();
+    const userData = localUsersData.get(uid);
 
     if (!userData.borrowBooksList) {
       return res.status(404).json({ success: false, message: "No borrow books list found for the user" });
     }
 
     res.status(200).json({ success: true, borrowBooksList: userData.borrowBooksList });
-
-    localUsersData.set(uid, userData);
   } catch (error) {
     console.error("Error fetching borrow books list:", error);
     res.status(500).json({ success: false, message: `Failed to fetch borrow books list: ${error.message || 'Unknown error'}` });
   }
 });
+
 
 // Endpoint to delete a specific book from the borrowBooks-list for a specific user
 app.delete("/api/users/:uid/borrow-books-list/deletebookfromborrowlist", async (req, res) => {
