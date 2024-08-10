@@ -72,7 +72,7 @@ const initializeLocalData = async () => {
     // Initialize localCopiesData
     const copiesCollection = collection(db, "copies");
     const copiesSnapshot = await getDocs(copiesCollection);
-    copiesSnapshot.docs.forEach(doc => localCopiesData.set(doc.id, { id: doc.id, ...doc.data() }));
+    copiesSnapshot.docs.forEach(doc => localCopiesData.set(doc.data().copyID, { id: doc.id, ...doc.data() }));
 
     // Initialize localRequestsData
     const requestsCollection = collection(db, "requests");
@@ -545,56 +545,60 @@ const generateCopiesID = async (numCopies) => {
 // Handler for adding a new book
 app.post("/api/books/add", async (req, res) => {
   try {
-    const { title, copies } = req.body; // Extract title and number of copies from request body
+    const { title, copies } = req.body;
 
-    // Check if the book already exists in the local cache
     const bookExists = Array.from(localBooksData.values()).some(book => book.title === title);
     if (bookExists) {
       return res.status(400).json({ success: false, message: "Book already exists" });
     }
 
-    // Generate unique copy IDs
     const copiesID = await generateCopiesID(copies);
 
     const newBookData = { ...req.body, copiesID };
     const booksCollection = collection(db, 'books');
     const copiesCollection = collection(db, 'copies');
 
-    // Create a new document in the "books" collection
+    // Add book to Firestore
     const docRef = await addDoc(booksCollection, newBookData);
+    console.log("Book added to Firestore:", newBookData);
 
-    // Create new copies in the "copies" collection for each copyID
+    // Add copies to Firestore
     const copiesPromises = copiesID.map(copyID => {
-      return addDoc(copiesCollection, {
+      const copyData = {
         title: title,
         isBorrowed: false,
-        borrowedTo: null, // single object instead of array
+        borrowedTo: null,
         copyID: copyID
-      });
+      };
+      console.log("Copy added to Firestore:", copyData);
+      return addDoc(copiesCollection, copyData);
     });
 
-    // Await all promises to resolve
     await Promise.all(copiesPromises);
 
-    // Update local cache
+    // Add book to local cache
     localBooksData.set(docRef.id, { id: docRef.id, ...newBookData });
+    console.log("Book added to local cache:", localBooksData.get(docRef.id));
+
+    // Add copies to local cache
     copiesID.forEach(copyID => {
-      localCopiesData.set(copyID, {
+      const copyData = {
         title: title,
         isBorrowed: false,
-        borrowedTo: null, // single object instead of array
+        borrowedTo: null,
         copyID: copyID
-      });
+      };
+      localCopiesData.set(copyID, copyData);
+      console.log("Copy added to local cache:", localCopiesData.get(copyID));
     });
 
-    // Respond with a success message and the new document ID
     res.status(200).json({ success: true, docId: docRef.id });
   } catch (error) {
-    // Handle errors
     console.error("Error adding book:", error);
     res.status(500).send("Failed to add book");
   }
 });
+
 
 
 
@@ -892,6 +896,10 @@ app.get("/api/book/getCopiesByTitle", async (req, res) => {
   try {
     const copies = Array.from(localCopiesData.values()).filter(copy => copy.title === title);
     if (copies.length > 0) {
+      console.log("All copies data in local cache:");
+      console.log(Array.from(localCopiesData.values()));
+      console.log("the copies are: ");
+      console.log(copies.length);
       return res.status(200).json({ success: true, copies });
     }
 
@@ -957,7 +965,18 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
     await updateDoc(copyDocRef, { borrowedTo: newBorrowedEntry }); // single object instead of array
 
     // Update local cache
+    console.log("before : number of copies from borrowTo:")
+    console.log(typeof copyData.copyID);
     localCopiesData.set(copyData.copyID, { ...copyData, borrowedTo: newBorrowedEntry }); // single object instead of array
+    console.log("after: number of copies fro borrowTo:")
+    console.log(typeof copyData.copyID);
+
+
+    for (const key of localCopiesData.keys()) {
+      console.log("Key:", key);
+      console.log("Type of key:", typeof key);
+    }
+    
 
     res.status(200).json({ success: true, message: "BorrowedTo field updated successfully" });
   } catch (error) {
