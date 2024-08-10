@@ -33,12 +33,10 @@ const BorrowedCopiesReportPage = () => {
     const filtered = borrowedCopies.filter(copy =>
       (copy.title && copy.title.toLowerCase().includes(lowerCaseQuery)) ||
       (copy.copyID && copy.copyID.toString().toLowerCase().includes(lowerCaseQuery)) ||
-      copy.borrowedTo.some(borrower =>
-        (borrower.firstName && borrower.firstName.toLowerCase().includes(lowerCaseQuery)) ||
-        (borrower.lastName && borrower.lastName.toLowerCase().includes(lowerCaseQuery)) ||
-        (borrower.uid && borrower.uid.toLowerCase().includes(lowerCaseQuery)) ||
-        (borrower.phone && borrower.phone.toLowerCase().includes(lowerCaseQuery))
-      )
+      (copy.borrowedTo.firstName && copy.borrowedTo.firstName.toLowerCase().includes(lowerCaseQuery)) ||
+      (copy.borrowedTo.lastName && copy.borrowedTo.lastName.toLowerCase().includes(lowerCaseQuery)) ||
+      (copy.borrowedTo.uid && copy.borrowedTo.uid.toLowerCase().includes(lowerCaseQuery)) ||
+      (copy.borrowedTo.phone && copy.borrowedTo.phone.toLowerCase().includes(lowerCaseQuery))
     );
     setFilteredCopies(filtered);
     setCurrentPage(1); // Reset to first page on new search
@@ -78,17 +76,14 @@ const BorrowedCopiesReportPage = () => {
 
   const exportToExcel = () => {
     // Prepare the data for export
-    const dataForExport = filteredCopies.map(copy => {
-      // Flatten the borrowedTo array for each copy
-      return {
-        כותר: copy.title,
-        מזהה_עותק: copy.copyID,
-        שם_פרטי: copy.borrowedTo.map(borrower => borrower.firstName).join(', '),
-        שם_משפחה: copy.borrowedTo.map(borrower => borrower.lastName).join(', '),
-        מזהה_משאיל: copy.borrowedTo.map(borrower => borrower.uid).join(', '),
-        טלפון: copy.borrowedTo.map(borrower => borrower.phone).join(', ')
-      };
-    });
+    const dataForExport = filteredCopies.map(copy => ({
+      כותר: copy.title,
+      מזהה_עותק: copy.copyID,
+      שם_פרטי: copy.borrowedTo.firstName,
+      שם_משפחה: copy.borrowedTo.lastName,
+      מזהה_משאיל: copy.borrowedTo.uid,
+      טלפון: copy.borrowedTo.phone
+    }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataForExport);
     const workbook = XLSX.utils.book_new();
@@ -129,34 +124,10 @@ const BorrowedCopiesReportPage = () => {
                 <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom">
                   <td className="py-4 px-6 text-right">{copy.title}</td>
                   <td className="py-4 px-6 text-right">{copy.copyID}</td>
-                  <td className="py-4 px-6 text-right">
-                    {copy.borrowedTo.map((borrower, i) => (
-                      <div key={i} className="mb-2">
-                        {borrower.firstName}
-                      </div>
-                    ))}
-                  </td>
-                  <td className="py-4 px-6 text-right">
-                    {copy.borrowedTo.map((borrower, i) => (
-                      <div key={i} className="mb-2">
-                        {borrower.lastName}
-                      </div>
-                    ))}
-                  </td>
-                  <td className="py-4 px-6 text-right">
-                    {copy.borrowedTo.map((borrower, i) => (
-                      <div key={i} className="mb-2">
-                        {borrower.uid}
-                      </div>
-                    ))}
-                  </td>
-                  <td className="py-4 px-6 text-right">
-                    {copy.borrowedTo.map((borrower, i) => (
-                      <div key={i} className="mb-2">
-                        {borrower.phone}
-                      </div>
-                    ))}
-                  </td>
+                  <td className="py-4 px-6 text-right">{copy.borrowedTo.firstName}</td>
+                  <td className="py-4 px-6 text-right">{copy.borrowedTo.lastName}</td>
+                  <td className="py-4 px-6 text-right">{copy.borrowedTo.uid}</td>
+                  <td className="py-4 px-6 text-right">{copy.borrowedTo.phone}</td>
                 </tr>
               )) : <tr><td colSpan="6" className="text-center py-4 text-bg-navbar-custom">לא נמצאו עותקים מושאלים</td></tr>}
             </tbody>

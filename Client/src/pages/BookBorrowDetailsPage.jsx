@@ -54,7 +54,7 @@ const BookBorrowDetailsPage = () => {
           if (updateBorrowResponse.data.success) {
             setCopies(prevCopies => prevCopies.map(copy => {
               if (copy.copyID === copyID) {
-                return { ...copy, borrowedTo: [{ firstName, lastName }] };
+                return { ...copy, borrowedTo: { firstName, lastName } }; // Change to an object instead of an array
               }
               return copy;
             }));
@@ -122,7 +122,7 @@ const BookBorrowDetailsPage = () => {
                 <div key={index} className="bg-bg-navbar-custom p-4 rounded-lg shadow mb-4" style={{ width: 'calc(40% - 16px)' }}>
                   <div><strong>כותר:</strong> {copy.title}</div>
                   <div><strong>מספר עותק:</strong> {copy.copyID}</div>
-                  <div><strong>סטטוס:</strong> {copy.borrowedTo && copy.borrowedTo.length > 0 ? `הושאל ל-${copy.borrowedTo[0].firstName} ${copy.borrowedTo[0].lastName}` : "זמין"}</div>
+                  <div><strong>סטטוס:</strong> {copy.borrowedTo ? `הושאל ל-${copy.borrowedTo.firstName} ${copy.borrowedTo.lastName}` : "זמין"}</div>
                   {!copy.borrowedTo && (
                     <button
                       className="mt-4 bg-bg-hover hover:bg-bg-hover text-bg-navbar-custom font-bold py-2 px-4 rounded max-w-xs"

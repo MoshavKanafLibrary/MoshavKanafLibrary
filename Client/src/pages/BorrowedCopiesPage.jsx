@@ -58,7 +58,7 @@ const BorrowedCopiesPage = () => {
       setErrorMessage("User is not logged in.");
       return;
     }
-
+  
     const confirmed = window.confirm("Are you sure you want to return this book?");
     if (confirmed) {
       try {
@@ -68,10 +68,10 @@ const BorrowedCopiesPage = () => {
           setBorrowedCopies(prevCopies => prevCopies.filter(copy => copy.copyID !== copyID));
           setFilteredCopies(prevCopies => prevCopies.filter(copy => copy.copyID !== copyID));
           setSuccessMessage("Book returned successfully.");
-
+  
           // Add the returned book to the borrower's history
           await axios.put(`/api/users/${borrowerUID}/addToHistory`, { copyID, title });
-
+  
           // Delete the book entry from the borrower's borrow-books-list
           const deleteBorrowListResponse = await axios.delete(`/api/users/${borrowerUID}/borrow-books-list/deletebookfromborrowlist`, { data: { title } });
           if (deleteBorrowListResponse.data.success) {
@@ -79,7 +79,7 @@ const BorrowedCopiesPage = () => {
           } else {
             setErrorMessage("Failed to delete book entry from borrow-books-list.");
           }
-
+  
           setTimeout(() => setSuccessMessage(''), 3000);
         } else {
           setErrorMessage("Failed to update borrowedTo field.");
@@ -90,7 +90,7 @@ const BorrowedCopiesPage = () => {
       }
     }
   };
-
+  
   const renderPageNumbers = () => {
     const pages = [];
     const maxPageNumbersToShow = 5;
@@ -154,32 +154,49 @@ const BorrowedCopiesPage = () => {
               </tr>
             </thead>
             <tbody className="text-bg-text">
-              {currentCopies.length > 0 ? currentCopies.map((copy, index) => (
-                <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom">
-                  <td className="py-4 px-6 text-right">{copy.title}</td>
-                  <td className="py-4 px-6 text-right">
-                    {copy.borrowedTo.map((borrower, i) => (
-                      <div key={i} className="mb-2">
-                        <strong>שם:</strong> {borrower.firstName} {borrower.lastName}<br />
-                        <strong>מזהה משתמש:</strong> {borrower.uid}
-                      </div>
-                    ))}
-                  </td>
-                  <td className="py-4 px-6 text-right">{copy.copyID}</td>
-                  <td className="py-4 px-6 text-right">
-                    {copy.borrowedTo.map((borrower, i) => (
-                      <button
-                        key={i}
-                        onClick={() => returnCopy(copy.copyID, copy.title, borrower.uid)}
-                        className="bg-red-500 hover:bg-red-700 text-bg-navbar-custom font-bold py-2 px-4 rounded mr-2"
-                      >
-                        החזרה
-                      </button>
-                    ))}
-                  </td>
-                </tr>
-              )) : <tr><td colSpan="4" className="text-center py-4 text-bg-navbar-custom">לא נמצאו עותקים מושאלים</td></tr>}
-            </tbody>
+  {currentCopies.length > 0 ? currentCopies.map((copy, index) => (
+    <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom">
+      <td className="py-4 px-6 text-right">{copy.title}</td>
+      <td className="py-4 px-6 text-right">
+        {Array.isArray(copy.borrowedTo) ? (
+          copy.borrowedTo.map((borrower, i) => (
+            <div key={i} className="mb-2">
+              <strong>שם:</strong> {borrower.firstName} {borrower.lastName}<br />
+              <strong>מזהה משתמש:</strong> {borrower.uid}
+            </div>
+          ))
+        ) : (
+          <div className="mb-2">
+            <strong>שם:</strong> {copy.borrowedTo.firstName} {copy.borrowedTo.lastName}<br />
+            <strong>מזהה משתמש:</strong> {copy.borrowedTo.uid}
+          </div>
+        )}
+      </td>
+      <td className="py-4 px-6 text-right">{copy.copyID}</td>
+      <td className="py-4 px-6 text-right">
+        {Array.isArray(copy.borrowedTo) ? (
+          copy.borrowedTo.map((borrower, i) => (
+            <button
+              key={i}
+              onClick={() => returnCopy(copy.copyID, copy.title, borrower.uid)}
+              className="bg-red-500 hover:bg-red-700 text-bg-navbar-custom font-bold py-2 px-4 rounded mr-2"
+            >
+              החזרה
+            </button>
+          ))
+        ) : (
+          <button
+            onClick={() => returnCopy(copy.copyID, copy.title, copy.borrowedTo.uid)}
+            className="bg-red-500 hover:bg-red-700 text-bg-navbar-custom font-bold py-2 px-4 rounded"
+          >
+            החזרה
+          </button>
+        )}
+      </td>
+    </tr>
+  )) : <tr><td colSpan="4" className="text-center py-4 text-bg-navbar-custom">לא נמצאו עותקים מושאלים</td></tr>}
+</tbody>
+
           </table>
         </div>
         <div className="flex justify-center mt-8">

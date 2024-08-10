@@ -568,7 +568,7 @@ app.post("/api/books/add", async (req, res) => {
       return addDoc(copiesCollection, {
         title: title,
         isBorrowed: false,
-        borrowedTo: null,
+        borrowedTo: null, // single object instead of array
         copyID: copyID
       });
     });
@@ -582,7 +582,7 @@ app.post("/api/books/add", async (req, res) => {
       localCopiesData.set(copyID, {
         title: title,
         isBorrowed: false,
-        borrowedTo: null,
+        borrowedTo: null, // single object instead of array
         copyID: copyID
       });
     });
@@ -634,7 +634,7 @@ app.put("/api/books/update/:id", async (req, res) => {
       const addPromises = copiesToAdd.map(copyID => addDoc(copiesCollection, {
         title: updatedData.title || bookData.title,
         isBorrowed: false,
-        borrowedTo: null,
+        borrowedTo: null, // single object instead of array
         copyID: copyID
       }));
       const removePromises = copiesToRemove.map(async copyID => {
@@ -650,7 +650,7 @@ app.put("/api/books/update/:id", async (req, res) => {
         localCopiesData.set(copyID, {
           title: updatedData.title || bookData.title,
           isBorrowed: false,
-          borrowedTo: null,
+          borrowedTo: null, // single object instead of array
           copyID: copyID
         });
       });
@@ -943,17 +943,6 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
     }
 
     const newBorrowedEntry = { firstName, lastName, phone, uid };
-    let borrowedToList = copyData.borrowedTo || [];
-
-    const existingEntryIndex = borrowedToList.findIndex(entry => entry.uid === uid);
-
-    if (existingEntryIndex !== -1) {
-      borrowedToList[existingEntryIndex].firstName = firstName;
-      borrowedToList[existingEntryIndex].lastName = lastName;
-      borrowedToList[existingEntryIndex].phone = phone;
-    } else {
-      borrowedToList.push(newBorrowedEntry);
-    }
 
     // Update Firestore document
     const copiesCollectionRef = collection(db, "copies");
@@ -965,10 +954,10 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
     }
 
     const copyDocRef = querySnapshot.docs[0].ref;
-    await updateDoc(copyDocRef, { borrowedTo: borrowedToList });
+    await updateDoc(copyDocRef, { borrowedTo: newBorrowedEntry }); // single object instead of array
 
     // Update local cache
-    localCopiesData.set(copyData.copyID, { ...copyData, borrowedTo: borrowedToList });
+    localCopiesData.set(copyData.copyID, { ...copyData, borrowedTo: newBorrowedEntry }); // single object instead of array
 
     res.status(200).json({ success: true, message: "BorrowedTo field updated successfully" });
   } catch (error) {
@@ -1040,7 +1029,7 @@ app.get("/api/users", async (req, res) => {
 // Endpoint to get all borrowed copies
 app.get("/api/copies/borrowed", async (req, res) => {
   try {
-    const borrowedCopies = Array.from(localCopiesData.values()).filter(copy => copy.borrowedTo && copy.borrowedTo.length > 0);
+    const borrowedCopies = Array.from(localCopiesData.values()).filter(copy => copy.borrowedTo && Object.keys(copy.borrowedTo).length > 0);
     if (borrowedCopies.length > 0) {
       return res.status(200).json({ success: true, borrowedCopies });
     }
@@ -1422,7 +1411,7 @@ app.put("/api/users/:uid/notifications/markAsRead", async (req, res) => {
     res.status(200).json({ success: true, message: "Notifications marked as read" });
   } catch (error) {
     console.error("Error marking notifications as read:", error);
-    res.status(500).json({ success: false, message: `Failed to mark notifications as read: ${error.message}` });
+    res.status(500).json({ success: false, message: `Failed to mark notifications as read: ${error.message || 'Unknown error'}` });
   }
 });
 
@@ -1705,7 +1694,7 @@ app.post("/api/books/:id/reviews", async (req, res) => {
     // Update local cache
     localBooksData.set(id, { ...bookData, reviews: bookData.reviews });
 
-    res.status(200).json({ success: true, message: "Review added successfully" });
+    res.status (200).json({ success: true, message: "Review added successfully" });
   } catch (error) {
     console.error("Error adding review:", error);
     res.status(500).json({ success: false, message: `Failed to add review: ${error.message}` });
@@ -1767,7 +1756,7 @@ app.post("/api/books/:id/addCopy", async (req, res) => {
     await addDoc(copiesCollection, {
       title: bookData.title,
       isBorrowed: false,
-      borrowedTo: null,
+      borrowedTo: null, // single object instead of array
       copyID: newCopyID
     });
 
@@ -1784,7 +1773,7 @@ app.post("/api/books/:id/addCopy", async (req, res) => {
     localCopiesData.set(newCopyID, {
       title: bookData.title,
       isBorrowed: false,
-      borrowedTo: null,
+      borrowedTo: null, // single object instead of array
       copyID: newCopyID
     });
 
