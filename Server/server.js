@@ -556,7 +556,7 @@ app.post("/api/books/add", async (req, res) => {
     // Generate unique copy IDs
     const copiesID = await generateCopiesID(copies);
 
-    const newBookData = { title, copiesID };
+    const newBookData = { ...req.body, copiesID };
     const booksCollection = collection(db, 'books');
     const copiesCollection = collection(db, 'copies');
 
@@ -576,8 +576,8 @@ app.post("/api/books/add", async (req, res) => {
     // Await all promises to resolve
     await Promise.all(copiesPromises);
 
-    // Update local cache to match DB structure
-    localBooksData.set(docRef.id, { id: docRef.id, title: title, copiesID: copiesID });
+    // Update local cache
+    localBooksData.set(docRef.id, { id: docRef.id, ...newBookData });
     copiesID.forEach(copyID => {
       localCopiesData.set(copyID, {
         title: title,
@@ -585,22 +585,6 @@ app.post("/api/books/add", async (req, res) => {
         borrowedTo: null, // single object instead of array
         copyID: copyID
       });
-    });
-
-    // Print the book and copies data
-    console.log("Book added to DB:", { id: docRef.id, title: title, copiesID: copiesID });
-    copiesID.forEach(copyID => {
-      console.log("Copy added to DB:", {
-        title: title,
-        isBorrowed: false,
-        borrowedTo: null,
-        copyID: copyID
-      });
-    });
-
-    console.log("Book added to local cache:", localBooksData.get(docRef.id));
-    copiesID.forEach(copyID => {
-      console.log("Copy added to local cache:", localCopiesData.get(copyID));
     });
 
     // Respond with a success message and the new document ID
@@ -611,7 +595,6 @@ app.post("/api/books/add", async (req, res) => {
     res.status(500).send("Failed to add book");
   }
 });
-
 
 
 
