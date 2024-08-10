@@ -950,22 +950,13 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
 
     const newBorrowedEntry = { firstName, lastName, phone, uid };
 
-    // Update Firestore document copiesCollectionRef
-    const copiesCollectionRef = collection(db, "copies");
-    const q = query(copiesCollectionRef, where("copyID", "==", copyID));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      return res.status(404).json({ success: false, message: "Copy not found" });
-    }
-
-    const copyDocRef = querySnapshot.docs[0].ref;
-    await updateDoc(copyDocRef, { borrowedTo: newBorrowedEntry }); // single object instead of array
+    // Update Firestore document copies
+    const copyDat = localCopiesData.get(copyID);
+    const copyDocRef = doc(db, "copies", copyDat.id);
+    await updateDoc(copyDocRef, { borrowedTo: newBorrowedEntry });
 
     // Update local cache
     localCopiesData.set(copyData.copyID, { ...copyData, borrowedTo: newBorrowedEntry }); // single object instead of array
-
-
 
     for (const key of localCopiesData.keys()) {
       console.log("Key:", key);
