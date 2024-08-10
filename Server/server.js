@@ -452,36 +452,34 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
       return res.status(200).json({ success: true, books: Array.from(localBooksData.values()) });
     }
 
-    const booksCollection = collection(db, "books");
-    const booksQuery = query(booksCollection);
-    const querySnapshot = await getDocs(booksQuery);
+    // const booksCollection = collection(db, "books");
+    // const booksQuery = query(booksCollection);
+    // const querySnapshot = await getDocs(booksQuery);
 
-    const books = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      title: doc.data().title,
-      author: doc.data().author,
-      classification: doc.data().classification,
-      copies: doc.data().copies,
-      copiesID: doc.data().copiesID,
-      summary: doc.data().summary,
-      imageURL: doc.data().imageURL,
-      expenditure: doc.data().expenditure,
-      locatorCode: doc.data().locatorCode,
-      titleType: doc.data().titleType,
-      waitingList: doc.data().waitingList,
-      averageRating: doc.data().averageRating
-    }));
+    // const books = querySnapshot.docs.map(doc => ({
+    //   id: doc.id,
+    //   title: doc.data().title,
+    //   author: doc.data().author,
+    //   classification: doc.data().classification,
+    //   copies: doc.data().copies,
+    //   copiesID: doc.data().copiesID,
+    //   summary: doc.data().summary,
+    //   imageURL: doc.data().imageURL,
+    //   expenditure: doc.data().expenditure,
+    //   locatorCode: doc.data().locatorCode,
+    //   titleType: doc.data().titleType,
+    //   waitingList: doc.data().waitingList,
+    //   averageRating: doc.data().averageRating
+    // }));
 
-    console.log("Books fetched successfully:");
-    console.log(`@@@@ Fetched books count: ${books.length} @@@@`);
+    // console.log("Books fetched from DB successfully:");
+    // console.log(`@@@@ Fetched books count: ${books.length} @@@@`);
 
  
-    querySnapshot.docs.forEach(doc => localBooksData.set(doc.id, { id: doc.id, ...doc.data() }));
+    // querySnapshot.docs.forEach(doc => localBooksData.set(doc.id, { id: doc.id, ...doc.data() }));
 
-    console.log("Updated local cache for books data:");
-    console.log(`@@@@ Updated local cache size: ${localBooksData.size} @@@@`); 
 
-    res.status(200).json({ success: true, books });
+    // res.status(200).json({ success: true, books });
   } catch (error) {
     console.error("Error fetching all books:", error);
     res.status(500).json({ success: false, message: "Failed to fetch all books" });
@@ -684,19 +682,19 @@ app.get("/api/books/names", async (req, res) => {
       return res.status(200).json({ success: true, bookNames });
     }
 
-    const booksCollectionRef = collection(db, "books");
-    const querySnapshot = await getDocs(booksCollectionRef);
+    // const booksCollectionRef = collection(db, "books");
+    // const querySnapshot = await getDocs(booksCollectionRef);
 
-    const bookNames = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      title: doc.data().title,
-      author: doc.data().author,
-      imageURL: doc.data().imageURL,
-    }));
+    // const bookNames = querySnapshot.docs.map((doc) => ({
+    //   id: doc.id,
+    //   title: doc.data().title,
+    //   author: doc.data().author,
+    //   imageURL: doc.data().imageURL,
+    // }));
 
-    res.status(200).json({ success: true, bookNames });
+    // res.status(200).json({ success: true, bookNames });
 
-    querySnapshot.docs.forEach(doc => localBooksData.set(doc.id, { id: doc.id, ...doc.data() }));
+    // querySnapshot.docs.forEach(doc => localBooksData.set(doc.id, { id: doc.id, ...doc.data() }));
   } catch (error) {
     console.error("Error fetching book names:", error);
     res.status(500).json({ success: false, message: "Failed to fetch book names" });
@@ -839,17 +837,17 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
   try {
     let bookData = localBooksData.get(id);
 
-    if (!bookData) {
-      const bookRef = doc(db, "books", id);
-      const docSnap = await getDoc(bookRef);
+    // if (!bookData) {
+    //   const bookRef = doc(db, "books", id);
+    //   const docSnap = await getDoc(bookRef);
 
-      if (!docSnap.exists()) {
-        return res.status(404).json({ success: false, message: "Book not found" });
-      }
+    //   if (!docSnap.exists()) {
+    //     return res.status(404).json({ success: false, message: "Book not found" });
+    //   }
 
-      bookData = { id: docSnap.id, ...docSnap.data() };
-      localBooksData.set(bookData.id, bookData);
-    }
+    //   bookData = { id: docSnap.id, ...docSnap.data() };
+    //   localBooksData.set(bookData.id, bookData);
+    // }
 
     const newEntry = {
       uid: uid,
@@ -997,17 +995,17 @@ app.delete("/api/books/:id/waiting-list", async (req, res) => {
   try {
     let bookData = localBooksData.get(id);
 
-    if (!bookData) {
-      const bookRef = doc(db, "books", id);
-      const docSnap = await getDoc(bookRef);
+    // if (!bookData) {
+    //   const bookRef = doc(db, "books", id);
+    //   const docSnap = await getDoc(bookRef);
 
-      if (!docSnap.exists()) {
-        return res.status(404).json({ success: false, message: "Book not found" });
-      }
+    //   if (!docSnap.exists()) {
+    //     return res.status(404).json({ success: false, message: "Book not found" });
+    //   }
 
-      bookData = { id: docSnap.id, ...docSnap.data() };
-      localBooksData.set(bookData.id, bookData);
-    }
+    //   bookData = { id: docSnap.id, ...docSnap.data() };
+    //   localBooksData.set(bookData.id, bookData);
+    // }
 
     const newWaitingList = bookData.waitingList.filter(entry => entry.uid !== uid);
 
@@ -1053,18 +1051,18 @@ app.get("/api/copies/borrowed", async (req, res) => {
       return res.status(200).json({ success: true, borrowedCopies });
     }
 
-    const copiesCollection = collection(db, "copies");
-    const q = query(copiesCollection, where("borrowedTo", "!=", null));
-    const querySnapshot = await getDocs(q);
+    // const copiesCollection = collection(db, "copies");
+    // const q = query(copiesCollection, where("borrowedTo", "!=", null));
+    // const querySnapshot = await getDocs(q);
 
-    if (querySnapshot.empty) {
-      res.status(404).json({ success: false, message: "No borrowed copies found" });
-    } else {
-      const borrowedCopiesData = querySnapshot.docs.map(doc => doc.data());
-      res.status(200).json({ success: true, borrowedCopies: borrowedCopiesData });
+    // if (querySnapshot.empty) {
+    //   res.status(404).json({ success: false, message: "No borrowed copies found" });
+    // } else {
+    //   const borrowedCopiesData = querySnapshot.docs.map(doc => doc.data());
+    //   res.status(200).json({ success: true, borrowedCopies: borrowedCopiesData });
 
-      borrowedCopiesData.forEach(copy => localCopiesData.set(copy.copyID, copy));
-    }
+    //   borrowedCopiesData.forEach(copy => localCopiesData.set(copy.copyID, copy));
+    // }
   } catch (error) {
     console.error("Error fetching borrowed copies:", error);
     res.status(500).json({ success: false, message: "Failed to fetch borrowed copies" });
@@ -1732,19 +1730,19 @@ app.get("/api/books/:id/reviews", async (req, res) => {
       return res.status(200).json({ success: true, reviews });
     }
 
-    const bookRef = doc(db, "books", id);
-    const docSnap = await getDoc(bookRef);
-    if (!docSnap.exists()) {
-      return res.status(404).json({ success: false, message: "Book not found" });
-    }
+    // const bookRef = doc(db, "books", id);
+    // const docSnap = await getDoc(bookRef);
+    // if (!docSnap.exists()) {
+    //   return res.status(404).json({ success: false, message: "Book not found" });
+    // }
 
-    const bookData = docSnap.data();
-    const reviews = bookData.reviews ? bookData.reviews.reverse() : [];
+    // const bookData = docSnap.data();
+    // const reviews = bookData.reviews ? bookData.reviews.reverse() : [];
 
-    // Update local cache
-    localBooksData.set(id, bookData);
+    // // Update local cache
+    // localBooksData.set(id, bookData);
 
-    res.status(200).json({ success: true, reviews });
+    // res.status(200).json({ success: true, reviews });
   } catch (error) {
     console.error("Error fetching reviews:", error);
     res.status(500).json({ success: false, message: `Failed to fetch reviews: ${error.message}` });
