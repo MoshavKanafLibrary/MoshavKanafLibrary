@@ -63,21 +63,22 @@ const initializeLocalData = async () => {
     const usersCollection = collection(db, "users");
     const usersSnapshot = await getDocs(usersCollection);
     usersSnapshot.docs.forEach(doc => localUsersData.set(doc.id, { id: doc.id, ...doc.data() }));
-
+    console.log("users done");
     // Initialize localBooksData
     const booksCollection = collection(db, "books");
     const booksSnapshot = await getDocs(booksCollection);
     booksSnapshot.docs.forEach(doc => localBooksData.set(doc.id, { id: doc.id, ...doc.data() }));
-
+    console.log("books done");
     // Initialize localCopiesData
     const copiesCollection = collection(db, "copies");
     const copiesSnapshot = await getDocs(copiesCollection);
     copiesSnapshot.docs.forEach(doc => localCopiesData.set(doc.data().copyID, { id: doc.id, ...doc.data() }));
-
+    console.log("copies done");
     // Initialize localRequestsData
     const requestsCollection = collection(db, "requests");
     const requestsSnapshot = await getDocs(requestsCollection);
     requestsSnapshot.docs.forEach(doc => localRequestsData.set(doc.id, { id: doc.id, ...doc.data() }));
+    console.log("requests done");
   } catch (error) {
     console.error("Error initializing local data:", error);
   }
@@ -1079,16 +1080,9 @@ app.put("/api/copies/returnCopy", async (req, res) => {
       return res.status(404).json({ success: false, message: "Copy not found" });
     }
 
-    // Update Firestore document
-    const copiesCollectionRef = collection(db, "copies");
-    const q = query(copiesCollectionRef, where("copyID", "==", copyID));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      return res.status(404).json({ success: false, message: "Copy not found" });
-    }
-
-    const copyDocRef = querySnapshot.docs[0].ref;
+    // Update Firestore document copies
+    const copyDat = localCopiesData.get(copyID);
+    const copyDocRef = doc(db, "copies", copyDat.id);
     await updateDoc(copyDocRef, { borrowedTo: null });
 
     // Update local cache
