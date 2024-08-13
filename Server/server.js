@@ -1019,13 +1019,13 @@ app.get("/api/users", async (req, res) => {
       return res.status(200).json({ success: true, users: Array.from(localUsersData.values()) });
     }
 
-    const usersCollection = collection(db, "users");
-    const querySnapshot = await getDocs(usersCollection);
-    const users = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // const usersCollection = collection(db, "users");
+    // const querySnapshot = await getDocs(usersCollection);
+    // const users = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    res.status(200).json({ success: true, users });
+    // res.status(200).json({ success: true, users });
 
-    querySnapshot.docs.forEach(doc => localUsersData.set(doc.id, { id: doc.id, ...doc.data() }));
+    // querySnapshot.docs.forEach(doc => localUsersData.set(doc.id, { id: doc.id, ...doc.data() }));
   } catch (error) {
     console.error("Error fetching users:", error);
     res.status(500).send("Server error");
@@ -1598,13 +1598,13 @@ app.post("/api/requests", async (req, res) => {
 app.get("/api/requests", async (req, res) => {
   try {
     // Check if local cache is empty
-    if (localRequestsData.size === 0) {
-      const requestsCollectionRef = collection(db, "requests");
+    // if (localRequestsData.size === 0) {
+    //   const requestsCollectionRef = collection(db, "requests");
       
-      // Get all documents in the "requests" collection
-      const querySnapshot = await getDocs(requestsCollectionRef);
-      querySnapshot.docs.forEach(doc => localRequestsData.set(doc.id, { id: doc.id, ...doc.data() }));
-    }
+    //   // Get all documents in the "requests" collection
+    //   const querySnapshot = await getDocs(requestsCollectionRef);
+    //   querySnapshot.docs.forEach(doc => localRequestsData.set(doc.id, { id: doc.id, ...doc.data() }));
+    // }
 
     const requests = Array.from(localRequestsData.values());
 
@@ -1625,17 +1625,17 @@ app.delete("/api/requests/:id", async (req, res) => {
 
   try {
     // Check if request exists in local cache
-    if (!localRequestsData.has(id)) {
-      const requestRef = doc(db, "requests", id);
-      const requestSnap = await getDoc(requestRef);
+    // if (!localRequestsData.has(id)) {
+    //   const requestRef = doc(db, "requests", id);
+    //   const requestSnap = await getDoc(requestRef);
 
-      if (!requestSnap.exists()) {
-        return res.status(404).json({ success: false, message: "Request not found" });
-      }
+    //   if (!requestSnap.exists()) {
+    //     return res.status(404).json({ success: false, message: "Request not found" });
+    //   }
 
-      // Update local cache before deleting
-      localRequestsData.set(id, requestSnap.data());
-    }
+    //   // Update local cache before deleting
+    //   localRequestsData.set(id, requestSnap.data());
+    // }
 
     const requestRef = doc(db, "requests", id);
     await deleteDoc(requestRef);
@@ -1661,14 +1661,14 @@ app.post("/api/books/:id/reviews", async (req, res) => {
 
   try {
     let bookData = localBooksData.get(id);
-    if (!bookData) {
-      const bookRef = doc(db, "books", id);
-      const docSnap = await getDoc(bookRef);
-      if (!docSnap.exists()) {
-        return res.status(404).json({ success: false, message: "Book not found" });
-      }
-      bookData = docSnap.data();
-    }
+    // if (!bookData) {
+    //   const bookRef = doc(db, "books", id);
+    //   const docSnap = await getDoc(bookRef);
+    //   if (!docSnap.exists()) {
+    //     return res.status(404).json({ success: false, message: "Book not found" });
+    //   }
+    //   bookData = docSnap.data();
+    // }
 
     // Initialize reviews array if it does not exist
     if (!bookData.reviews) {
