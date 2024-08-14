@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { FaSpinner, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -16,52 +16,55 @@ const WaitingListPage = () => {
   const [deleteEntry, setDeleteEntry] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchWaitingListData = async () => {
-      setLoading(true);
-      try {
-        const { data: booksData } = await axios.get("/api/books/getAllBooksData");
-        console.log("Fetched books data:", booksData);
-        if (booksData.success) {
-          const waitingListUsersPromises = booksData.books
-            .filter(book => book.waitingList && book.waitingList.length > 0)
-            .flatMap(book => book.waitingList.map(async waitingEntry => {
-              try {
-                const { data: userData } = await axios.get(`/api/users/${waitingEntry.uid}`);
-                const waitingDate = waitingEntry.Time && waitingEntry.Time.seconds ? new Date(waitingEntry.Time.seconds * 1000) : new Date();
-                const formattedWaitingDate = isValid(waitingDate) ? format(waitingDate, "MMM dd, yyyy p") : 'DATE UNKNOWN';
-                return {
-                  ...userData,
-                  bookTitle: book.title,
-                  waitingDate: formattedWaitingDate,
-                  uid: waitingEntry.uid,
-                  email: userData.email,
-                  firstName: userData.firstName,
-                  lastName: userData.lastName,
-                  bookId: book.id
-                };
-              } catch (userError) {
-                console.error(`Error fetching user data for UID ${waitingEntry.uid}:`, userError);
-                return null;
-              }
-            }));
+  const isValid = (date) => date instanceof Date && !isNaN(date.getTime());
 
-          const waitingListUsers = (await Promise.all(waitingListUsersPromises)).filter(Boolean);
-          console.log("Waiting list users:", waitingListUsers);
-          setWaitingList(waitingListUsers);
-          setFilteredWaitingList(waitingListUsers);
-        } else {
-          console.error("Error fetching books data:", booksData);
-        }
-      } catch (error) {
-        console.error("Error fetching waiting list data:", error);
-      } finally {
-        setLoading(false);
+  const fetchWaitingListData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data: booksData } = await axios.get("/api/books/getAllBooksData");
+      if (booksData.success) {
+        const waitingListUsersPromises = booksData.books
+          .filter(book => book.waitingList && book.waitingList.length > 0)
+          .flatMap(book => 
+            book.waitingList.map(waitingEntry => 
+              axios.get(`/api/users/${waitingEntry.uid}`)
+                .then(({ data: userData }) => {
+                  const waitingDate = waitingEntry.Time?.seconds ? new Date(waitingEntry.Time.seconds * 1000) : new Date();
+                  const formattedWaitingDate = isValid(waitingDate) ? format(waitingDate, "MMM dd, yyyy p") : 'DATE UNKNOWN';
+                  return {
+                    ...userData,
+                    bookTitle: book.title,
+                    waitingDate: formattedWaitingDate,
+                    uid: waitingEntry.uid,
+                    email: userData.email,
+                    firstName: userData.firstName,
+                    lastName: userData.lastName,
+                    bookId: book.id
+                  };
+                })
+                .catch(userError => {
+                  console.error(`Error fetching user data for UID ${waitingEntry.uid}:`, userError);
+                  return null;
+                })
+            )
+          );
+
+        const waitingListUsers = (await Promise.all(waitingListUsersPromises)).filter(Boolean);
+        setWaitingList(waitingListUsers);
+        setFilteredWaitingList(waitingListUsers);
+      } else {
+        console.error("Error fetching books data:", booksData);
       }
-    };
-
-    fetchWaitingListData();
+    } catch (error) {
+      console.error("Error fetching waiting list data:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchWaitingListData();
+  }, [fetchWaitingListData]);
 
   useEffect(() => {
     const lowerCaseQuery = searchQuery.toLowerCase();
@@ -76,19 +79,15 @@ const WaitingListPage = () => {
     setCurrentPage(1);
   }, [searchQuery, waitingList]);
 
-  const isValid = (date) => {
-    return date instanceof Date && !isNaN(date.getTime());
-  };
-
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredWaitingList.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredWaitingList.length / itemsPerPage);
 
-  const paginate = pageNumber => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleRowClick = (entry) => {
-    navigate('/BookBorrowDetails', { state: { bookTitle: entry.bookTitle, firstName: entry.firstName, lastName: entry.lastName, phone: entry.phone, uid: entry.uid, email: entry.email } });
+    navigate('/BookBorrowDetails', { state: { ...entry } });
   };
 
   const handleDeleteClick = (entry) => {
@@ -105,11 +104,9 @@ const WaitingListPage = () => {
         
         if (responseBook.status === 200 && responseUser.status === 200) {
           console.log("Both delete requests were successful");
-          // הסרת הפריט שנמחק מהרשימות הנוכחיות
           const updatedWaitingList = waitingList.filter(entry => !(entry.uid === deleteEntry.uid && entry.bookId === deleteEntry.bookId));
           const updatedFilteredWaitingList = filteredWaitingList.filter(entry => !(entry.uid === deleteEntry.uid && entry.bookId === deleteEntry.bookId));
           
-          // עדכון ה-state
           setWaitingList(updatedWaitingList);
           setFilteredWaitingList(updatedFilteredWaitingList);
         } else {
@@ -140,7 +137,7 @@ const WaitingListPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-hover text-bg-navbar-custom' : 'bg-bg-hover text-bg-navbar-custom'}`}
+          className={`px-4 py-2 mx-2 rounded-lg ${i === currentPage ? 'bg-bg-header-custom text-black' : 'bg-bg-header-custom text-black hover:bg-bg-hover hover:text-white'}`}
         >
           {i}
         </button>
@@ -148,6 +145,7 @@ const WaitingListPage = () => {
     }
     return pages;
   };
+
 
   return (
     <>
@@ -202,22 +200,22 @@ const WaitingListPage = () => {
             <div className="text-center text-bg-navbar-custom">לא נמצאו תוצאות</div>
           )}
         </div>
-        {filteredWaitingList.length > itemsPerPage && (
-          <div className="flex justify-between mt-4">
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8">
             <button
-              className="px-4 py-2 mx-1 rounded-lg bg-bg-hover text-bg-navbar-custom"
-              onClick={() => paginate(currentPage > 1 ? currentPage - 1 : 1)}
+              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
+              onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
             >
-              &lt;
+              {'<'}
             </button>
             {renderPageNumbers()}
             <button
-              className="px-4 py-2 mx-1 rounded-lg bg-bg-hover text-bg-navbar-custom"
-              onClick={() => paginate(currentPage < totalPages ? currentPage + 1 : totalPages)}
+              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
+              onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
-              &gt;
+              {'>'}
             </button>
           </div>
         )}

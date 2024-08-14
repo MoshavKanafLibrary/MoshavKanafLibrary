@@ -88,7 +88,7 @@ const PresentBooksPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-background-gradient-via text-bg-navbar-custom' : 'bg-bg-background-gradient-from text-bg-navbar-custom'}`}
+          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-background-gradient-via text-bg-navbar-custom' : 'bg-bg-background-gradient-from text-bg-navbar-custom hover:bg-bg-hover'}`}
         >
           {i}
         </button>

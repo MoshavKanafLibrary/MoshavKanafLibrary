@@ -107,7 +107,7 @@ const BorrowedCopiesPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-hover text-bg-navbar-custom' : 'bg-bg-hover text-bg-navbar-custom'}`}
+          className={`px-4 py-2 mx-2 rounded-lg ${i === currentPage ? 'bg-bg-header-custom text-black' : 'bg-bg-header-custom text-black hover:bg-bg-hover hover:text-white'}`}
         >
           {i}
         </button>
@@ -199,23 +199,25 @@ const BorrowedCopiesPage = () => {
 
           </table>
         </div>
-        <div className="flex justify-center mt-8">
-          <button
-            className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
-            onClick={() => paginate(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            {'<'}
-          </button>
-          {renderPageNumbers()}
-          <button
-            className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
-            onClick={() => paginate(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            {'>'}
-          </button>
-        </div>
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8">
+            <button
+              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              {'<'}
+            </button>
+            {renderPageNumbers()}
+            <button
+              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              {'>'}
+            </button>
+          </div>
+        )}
       </div>
     </>
   );

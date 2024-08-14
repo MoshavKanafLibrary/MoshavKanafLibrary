@@ -187,7 +187,7 @@ const BooksPage = () => {
       pages.push(
         <button
           key={i}
-          className={`px-4 py-2 mx-2 rounded-lg ${i === currentPage ? 'bg-bg-header-custom text-black' : 'bg-bg-header-custom text-black'}`}
+          className={`px-4 py-2 mx-2 rounded-lg ${i === currentPage ? 'bg-bg-header-custom text-black' : 'bg-bg-header-custom text-black hover:bg-bg-hover hover:text-white'}`}
           onClick={() => goToPage(i)}
         >
           {i}

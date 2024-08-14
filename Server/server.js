@@ -1787,42 +1787,31 @@ app.post("/api/books/:id/addCopy", async (req, res) => {
 app.delete("/api/books/:id/removeCopy/:copyID", async (req, res) => {
   try {
     const { id, copyID } = req.params;
+    const copyIDInt = parseInt(copyID);
 
-    let bookData = localBooksData.get(id);
-    if (!bookData) {
-      const bookRef = doc(db, "books", id);
-      const bookSnap = await getDoc(bookRef);
-      if (!bookSnap.exists()) {
-        return res.status(404).json({ success: false, message: "Book not found" });
-      }
-      bookData = bookSnap.data();
-    }
-
-    // Reference to the specific copy document
-    const copiesCollection = collection(db, 'copies');
-    const copyQuery = query(copiesCollection, where("copyID", "==", parseInt(copyID)));
-    const copySnap = await getDocs(copyQuery);
-
-    if (copySnap.empty) {
+    if (!localCopiesData.has(copyIDInt)) {
       return res.status(404).json({ success: false, message: "Copy not found" });
     }
 
-    // Delete the copy document
-    copySnap.forEach(async (doc) => {
-      await deleteDoc(doc.ref);
-    });
+    const copyData = localCopiesData.get(copyIDInt);
 
-    // Update the book document to remove the copy ID and decrement the number of copies
-    const updatedCopiesID = bookData.copiesID.filter(id => id !== parseInt(copyID));
+    const copyDocRef = doc(db, "copies", copyData.id);
+    await deleteDoc(copyDocRef);
+
+    let bookData = localBooksData.get(id);
+    if (!bookData) {
+      return res.status(404).json({ success: false, message: "Book not found" });
+    }
+
+    const updatedCopiesID = bookData.copiesID.filter(cID => cID !== copyIDInt);
     const bookRef = doc(db, "books", id);
     await updateDoc(bookRef, {
       copies: bookData.copies - 1,
       copiesID: updatedCopiesID
     });
 
-    // Update local cache
     localBooksData.set(id, { ...bookData, copies: bookData.copies - 1, copiesID: updatedCopiesID });
-    localCopiesData.delete(parseInt(copyID));
+    localCopiesData.delete(copyIDInt);
 
     res.status(200).json({ success: true, message: "Copy removed successfully" });
   } catch (error) {
