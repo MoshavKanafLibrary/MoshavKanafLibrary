@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaSpinner, FaTrash, FaBell, FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { FaSpinner, FaTrash, FaBell } from "react-icons/fa";
 
 const AllRequestsPage = () => {
   const [requests, setRequests] = useState([]);
@@ -10,6 +10,8 @@ const AllRequestsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [successMessage, setSuccessMessage] = useState('');
+  const [customMessage, setCustomMessage] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     const fetchRequests = async () => {
@@ -70,14 +72,17 @@ const AllRequestsPage = () => {
     }
   };
 
-  const notifyUser = async (uid) => {
+  const notifyUser = async () => {
     try {
       setLoading(true);
-      const response = await axios.post(`/api/users/${uid}/notifications`, {
-        message: "תודה על בקשת הספר שלך!",
+      const message = `הספרית הגיבה על בקשתך: "${selectedUser.requestText}". התגובה של הספרית: "${customMessage}".`;
+      const response = await axios.post(`/api/users/${selectedUser.uid}/notifications`, {
+        message: message,
       });
       if (response.data.success) {
         setSuccessMessage("המשתמש קיבל התראה בהצלחה.");
+        setSelectedUser(null); // נקה את המשתמש הנבחר לאחר שליחה
+        setCustomMessage('');  // נקה את ההודעה המותאמת אישית
       } else {
         console.error("Failed to send notification:", response.data.message);
       }
@@ -157,7 +162,7 @@ const AllRequestsPage = () => {
                   </td>
                   <td className="py-4 px-6 text-right flex space-x-2 justify-center">
                     <button
-                      onClick={() => notifyUser(request.uid)}
+                      onClick={() => setSelectedUser(request)}
                       className="text-blue-500 hover:text-blue-700"
                     >
                       <FaBell />
@@ -192,6 +197,39 @@ const AllRequestsPage = () => {
           </button>
         </div>
       </div>
+      
+      {selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full" dir="rtl">
+            <h2 className="text-2xl mb-4">שלח הודעה למשתמש {selectedUser.username}</h2>
+            <textarea
+              className="w-full p-2 border rounded-lg mb-4"
+              rows="4"
+              placeholder="הקלד את ההודעה כאן..."
+              value={customMessage}
+              onChange={e => setCustomMessage(e.target.value)}
+              dir="rtl"
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => {
+                  setSelectedUser(null);
+                  setCustomMessage('');
+                }}
+                className="px-4 py-2 bg-gray-300 rounded-lg"
+              >
+                בטל
+              </button>
+              <button
+                onClick={notifyUser}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+              >
+                שלח
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
