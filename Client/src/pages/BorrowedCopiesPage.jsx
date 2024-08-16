@@ -33,17 +33,26 @@ const BorrowedCopiesPage = () => {
 
   useEffect(() => {
     const lowerCaseQuery = searchQuery.toLowerCase();
-    const filtered = borrowedCopies.filter(copy =>
-      copy.title.toLowerCase().includes(lowerCaseQuery) ||
-      (copy.borrowedTo.some(borrower => 
-        (borrower.firstName && borrower.firstName.toLowerCase().includes(lowerCaseQuery)) ||
-        (borrower.lastName && borrower.lastName.toLowerCase().includes(lowerCaseQuery)) ||
-        borrower.uid.toLowerCase().includes(lowerCaseQuery))) ||
-      copy.copyID.toLowerCase().includes(lowerCaseQuery)
-    );
+  
+    const filtered = borrowedCopies.filter(copy => {
+      const titleMatch = String(copy.title).toLowerCase().includes(lowerCaseQuery);
+  
+      const copyIDMatch = String(copy.copyID).toLowerCase().includes(lowerCaseQuery);
+  
+      const borrowerMatch = 
+        (copy.borrowedTo.firstName && String(copy.borrowedTo.firstName).toLowerCase().includes(lowerCaseQuery)) ||
+        (copy.borrowedTo.lastName && String(copy.borrowedTo.lastName).toLowerCase().includes(lowerCaseQuery)) ||
+        (copy.borrowedTo.uid && String(copy.borrowedTo.uid).toLowerCase().includes(lowerCaseQuery));
+  
+      return titleMatch || copyIDMatch || borrowerMatch;
+    });
+  
     setFilteredCopies(filtered);
     setCurrentPage(1); // Reset to first page on new search
   }, [searchQuery, borrowedCopies]);
+  
+  
+  
 
   const indexOfLastCopy = currentPage * itemsPerPage;
   const indexOfFirstCopy = indexOfLastCopy - itemsPerPage;

@@ -1415,3 +1415,39 @@ app.delete("/api/books/:id/removeCopy/:copyID", async (req, res) => {
     res.status(500).send("Failed to remove copy");
   }
 });
+
+app.get('/api/waiting-list/details', async (req, res) => {
+  try {
+    const waitingListDetails = [];
+
+    for (let book of localBooksData.values()) {
+      if (book.waitingList && book.waitingList.length > 0) {
+        for (let entry of book.waitingList) {
+          const userDoc = await getDoc(doc(db, "users", entry.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const waitingDate = entry.Time?.seconds ? new Date(entry.Time.seconds * 1000) : new Date();
+            waitingListDetails.push({
+              uid: entry.uid,
+              bookTitle: book.title,
+              waitingDate: waitingDate.toLocaleString("en-US", { month: "short", day: "2-digit", year: "numeric", hour: "numeric", minute: "numeric" }),
+              firstName: userData.firstName,
+              lastName: userData.lastName,
+              email: userData.email,
+              bookId: book.id,
+            });
+          }
+        }
+      }
+    }
+
+    if (waitingListDetails.length > 0) {
+      res.status(200).json({ success: true, waitingListDetails });
+    } else {
+      res.status(404).json({ success: false, message: "No waiting list details found" });
+    }
+  } catch (error) {
+    console.error("Error fetching waiting list details:", error);
+    res.status(500).json({ success: false, message: `Error fetching waiting list details: ${error.message}` });
+  }
+});

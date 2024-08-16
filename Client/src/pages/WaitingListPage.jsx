@@ -2,11 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { FaSpinner, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
 
 const WaitingListPage = () => {
   const [loading, setLoading] = useState(true);
-  const [waitingList, setWaitingList] = useState([]);
+  const [waitingListDetails, setWaitingListDetails] = useState([]);
   const [filteredWaitingList, setFilteredWaitingList] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,59 +15,30 @@ const WaitingListPage = () => {
   const [deleteEntry, setDeleteEntry] = useState(null);
   const navigate = useNavigate();
 
-  const isValid = (date) => date instanceof Date && !isNaN(date.getTime());
-
-  const fetchWaitingListData = useCallback(async () => {
+  const fetchWaitingListDetails = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: booksData } = await axios.get("/api/books/getAllBooksData");
-      if (booksData.success) {
-        const waitingListUsersPromises = booksData.books
-          .filter(book => book.waitingList && book.waitingList.length > 0)
-          .flatMap(book => 
-            book.waitingList.map(waitingEntry => 
-              axios.get(`/api/users/${waitingEntry.uid}`)
-                .then(({ data: userData }) => {
-                  const waitingDate = waitingEntry.Time?.seconds ? new Date(waitingEntry.Time.seconds * 1000) : new Date();
-                  const formattedWaitingDate = isValid(waitingDate) ? format(waitingDate, "MMM dd, yyyy p") : 'DATE UNKNOWN';
-                  return {
-                    ...userData,
-                    bookTitle: book.title,
-                    waitingDate: formattedWaitingDate,
-                    uid: waitingEntry.uid,
-                    email: userData.email,
-                    firstName: userData.firstName,
-                    lastName: userData.lastName,
-                    bookId: book.id
-                  };
-                })
-                .catch(userError => {
-                  console.error(`Error fetching user data for UID ${waitingEntry.uid}:`, userError);
-                  return null;
-                })
-            )
-          );
-
-        const waitingListUsers = (await Promise.all(waitingListUsersPromises)).filter(Boolean);
-        setWaitingList(waitingListUsers);
-        setFilteredWaitingList(waitingListUsers);
+      const response = await axios.get('/api/waiting-list/details');
+      if (response.data.success) {
+        setWaitingListDetails(response.data.waitingListDetails);
+        setFilteredWaitingList(response.data.waitingListDetails);
       } else {
-        console.error("Error fetching books data:", booksData);
+        console.error('Error fetching waiting list details:', response.data.message);
       }
     } catch (error) {
-      console.error("Error fetching waiting list data:", error);
+      console.error('Error fetching waiting list details:', error);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchWaitingListData();
-  }, [fetchWaitingListData]);
+    fetchWaitingListDetails();
+  }, [fetchWaitingListDetails]);
 
   useEffect(() => {
     const lowerCaseQuery = searchQuery.toLowerCase();
-    const filtered = waitingList.filter(entry =>
+    const filtered = waitingListDetails.filter(entry =>
       (entry.firstName?.toLowerCase() || '').includes(lowerCaseQuery) ||
       (entry.lastName?.toLowerCase() || '').includes(lowerCaseQuery) ||
       (entry.email?.toLowerCase() || '').includes(lowerCaseQuery) ||
@@ -77,7 +47,7 @@ const WaitingListPage = () => {
     );
     setFilteredWaitingList(filtered);
     setCurrentPage(1);
-  }, [searchQuery, waitingList]);
+  }, [searchQuery, waitingListDetails]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -101,13 +71,13 @@ const WaitingListPage = () => {
         console.log("Deleting entry:", deleteEntry);
         const responseBook = await axios.delete(`/api/books/${deleteEntry.bookId}/waiting-list`, { data: { uid: deleteEntry.uid } });
         const responseUser = await axios.delete(`/api/users/${deleteEntry.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title: deleteEntry.bookTitle } });
-        
+
         if (responseBook.status === 200 && responseUser.status === 200) {
           console.log("Both delete requests were successful");
-          const updatedWaitingList = waitingList.filter(entry => !(entry.uid === deleteEntry.uid && entry.bookId === deleteEntry.bookId));
+          const updatedWaitingList = waitingListDetails.filter(entry => !(entry.uid === deleteEntry.uid && entry.bookId === deleteEntry.bookId));
           const updatedFilteredWaitingList = filteredWaitingList.filter(entry => !(entry.uid === deleteEntry.uid && entry.bookId === deleteEntry.bookId));
-          
-          setWaitingList(updatedWaitingList);
+
+          setWaitingListDetails(updatedWaitingList);
           setFilteredWaitingList(updatedFilteredWaitingList);
         } else {
           console.error("Error in one of the delete requests:", responseBook, responseUser);
