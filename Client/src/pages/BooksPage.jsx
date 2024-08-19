@@ -86,12 +86,6 @@ const BooksPage = () => {
     setShowRatingDropdown(false);
   };
 
-  const toggleCategoryDropdown = () => {
-    setShowCategoryDropdown(!showCategoryDropdown);
-    setShowAuthorDropdown(false);
-    setShowRatingDropdown(false);
-  };
-
   const toggleAuthorDropdown = () => {
     setShowAuthorDropdown(!showAuthorDropdown);
     setShowCategoryDropdown(false);
@@ -220,12 +214,6 @@ const BooksPage = () => {
                 {showFilterDropdown && (
                   <div className="absolute mt-2 bg-bg-header-custom rounded-lg shadow-lg p-4" ref={filterRef}>
                     <div className="flex flex-col space-y-4">
-                      <button
-                        className="bg-bg-header-custom text-black px-4 py-2 rounded-lg"
-                        onClick={toggleCategoryDropdown}
-                      >
-                        קטגוריות
-                      </button>
                       {showCategoryDropdown && (
                         <div className="flex flex-col space-y-2">
                           {categories.map((category) => (

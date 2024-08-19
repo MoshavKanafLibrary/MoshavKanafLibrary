@@ -14,6 +14,7 @@ const BookDetailPage = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [reviews, setReviews] = useState([]);
   const [reviewText, setReviewText] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const { user } = useUser();
 
   useEffect(() => {
@@ -83,20 +84,23 @@ const BookDetailPage = () => {
     }
 
     try {
-      await axios.post(`/api/books/${book.id}/reviews`, {
+      const reviewData = {
         uid: user.uid,
-        firstName: user.firstName, // השתמש בשם פרטי
-        lastName: user.lastName,   // השתמש בשם משפחה
         review: reviewText.trim(),
         reviewedAt: new Date() // Use JavaScript Date for the new review
-      });
+      };
+
+      if (!isAnonymous) {
+        reviewData.firstName = user.firstName; 
+        reviewData.lastName = user.lastName;  
+      }
+
+      await axios.post(`/api/books/${book.id}/reviews`, reviewData);
       setSuccessMessage("הביקורת נשלחה בהצלחה!");
       setReviews([...reviews, {
-        uid: user.uid,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        review: reviewText.trim(),
-        reviewedAt: new Date() // Add new review with current date
+        ...reviewData,
+        firstName: isAnonymous ? 'אנונימי' : user.firstName,
+        lastName: isAnonymous ? '' : user.lastName,
       }]);
       setReviewText('');
       setTimeout(() => {
@@ -149,6 +153,15 @@ const BookDetailPage = () => {
                     value={reviewText}
                     onChange={e => setReviewText(e.target.value)}
                   />
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={isAnonymous}
+                      onChange={e => setIsAnonymous(e.target.checked)}
+                      className="mr-2"
+                    />
+                    <label className="text-bg-text">שלח ביקורת באופן אנונימי</label>
+                  </div>
                   <button
                     className="bg-bg-hover text-bg-navbar-custom py-3 px-6 rounded hover:bg-bg-text focus:outline-none"
                     onClick={handleReviewSubmit}

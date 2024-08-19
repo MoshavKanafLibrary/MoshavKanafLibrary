@@ -1289,8 +1289,8 @@ app.post("/api/books/:id/reviews", async (req, res) => {
   const { id } = req.params;
   const { uid, firstName, lastName, review } = req.body;
 
-  if (!uid || !firstName || !lastName || !review) {
-    return res.status(400).json({ success: false, message: "User ID, first name, last name, and review text are required" });
+  if (!uid || !review) { 
+    return res.status(400).json({ success: false, message: "User ID and review text are required" });
   }
 
   try {
@@ -1300,8 +1300,8 @@ app.post("/api/books/:id/reviews", async (req, res) => {
     }
     const newReview = {
       uid,
-      firstName,
-      lastName,
+      firstName: firstName || 'אנונימי', 
+      lastName: lastName || '',  
       review,
       reviewedAt: new Date() 
     };
@@ -1311,12 +1311,13 @@ app.post("/api/books/:id/reviews", async (req, res) => {
     await updateDoc(bookRef, { reviews: bookData.reviews });
     localBooksData.set(id, { ...bookData, reviews: bookData.reviews });
 
-    res.status (200).json({ success: true, message: "Review added successfully" });
+    res.status(200).json({ success: true, message: "Review added successfully" });
   } catch (error) {
     console.error("Error adding review:", error);
     res.status(500).json({ success: false, message: `Failed to add review: ${error.message}` });
   }
 });
+
 
 // Handler for fetching all reviews for a book
 app.get("/api/books/:id/reviews", async (req, res) => {
