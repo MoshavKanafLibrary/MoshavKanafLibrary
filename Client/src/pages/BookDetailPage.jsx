@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
@@ -17,9 +17,11 @@ const BookDetailPage = () => {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const { user } = useUser();
 
+  const successMessageRef = useRef(null);
+
   useEffect(() => {
     if (!book) {
-      navigate('/'); // Redirect to homepage if book data is not available
+      navigate('/'); 
       return;
     }
 
@@ -29,7 +31,7 @@ const BookDetailPage = () => {
     })
       .then(response => {
         if (response.data.success) {
-          setBooks(response.data.books || []); // Ensure books is an array
+          setBooks(response.data.books || []); 
         } else {
           setBooks([]);
         }
@@ -46,7 +48,7 @@ const BookDetailPage = () => {
       .then(response => {
         const reviewsWithParsedDates = response.data.reviews.map(review => ({
           ...review,
-          reviewedAt: new Date(review.reviewedAt.seconds * 1000) // Convert Firestore Timestamp to JS Date
+          reviewedAt: new Date(review.reviewedAt.seconds * 1000) 
         }));
         setReviews(reviewsWithParsedDates);
       })
@@ -54,6 +56,12 @@ const BookDetailPage = () => {
         console.error("Error fetching reviews:", error.message);
       });
   }, [book, navigate]);
+
+  useEffect(() => {
+    if (successMessage) {
+      successMessageRef.current?.scrollIntoView({ behavior: 'smooth' }); 
+    }
+  }, [successMessage]);
 
   const handleOrderNow = async () => {
     if (!user) {
@@ -87,7 +95,7 @@ const BookDetailPage = () => {
       const reviewData = {
         uid: user.uid,
         review: reviewText.trim(),
-        reviewedAt: new Date() // Use JavaScript Date for the new review
+        reviewedAt: new Date() 
       };
 
       if (!isAnonymous) {
@@ -134,7 +142,10 @@ const BookDetailPage = () => {
                 הזמן עכשיו
               </button>
               {successMessage && (
-                <div className="mt-6 px-6 py-4 bg-green-100 border border-green-500 text-green-800 text-xl rounded text-center whitespace-pre-line">
+                <div
+                  ref={successMessageRef} 
+                  className="mt-6 px-6 py-4 bg-green-100 border border-green-500 text-green-800 text-xl rounded text-center whitespace-pre-line"
+                >
                   {successMessage}
                 </div>
               )}
