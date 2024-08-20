@@ -45,7 +45,7 @@ const NavBar = () => {
           console.error("Failed to fetch notifications");
         }
       } catch (error) {
-        console.error("Error fetching notifications", error);
+        console.error("Error fetching notifications");
       }
     };
     fetchNotifications();
@@ -86,8 +86,7 @@ const NavBar = () => {
   ].filter(Boolean); 
 
   const unRegisteredUserNavLinks = [
-    { name: "מידע", path: "/contactus" },
-    { name: "התחברות", path: "/login" },
+    { name: "צור קשר", path: "/contactus" },
     { name: "הרשמה", path: "/signup" }
   ];
 
@@ -121,7 +120,7 @@ const NavBar = () => {
           <div className="flex items-center lg:hidden">
             <button
               onClick={toggleNav}
-              className="text-bg-text focus:outline-none"
+              className="text-bg-text focus:outline-none absolute right-4"
             >
               {navOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
             </button>
@@ -167,21 +166,27 @@ const NavBar = () => {
               </div>
             )}
 
-            {user ? (
-              <DropDown
-                dropDownLinks={registeredDropDownLinks}
-                navBarLinks={registeredUserNavLinks}
-                user={user}
-                userDetails={userDetails}
-                userDisplayName={userDetails.lastName}
-              />
-            ) : (
-              <DropDown
-                dropDownLinks={unRegisteredDropDownLinks}
-                navBarLinks={unRegisteredUserNavLinks}
-                user={user}
-              />
-            )}
+{user ? (
+  <div className="relative ml-4 lg:ml-8 lg:mr-auto">
+    <DropDown
+      dropDownLinks={registeredDropDownLinks}
+      navBarLinks={registeredUserNavLinks}
+      user={user}
+      userDetails={userDetails}
+      userDisplayName={userDetails.lastName}
+    />
+  </div>
+) : (
+  <div className="relative ml-4 lg:ml-8 lg:mr-auto">
+    <DropDown
+      dropDownLinks={unRegisteredDropDownLinks}
+      navBarLinks={unRegisteredUserNavLinks}
+      user={user}
+    />
+  </div>
+)}
+
+
 
             {/* Use the Admin Icon for both mobile and desktop if the user is an admin */}
             {isAdmin && (
