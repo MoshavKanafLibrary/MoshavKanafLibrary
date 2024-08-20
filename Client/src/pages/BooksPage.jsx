@@ -5,7 +5,6 @@ import useUser from '../hooks/useUser';
 import axios from 'axios';
 import { debounce } from 'lodash';
 
-// Fetch all books at once
 const fetchAllBooks = async () => {
   try {
     const response = await axios.get('/api/books/getAllBooksData');
@@ -31,21 +30,22 @@ const BooksPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [authors, setAuthors] = useState([]);
-  const [ratingCategories, setRatingCategories] = useState(['1-2', '3-4', '4-5']); // Define rating categories
+  const [ratingCategories, setRatingCategories] = useState(['1-2', '3-4', '4-5']);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedAuthors, setSelectedAuthors] = useState([]);
-  const [selectedRatings, setSelectedRatings] = useState([]); // State to hold selected rating categories
+  const [selectedRatings, setSelectedRatings] = useState([]);
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const filterRef = useRef(null);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showAuthorDropdown, setShowAuthorDropdown] = useState(false);
-  const [showRatingDropdown, setShowRatingDropdown] = useState(false); // State for showing rating dropdown
+  const [showRatingDropdown, setShowRatingDropdown] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
+  const [filterByNew, setFilterByNew] = useState(false); // New state for filtering by new books
 
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10; // Number of books per page
-  const maxPageNumbersToShow = 5; // Maximum number of page numbers to show at a time
+  const pageSize = 10;
+  const maxPageNumbersToShow = 5;
 
   const { user } = useUser();
   const location = useLocation();
@@ -53,7 +53,7 @@ const BooksPage = () => {
 
   const handleSearch = useCallback(debounce((query) => {
     setSearchQuery(query);
-    setCurrentPage(1); // Reset to first page on new search
+    setCurrentPage(1);
   }, 300), []);
 
   const handleSearchInputChange = (event) => {
@@ -127,13 +127,21 @@ const BooksPage = () => {
     });
   };
 
-  const filteredBooks = books.filter((book) => {
-    const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) || book.author.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(book.category);
-    const matchesAuthor = selectedAuthors.length === 0 || selectedAuthors.includes(book.author);
-    const matchesRatings = matchesRating(book); // New rating filter logic
-    return matchesSearch && matchesCategory && matchesAuthor && matchesRatings;
-  });
+  const filteredBooks = books
+    .filter((book) => {
+      const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) || book.author.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(book.category);
+      const matchesAuthor = selectedAuthors.length === 0 || selectedAuthors.includes(book.author);
+      const matchesRatings = matchesRating(book);
+
+      // Filter by new books (added within the last month)
+      const matchesNew = filterByNew
+        ? new Date(book.addedAt) >= new Date(new Date().setMonth(new Date().getMonth() - 1))
+        : true;
+
+      return matchesSearch && matchesCategory && matchesAuthor && matchesRatings && matchesNew;
+    })
+    .sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
 
   const paginatedBooks = filteredBooks.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
@@ -148,8 +156,8 @@ const BooksPage = () => {
     if (rating === null) {
       return 'N/A';
     }
-    const goldStars = Math.floor(rating); // Number of gold stars
-    const grayStars = 5 - goldStars; // Number of gray stars
+    const goldStars = Math.floor(rating);
+    const grayStars = 5 - goldStars;
 
     return (
       <span className="text-yellow-500 inline-block">
@@ -204,13 +212,19 @@ const BooksPage = () => {
         ) : (
           <>
             <div className="flex justify-between mb-3 sm:mb-4">
-              <div className="flex items-center space-x-2 sm:space-x-4">
-                <button
-                  className="bg-bg-header-custom text-black px-3 py-1 sm:px-4 sm:py-2 rounded-lg"
-                  onClick={toggleFilterDropdown}
-                >
-                  סנן
-                </button>
+            <div className="flex items-center gap-4">
+              <button
+                className="bg-bg-header-custom text-black px-3 py-1 sm:px-4 sm:py-2 rounded-lg hover:bg-bg-hover hover:text-white transition-colors"
+                onClick={toggleFilterDropdown}
+              >
+                סנן
+              </button>
+              <button
+                className="bg-bg-header-custom text-black px-3 py-1 sm:px-4 sm:py-2 rounded-lg whitespace-nowrap hover:bg-bg-hover hover:text-white transition-colors"
+                onClick={() => setFilterByNew(!filterByNew)}
+              >
+                {filterByNew ? 'הצג את כל הספרים' : 'הצג ספרים חדשים'}
+              </button>
                 {showFilterDropdown && (
                   <div className="absolute mt-2 bg-bg-header-custom rounded-lg shadow-lg p-2 sm:p-4" ref={filterRef}>
                     <div className="flex flex-col space-y-2 sm:space-y-4">
@@ -236,7 +250,7 @@ const BooksPage = () => {
                         סופרים
                       </button>
                       {showAuthorDropdown && (
-                        <div className="flex flex-col space-y-1 sm:space-y-2 max-h-48 overflow-y-auto"> {/* הגבלת גובה וגלילה */}
+                        <div className="flex flex-col space-y-1 sm:space-y-2 max-h-48 overflow-y-auto">
                           {authors.map((author) => (
                             <label key={author} className="flex items-center">
                               <input

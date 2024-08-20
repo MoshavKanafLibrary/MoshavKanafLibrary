@@ -60,6 +60,7 @@ const AddOrUpdateBookPage = () => {
       summary,
       copies,
       copiesID,
+      addedAt: new Date().toISOString(),
     };
 
     let result;
