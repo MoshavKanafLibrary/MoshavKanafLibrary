@@ -107,7 +107,7 @@ const WaitingListPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-2 rounded-lg ${i === currentPage ? 'bg-bg-header-custom text-black' : 'bg-bg-header-custom text-black hover:bg-bg-hover hover:text-white'}`}
+          className={`px-2 py-1 sm:px-4 sm:py-2 mx-1 sm:mx-2 rounded-lg ${i === currentPage ? 'bg-bg-header-custom text-black' : 'bg-bg-header-custom text-black hover:bg-bg-hover hover:text-white'}`}
         >
           {i}
         </button>
@@ -115,7 +115,6 @@ const WaitingListPage = () => {
     }
     return pages;
   };
-
 
   return (
     <>
@@ -173,7 +172,7 @@ const WaitingListPage = () => {
         {totalPages > 1 && (
           <div className="flex justify-center mt-8">
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
+              className="px-2 sm:px-4 py-1 sm:py-2 mx-1 sm:mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
             >
@@ -181,7 +180,7 @@ const WaitingListPage = () => {
             </button>
             {renderPageNumbers()}
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
+              className="px-2 sm:px-4 py-1 sm:py-2 mx-1 sm:mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
               onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === totalPages}
             >

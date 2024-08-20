@@ -149,10 +149,10 @@ const AddOrUpdateBookPage = () => {
   const headerText = isEditMode ? "עדכן ספר" : "הוסף ספר";
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-br from-bg-background-gradient-from via-bg-background-gradient-via to-bg-background-gradient-to text-bg-header-custom" dir="rtl">
-      <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-header-custom">{headerText}</h1>
-      <form
-        className="bg-bg-navbar-custom shadow-2xl rounded-lg md:px-16 px-4 pt-10 pb-12 w-full sm:w-3/4 lg:w-1/2"
+<div className="flex flex-col items-center justify-center min-h-screen w-full bg-gradient-to-br from-bg-background-gradient-from via-bg-background-gradient-via to-bg-background-gradient-to text-bg-header-custom pt-20" dir="rtl">
+  <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-header-custom">{headerText}</h1>
+  <form
+        className="bg-bg-navbar-custom shadow-2xl rounded-lg px-4 pt-10 pb-12 w-full sm:w-3/4 lg:w-1/2"
         onSubmit={(e) => {
           e.preventDefault();
           handleFormSubmit();
@@ -290,7 +290,7 @@ const AddOrUpdateBookPage = () => {
             <div className="mb-4">
               <label className="block text-bg-text text-md mb-2">הוסף עותקים חדשים</label>
               <input
-                className="bg-bg-text shadow border rounded w-full py-3 px-4 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline"
+                className="bg-bg-background-textbox shadow border rounded w-full py-3 px-4 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline"
                 type="number"
                 placeholder="מספר העותקים להוספה"
                 value={newCopiesCount}
@@ -312,10 +312,10 @@ const AddOrUpdateBookPage = () => {
           )}
         </div>
 
-        <div className="flex items-center justify-center mt-10 space-x-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center mt-10 space-y-4 sm:space-y-0 sm:space-x-4">
           <button
             type="submit"
-            className="bg-green-600 hover:bg-green-700 text-bg-navbar-custom font-bold py-3 px-6 rounded"
+            className="bg-green-600 hover:bg-green-700 text-bg-navbar-custom font-bold py-3 px-6 rounded w-full sm:w-auto"
           >
             {isEditMode ? "עדכן ספר" : "הוסף ספר"}
           </button>

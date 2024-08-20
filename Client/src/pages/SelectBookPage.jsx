@@ -99,25 +99,25 @@ const SelectBookPage = () => {
   };
 
   return (
-    <div className="relative pt-20 z-10 h-screen overflow-x-hidden" dir="rtl">
-      <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-bg-navbar-custom text-center">פרטי ספר</h1>
+    <div className="relative pt-16 sm:pt-20 z-10 h-screen overflow-x-hidden" dir="rtl">
+      <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-bg-navbar-custom text-center">פרטי ספר</h1>
       
       <div className="container mx-auto px-4 py-8">
         {loading ? (
           <div className="flex justify-center items-center h-screen">
-            <FaSpinner className="animate-spin text-6xl text-bg-navbar-custom" />
+            <FaSpinner className="animate-spin text-4xl sm:text-6xl text-bg-navbar-custom" />
           </div>
         ) : error ? (
           <div className="text-red-500 text-center">{error}</div>
         ) : (
           <>
             <div className="mb-8 text-center">
-              <label htmlFor="bookSelect" className="block text-lg font-bold mb-2 text-bg-navbar-custom">בחר ספר</label>
+              <label htmlFor="bookSelect" className="block text-base sm:text-lg font-bold mb-2 text-bg-navbar-custom">בחר ספר</label>
               <select
                 id="bookSelect"
                 value={selectedBook ?? ""}
                 onChange={handleBookChange}
-                className="p-2 border rounded-md bg-bg-navbar-custom text-bg-text"
+                className="p-2 border rounded-md bg-bg-navbar-custom text-bg-text text-sm sm:text-base"
               >
                 <option value="">בחר ספר</option>
                 {bookList.map((book) => (
@@ -130,72 +130,72 @@ const SelectBookPage = () => {
 
             {bookDetails && (
               <>
-                <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mb-8">
-                  <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">
+                <div className="bg-bg-navbar-custom p-4 sm:p-6 rounded-lg shadow-lg text-center mb-8">
+                  <h3 className="text-lg sm:text-xl font-extrabold text-bg-background-gradient-via mb-2 sm:mb-4">
                     כותרת: {bookDetails.title}
                   </h3>
-                  <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">
+                  <h3 className="text-lg sm:text-xl font-extrabold text-bg-background-gradient-via mb-2 sm:mb-4">
                     סופר: {bookDetails.author}
                   </h3>
-                  <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">
+                  <h3 className="text-lg sm:text-xl font-extrabold text-bg-background-gradient-via mb-2 sm:mb-4">
                     מספר עותקים: {bookDetails.copies}
                   </h3>
-                  <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">
+                  <h3 className="text-lg sm:text-xl font-extrabold text-bg-background-gradient-via mb-2 sm:mb-4">
                     דירוג ממוצע: {bookDetails.averageRating?.toFixed(2) || 'לא דורג עדיין'}
                   </h3>
                 </div>
 
-                <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center">
-                  <h3 className="mt-6 text-2xl text-bg-text">עותקים זמינים</h3>
-                  <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 ${getAlignmentClass(availableCopies.length)}`}>
+                <div className="bg-bg-navbar-custom p-4 sm:p-6 rounded-lg shadow-lg text-center">
+                  <h3 className="mt-4 sm:mt-6 text-lg sm:text-xl text-bg-text">עותקים זמינים</h3>
+                  <div className={`grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 mt-2 sm:mt-4 ${getAlignmentClass(availableCopies.length)}`}>
                     {availableCopies.length > 0 ? (
                       availableCopies.map((copy) => (
                         <div
                           key={copy.copyID}
-                          className="bg-bg-hover p-4 rounded-lg shadow-lg flex flex-col items-center"
+                          className="bg-bg-hover p-3 sm:p-4 rounded-lg shadow-lg flex flex-col items-center"
                         >
-                          <h4 className="text-xl text-bg-navbar-custom">מספר עותק: {copy.copyID}</h4>
-                          <p className="text-bg-navbar-custom">ID עותק: {copy.copyID}</p>
+                          <h4 className="text-base sm:text-lg text-bg-navbar-custom">מספר עותק: {copy.copyID}</h4>
+                          <p className="text-bg-navbar-custom text-sm sm:text-base">ID עותק: {copy.copyID}</p>
                         </div>
                       ))
                     ) : (
-                      <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-4">אין עותקים זמינים כרגע.</p>
+                      <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-2 sm:mt-4">אין עותקים זמינים כרגע.</p>
                     )}
                   </div>
                 </div>
 
-                <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mt-8">
-                  <h3 className="mt-6 text-2xl text-bg-text">עותקים מושאלים</h3>
-                  <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 ${getAlignmentClass(borrowedCopies.length)}`}>
+                <div className="bg-bg-navbar-custom p-4 sm:p-6 rounded-lg shadow-lg text-center mt-6 sm:mt-8">
+                  <h3 className="mt-4 sm:mt-6 text-lg sm:text-xl text-bg-text">עותקים מושאלים</h3>
+                  <div className={`grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 mt-2 sm:mt-4 ${getAlignmentClass(borrowedCopies.length)}`}>
                     {borrowedCopies.length > 0 ? (
                       borrowedCopies.map((copy) => (
                         <div
                           key={copy.copyID}
-                          className="bg-bg-hover p-4 rounded-lg shadow-lg flex flex-col items-center"
+                          className="bg-bg-hover p-3 sm:p-4 rounded-lg shadow-lg flex flex-col items-center"
                         >
-                          <h4 className="text-xl text-bg-navbar-custom">מספר עותק: {copy.copyID}</h4>
-                          <p className="text-bg-navbar-custom">הושאל ל: {copy.borrowedTo.firstName} {copy.borrowedTo.lastName}</p>
-                          <p className="text-bg-navbar-custom">תאריך השאלה: {new Date(copy.borrowedTo.startDate).toLocaleDateString()}</p>
+                          <h4 className="text-base sm:text-lg text-bg-navbar-custom">מספר עותק: {copy.copyID}</h4>
+                          <p className="text-bg-navbar-custom text-sm sm:text-base">הושאל ל: {copy.borrowedTo.firstName} {copy.borrowedTo.lastName}</p>
+                          <p className="text-bg-navbar-custom text-sm sm:text-base">תאריך השאלה: {new Date(copy.borrowedTo.startDate).toLocaleDateString()}</p>
                         </div>
                       ))
                     ) : (
-                      <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-4">אין עותקים מושאלים כרגע.</p>
+                      <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-2 sm:mt-4">אין עותקים מושאלים כרגע.</p>
                     )}
                   </div>
                 </div>
 
-                <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mt-8">
-                  <h3 className="mt-6 text-2xl text-bg-text">רשימת המתנה</h3>
-                  <ul className="list-disc pr-5 mt-4 text-center">
+                <div className="bg-bg-navbar-custom p-4 sm:p-6 rounded-lg shadow-lg text-center mt-6 sm:mt-8">
+                  <h3 className="mt-4 sm:mt-6 text-lg sm:text-xl text-bg-text">רשימת המתנה</h3>
+                  <ul className="list-disc pr-5 mt-2 sm:mt-4 text-center">
                     {waitingList.length > 0 ? (
                       waitingList.map((entry, index) => (
-                        <li key={`${entry.uid}-${index}`} className="bg-bg-hover p-4 rounded-lg shadow-lg mb-2">
-                          <h4 className="text-xl text-bg-navbar-custom">{entry.firstName} {entry.lastName}</h4>
-                          <p className="text-bg-navbar-custom">תאריך בקשה: {new Date(entry.waitingDate).toLocaleDateString()}</p>
+                        <li key={`${entry.uid}-${index}`} className="bg-bg-hover p-3 sm:p-4 rounded-lg shadow-lg mb-2 sm:mb-4">
+                          <h4 className="text-base sm:text-lg text-bg-navbar-custom">{entry.firstName} {entry.lastName}</h4>
+                          <p className="text-bg-navbar-custom text-sm sm:text-base">תאריך בקשה: {new Date(entry.waitingDate).toLocaleDateString()}</p>
                         </li>
                       ))
                     ) : (
-                      <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-4">אין רשימת המתנה לספר זה.</p>
+                      <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-2 sm:mt-4">אין רשימת המתנה לספר זה.</p>
                     )}
                   </ul>
                 </div>

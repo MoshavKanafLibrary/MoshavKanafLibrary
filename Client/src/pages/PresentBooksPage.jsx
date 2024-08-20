@@ -88,7 +88,7 @@ const PresentBooksPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-background-gradient-via text-bg-navbar-custom' : 'bg-bg-background-gradient-from text-bg-navbar-custom hover:bg-bg-hover'}`}
+          className={`px-2 py-1 sm:px-4 sm:py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-background-gradient-via text-bg-navbar-custom' : 'bg-bg-background-gradient-from text-bg-navbar-custom hover:bg-bg-hover'}`}
         >
           {i}
         </button>
@@ -105,7 +105,7 @@ const PresentBooksPage = () => {
         </div>
       )}
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">אוסף הספרים שלנו</h1>
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">אוסף הספרים שלנו</h1>
         {successMessage && (
           <div className="text-center py-3 px-4 bg-green-200 text-green-800 font-bold rounded-lg">
             {successMessage}
@@ -113,38 +113,38 @@ const PresentBooksPage = () => {
         )}
         <input
           type="text"
-          className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom text-bg-text"
+          className="w-full p-2 mb-4 text-base sm:text-lg bg-bg-navbar-custom text-bg-text"
           placeholder="חפש ספרים..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
         <div className="overflow-x-auto">
           <table className="min-w-full bg-bg-navbar-custom rounded-lg shadow-lg">
-            <thead className="bg-bg-text text-bg-navbar-custom text-lg">
+            <thead className="bg-bg-text text-bg-navbar-custom text-sm sm:text-lg">
               <tr>
-                <th className="py-4 px-6 text-right">כותרת</th>
-                <th className="py-4 px-6 text-right">מחבר</th>
-                <th className="py-4 px-6 text-right">סיווג</th>
-                <th className="py-4 px-6 text-right">עותקים</th>
-                <th className="py-4 px-6 text-right">מספרי עותקים</th>
-                <th className="py-4 px-6 text-right">הוצאה</th>
-                <th className="py-4 px-6 text-right">קוד מיקום</th>
-                <th className="py-4 px-6 text-right">סוג כותרת</th>
-                <th className="py-4 px-6 text-right"></th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">כותרת</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מחבר</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">סיווג</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">עותקים</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מספרי עותקים</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">הוצאה</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">קוד מיקום</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">סוג כותרת</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right"></th>
               </tr>
             </thead>
-            <tbody className="text-bg-text">
+            <tbody className="text-bg-text text-sm sm:text-base">
               {currentBooks.length > 0 ? currentBooks.map((book, index) => (
                 <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom relative">
-                  <td className="py-4 px-6 text-right">{book.title}</td>
-                  <td className="py-4 px-6 text-right">{book.author}</td>
-                  <td className="py-4 px-6 text-right">{book.classification}</td>
-                  <td className="py-4 px-6 text-right">{book.copies}</td>
-                  <td className="py-4 px-6 text-right">{book.copiesID.join(", ")}</td>
-                  <td className="py-4 px-6 text-right">{book.expenditure}</td>
-                  <td className="py-4 px-6 text-right">{book.locatorCode}</td>
-                  <td className="py-4 px-6 text-right">{book.titleType}</td>
-                  <td className="py-4 px-6 text-right">
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.title}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.author}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.classification}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.copies}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.copiesID.join(", ")}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.expenditure}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.locatorCode}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.titleType}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">
                     <button onClick={() => handleUpdate(book)} className="text-green-500 hover:text-green-700 mr-2">
                       <FaEdit />
                     </button>
@@ -160,7 +160,7 @@ const PresentBooksPage = () => {
         {/* Pagination controls */}
         <div className="flex justify-center mt-4">
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-bg-background-gradient-from text-bg-navbar-custom"
+            className="px-2 sm:px-4 py-1 sm:py-2 mx-1 sm:mx-2 rounded-lg bg-bg-background-gradient-from text-bg-navbar-custom"
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -168,7 +168,7 @@ const PresentBooksPage = () => {
           </button>
           {renderPageNumbers()}
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-bg-background-gradient-from text-bg-navbar-custom"
+            className="px-2 sm:px-4 py-1 sm:py-2 mx-1 sm:mx-2 rounded-lg bg-bg-background-gradient-from text-bg-navbar-custom"
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
           >

@@ -110,7 +110,7 @@ const AllRequestsPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-hover text-bg-navbar-custom' : 'bg-bg-hover text-bg-navbar-custom'}`}
+          className={`px-2 py-1 sm:px-4 sm:py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-hover text-bg-navbar-custom' : 'bg-bg-hover text-bg-navbar-custom'}`}
         >
           {i}
         </button>
@@ -123,7 +123,7 @@ const AllRequestsPage = () => {
     <>
       {loading && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <FaSpinner className="animate-spin text-white text-6xl" />
+          <FaSpinner className="animate-spin text-white text-4xl sm:text-6xl" />
         </div>
       )}
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
@@ -132,35 +132,35 @@ const AllRequestsPage = () => {
             {successMessage}
           </div>
         )}
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">כל הבקשות של המשתמשים</h1>
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">כל הבקשות של המשתמשים</h1>
         <input
           type="text"
-          className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom text-bg-text"
+          className="w-full p-2 sm:p-3 mb-4 text-base sm:text-lg bg-bg-navbar-custom text-bg-text"
           placeholder="חפש בקשות..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
         <div className="overflow-x-auto mb-4">
-          <table className="min-w-full bg-bg-navbar-custom rounded-lg shadow-lg">
-            <thead className="bg-bg-text text-bg-navbar-custom text-lg">
+          <table className="min-w-full bg-bg-navbar-custom rounded-lg shadow-lg text-sm sm:text-base">
+            <thead className="bg-bg-text text-bg-navbar-custom text-sm sm:text-lg">
               <tr>
-                <th className="py-4 px-6 text-right">UID</th>
-                <th className="py-4 px-6 text-right">שם משתמש</th>
-                <th className="py-4 px-6 text-right">בקשה</th>
-                <th className="py-4 px-6 text-right">חותמת זמן</th>
-                <th className="py-4 px-6 text-right">פעולות</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">UID</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">שם משתמש</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">בקשה</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">חותמת זמן</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">פעולות</th>
               </tr>
             </thead>
             <tbody className="text-bg-text">
               {currentRequests.length > 0 ? currentRequests.map((request, index) => (
                 <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom">
-                  <td className="py-4 px-6 text-right">{request.uid}</td>
-                  <td className="py-4 px-6 text-right">{request.username}</td>
-                  <td className="py-4 px-6 text-right">{request.requestText}</td>
-                  <td className="py-4 px-6 text-right">
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{request.uid}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{request.username}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{request.requestText}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">
                     {new Date(request.timestamp.seconds * 1000).toLocaleString()}
                   </td>
-                  <td className="py-4 px-6 text-right flex space-x-2 justify-center">
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right flex space-x-2 justify-center">
                     <button
                       onClick={() => setSelectedUser(request)}
                       className="text-blue-500 hover:text-blue-700"
@@ -175,13 +175,13 @@ const AllRequestsPage = () => {
                     </button>
                   </td>
                 </tr>
-              )) : <tr><td colSpan="5" className="text-center py-4 text-bg-navbar-custom">לא נמצאו בקשות</td></tr>}
+              )) : <tr><td colSpan="5" className="text-center py-2 sm:py-4 text-bg-navbar-custom">לא נמצאו בקשות</td></tr>}
             </tbody>
           </table>
         </div>
         <div className="flex justify-center mt-8">
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
+            className="px-2 sm:px-4 py-1 sm:py-2 mx-1 sm:mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -189,7 +189,7 @@ const AllRequestsPage = () => {
           </button>
           {renderPageNumbers()}
           <button
-            className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
+            className="px-2 sm:px-4 py-1 sm:py-2 mx-1 sm:mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
           >
@@ -200,8 +200,8 @@ const AllRequestsPage = () => {
       
       {selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full" dir="rtl">
-            <h2 className="text-2xl mb-4">שלח הודעה למשתמש {selectedUser.username}</h2>
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg max-w-md w-full" dir="rtl">
+            <h2 className="text-xl sm:text-2xl mb-4">שלח הודעה למשתמש {selectedUser.username}</h2>
             <textarea
               className="w-full p-2 border rounded-lg mb-4"
               rows="4"
@@ -216,13 +216,13 @@ const AllRequestsPage = () => {
                   setSelectedUser(null);
                   setCustomMessage('');
                 }}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
+                className="px-2 sm:px-4 py-1 sm:py-2 bg-gray-300 rounded-lg"
               >
                 בטל
               </button>
               <button
                 onClick={notifyUser}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+                className="px-2 sm:px-4 py-1 sm:py-2 bg-blue-500 text-white rounded-lg"
               >
                 שלח
               </button>
