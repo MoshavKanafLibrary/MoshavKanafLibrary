@@ -218,124 +218,123 @@ const BooksPage = () => {
                         <div className="flex flex-col space-y-1 sm:space-y-2">
                           {categories.map((category) => (
                             <label key={category} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              className="mr-2"
-                              checked={selectedCategories.includes(category)}
-                              onChange={() => handleMultiSelect(category, setSelectedCategories, selectedCategories)}
-                            />
-                            <span className="text-black">{category}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                    <button
-                      className="bg-bg-header-custom text-black px-3 py-1 sm:px-4 sm:py-2 rounded-lg"
-                      onClick={toggleAuthorDropdown}
-                    >
-                      סופרים
-                    </button>
-                    {showAuthorDropdown && (
-                      <div className="flex flex-col space-y-1 sm:space-y-2">
-                        {authors.map((author) => (
-                          <label key={author} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              className="mr-2"
-                              checked={selectedAuthors.includes(author)}
-                              onChange={() => handleMultiSelect(author, setSelectedAuthors, selectedAuthors)}
-                            />
-                            <span className="text-black">{author}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                    <button
-                      className="bg-bg-header-custom text-black px-3 py-1 sm:px-4 sm:py-2 rounded-lg"
-                      onClick={toggleRatingDropdown}
-                    >
-                      דירוגים
-                    </button>
-                    {showRatingDropdown && (
-                      <div className="flex flex-col space-y-1 sm:space-y-2">
-                        {ratingCategories.map((ratingCategory) => (
-                          <label key={ratingCategory} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              className="mr-2"
-                              checked={selectedRatings.includes(ratingCategory)}
-                              onChange={() => handleMultiSelect(ratingCategory, setSelectedRatings, selectedRatings)}
-                            />
-                            <span className="text-black">{ratingCategory}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
+                              <input
+                                type="checkbox"
+                                className="mr-2"
+                                checked={selectedCategories.includes(category)}
+                                onChange={() => handleMultiSelect(category, setSelectedCategories, selectedCategories)}
+                              />
+                              <span className="text-black">{category}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                      <button
+                        className="bg-bg-header-custom text-black px-3 py-1 sm:px-4 sm:py-2 rounded-lg"
+                        onClick={toggleAuthorDropdown}
+                      >
+                        סופרים
+                      </button>
+                      {showAuthorDropdown && (
+                        <div className="flex flex-col space-y-1 sm:space-y-2 max-h-48 overflow-y-auto"> {/* הגבלת גובה וגלילה */}
+                          {authors.map((author) => (
+                            <label key={author} className="flex items-center">
+                              <input
+                                type="checkbox"
+                                className="mr-2"
+                                checked={selectedAuthors.includes(author)}
+                                onChange={() => handleMultiSelect(author, setSelectedAuthors, selectedAuthors)}
+                              />
+                              <span className="text-black">{author}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                      <button
+                        className="bg-bg-header-custom text-black px-3 py-1 sm:px-4 sm:py-2 rounded-lg"
+                        onClick={toggleRatingDropdown}
+                      >
+                        דירוגים
+                      </button>
+                      {showRatingDropdown && (
+                        <div className="flex flex-col space-y-1 sm:space-y-2">
+                          {ratingCategories.map((ratingCategory) => (
+                            <label key={ratingCategory} className="flex items-center">
+                              <input
+                                type="checkbox"
+                                className="mr-2"
+                                checked={selectedRatings.includes(ratingCategory)}
+                                onChange={() => handleMultiSelect(ratingCategory, setSelectedRatings, selectedRatings)}
+                              />
+                              <span className="text-black">{ratingCategory}</span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                )}
+              </div>
+              <div className="flex items-center justify-end w-full">
+                <FaSearch className="mr-1 sm:mr-2 text-bg-header-custom" />
+                <label className="text-bg-header-custom text-sm sm:text-lg mr-1 sm:mr-2">חפש:</label>
+                <input
+                  type="text"
+                  className="bg-bg-header-custom text-black px-2 py-1 sm:px-3 sm:py-2 rounded-lg"
+                  placeholder="חפש לפי כותרת או סופר"
+                  value={searchQuery}
+                  onChange={handleSearchInputChange}
+                />
+              </div>
+            </div>
+            <div className="container mx-auto px-2 sm:px-4 py-6 sm:py-8">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-12">
+                {paginatedBooks.map((book, index) => (
+                  <div
+                    key={index}
+                    className="bg-bg-header-custom shadow-xl rounded-lg p-2 sm:p-4 text-center h-64 sm:h-80 lg:h-96 w-full mx-auto cursor-pointer"
+                    onClick={() => handleCardClick(book)}
+                  >
+                    <div className="h-3/5 sm:h-4/5 w-full">
+                      <img
+                        src={book.imageURL}
+                        alt={book.title}
+                        className="h-full w-full object-cover rounded-lg"
+                      />
+                    </div>
+                    <div className="h-2/5 sm:h-1/5">
+                      <h2 className="text-lg sm:text-xl font-semibold text-black">{book.title}</h2>
+                      <p className="text-black">מאת <span className="text-black">{book.author}</span></p>
+                      <p className="text-black">{book.averageRating === 'N/A' ? 'N/A' : getStars(book.averageRating)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {totalPages > 1 && (
+                <div className="flex justify-center mt-6 sm:mt-8">
+                  <button
+                    className="px-3 py-1 sm:px-4 sm:py-2 mx-1 sm:mx-2 rounded-lg bg-bg-header-custom text-black"
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    {'<'}
+                  </button>
+                  {renderPageNumbers()}
+                  <button
+                    className="px-3 py-1 sm:px-4 sm:py-2 mx-1 sm:mx-2 rounded-lg bg-bg-header-custom text-black"
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    {'>'}
+                  </button>
                 </div>
               )}
             </div>
-            <div className="flex items-center justify-end w-full">
-              <FaSearch className="mr-1 sm:mr-2 text-bg-header-custom" />
-              <label className="text-bg-header-custom text-sm sm:text-lg mr-1 sm:mr-2">חפש:</label>
-              <input
-                type="text"
-                className="bg-bg-header-custom text-black px-2 py-1 sm:px-3 sm:py-2 rounded-lg"
-                placeholder="חפש לפי כותרת או סופר"
-                value={searchQuery}
-                onChange={handleSearchInputChange}
-              />
-            </div>
-          </div>
-          <div className="container mx-auto px-2 sm:px-4 py-6 sm:py-8">
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-12">
-              {paginatedBooks.map((book, index) => (
-                <div
-                  key={index}
-                  className="bg-bg-header-custom shadow-xl rounded-lg p-2 sm:p-4 text-center h-64 sm:h-80 lg:h-96 w-full mx-auto cursor-pointer"
-                  onClick={() => handleCardClick(book)}
-                >
-                  <div className="h-3/5 sm:h-4/5 w-full">
-                    <img
-                      src={book.imageURL}
-                      alt={book.title}
-                      className="h-full w-full object-cover rounded-lg"
-                    />
-                  </div>
-                  <div className="h-2/5 sm:h-1/5">
-                    <h2 className="text-lg sm:text-xl font-semibold text-black">{book.title}</h2>
-                    <p className="text-black">מאת <span className="text-black">{book.author}</span></p>
-                    <p className="text-black">{book.averageRating === 'N/A' ? 'N/A' : getStars(book.averageRating)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            {totalPages > 1 && (
-              <div className="flex justify-center mt-6 sm:mt-8">
-                <button
-                  className="px-3 py-1 sm:px-4 sm:py-2 mx-1 sm:mx-2 rounded-lg bg-bg-header-custom text-black"
-                  onClick={() => goToPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                >
-                  {'<'}
-                </button>
-                {renderPageNumbers()}
-                <button
-                  className="px-3 py-1 sm:px-4 sm:py-2 mx-1 sm:mx-2 rounded-lg bg-bg-header-custom text-black"
-                  onClick={() => goToPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                >
-                  {'>'}
-                </button>
-              </div>
-            )}
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default BooksPage;
-

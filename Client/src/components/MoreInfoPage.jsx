@@ -57,13 +57,6 @@ const MoreInfoPage = () => {
               </label>
             </div>
           )}
-          {user && user.uid && (
-            <div className="mb-3">
-              <label className="block text-bg-navbar-custom text-sm mb-2">
-                מזהה משתמש: {user.uid}
-              </label>
-            </div>
-          )}
           <div className="mb-3">
             <label className="block text-bg-navbar-custom text-sm mb-2">
               שם פרטי

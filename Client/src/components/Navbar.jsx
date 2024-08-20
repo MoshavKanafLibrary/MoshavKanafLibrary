@@ -93,7 +93,6 @@ const NavBar = () => {
 
   const registeredDropDownLinks = [
     { name: "הפרופיל שלי", path: "/profile" },
-    { name: "מידע בסיסי", path: "/contactus" }
   ];
 
   const unRegisteredDropDownLinks = [];

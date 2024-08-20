@@ -121,45 +121,53 @@ const BookDetailPage = () => {
   };
 
   return (
-    <div className="min-h-screen py-12" dir="rtl">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+    <div className="min-h-screen py-8 sm:py-12" dir="rtl">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 sm:gap-12">
           {/* Book Details Section */}
-          <div className="lg:col-span-2 bg-bg-navbar-custom shadow-lg rounded-lg p-8 flex flex-col md:flex-row h-[600px]">
-            <div className="md:w-1/2 flex-shrink-0 pl-4">
-              <div className="h-full w-full flex items-center justify-center overflow-hidden rounded-lg bg-bg-text">
+          <div className="lg:col-span-2 bg-bg-navbar-custom shadow-lg rounded-lg p-4 sm:p-8 flex flex-col sm:flex-row h-auto sm:h-[660px]"> {/* הרחבת הגובה */}
+            <div className="sm:w-1/2 flex-shrink-0 mb-4 sm:mb-0 sm:pl-4">
+              <div className="h-72 sm:h-full w-full flex items-center justify-center overflow-hidden rounded-lg bg-bg-text">
                 <img src={book.imageURL} alt={book.title} className="max-h-full max-w-full object-contain" />
               </div>
             </div>
-            <div className="md:w-1/2 md:pl-12 mt-6 md:mt-0 overflow-y-auto">
-              <h1 className="text-3xl md:text-4xl font-bold text-bg-text mb-6">{book.title}</h1>
-              <p className="text-bg-text mb-4">{book.summary}</p>
-              <p className="text-sm text-bg-text mb-6">מאת {book.author}</p>
-              <button
-                className={user ? "bg-bg-text text-bg-navbar-custom hover:bg-bg-hover font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline" : "bg-bg-text text-bg-navbar-custom font-bold py-3 px-6 rounded opacity-50 cursor-not-allowed"}
-                onClick={handleOrderNow}
-              >
-                הזמן עכשיו
-              </button>
-              {successMessage && (
-                <div
-                  ref={successMessageRef} 
-                  className="mt-6 px-6 py-4 bg-green-100 border border-green-500 text-green-800 text-xl rounded text-center whitespace-pre-line"
-                >
-                  {successMessage}
+            <div className="sm:w-1/2 sm:pl-8 mt-4 sm:mt-0 flex flex-col justify-between">
+              <div>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-bg-text mb-4 sm:mb-6">{book.title}</h1>
+                <div className="text-bg-text mb-3 sm:mb-4 overflow-y-auto max-h-48 sm:max-h-64 lg:max-h-96">
+                  <p>{book.summary}</p>
                 </div>
-              )}
+                <p className="text-sm text-bg-text mb-4 sm:mb-6">מאת {book.author}</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <button
+                  className={user ? "bg-bg-text text-bg-navbar-custom hover:bg-bg-hover font-bold py-2 px-4 sm:py-3 sm:px-6 rounded focus:outline-none focus:shadow-outline mb-4" : "bg-bg-text text-bg-navbar-custom font-bold py-2 px-4 sm:py-3 sm:px-6 rounded opacity-50 cursor-not-allowed mb-4"}
+                  onClick={handleOrderNow}
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  הזמן עכשיו
+                </button>
+                {successMessage && (
+                  <div
+                    ref={successMessageRef}
+                    className="px-2 py-1 bg-green-100 border border-green-500 text-green-800 text-sm rounded whitespace-pre-line"
+                    style={{ maxWidth: '100%' }} 
+                  >
+                    {successMessage}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           {/* Reviews Section */}
-          <div className="lg:col-span-1 bg-bg-navbar-custom shadow-lg rounded-lg p-6 max-h-[600px] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-6 text-center text-bg-text">ביקורות משתמשים</h2>
-            <div className="mb-6">
+          <div className="lg:col-span-1 bg-bg-navbar-custom shadow-lg rounded-lg p-4 sm:p-6 max-h-[400px] sm:max-h-[600px] overflow-y-auto">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-bg-text">ביקורות משתמשים</h2>
+            <div className="mb-4 sm:mb-6">
               {user ? (
-                <div className="flex flex-col space-y-6">
+                <div className="flex flex-col space-y-4 sm:space-y-6">
                   <textarea
-                    className="w-full p-3 border border-bg-text rounded focus:outline-none focus:border-bg-background-gradient-from"
+                    className="w-full p-2 sm:p-3 border border-bg-text rounded focus:outline-none focus:border-bg-background-gradient-from"
                     placeholder="כתוב את הביקורת שלך..."
                     value={reviewText}
                     onChange={e => setReviewText(e.target.value)}
@@ -174,7 +182,7 @@ const BookDetailPage = () => {
                     <label className="text-bg-text">שלח ביקורת באופן אנונימי</label>
                   </div>
                   <button
-                    className="bg-bg-hover text-bg-navbar-custom py-3 px-6 rounded hover:bg-bg-text focus:outline-none"
+                    className="bg-bg-hover text-bg-navbar-custom py-2 px-4 sm:py-3 sm:px-6 rounded hover:bg-bg-text focus:outline-none"
                     onClick={handleReviewSubmit}
                   >
                     שלח ביקורת
@@ -185,9 +193,9 @@ const BookDetailPage = () => {
               )}
             </div>
             {reviews.length > 0 ? (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {reviews.map((review, index) => (
-                  <div key={index} className="bg-bg-text p-4 rounded-lg shadow-md">
+                  <div key={index} className="bg-bg-text p-3 sm:p-4 rounded-lg shadow-md">
                     <p className="font-semibold text-bg-navbar-custom">{review.firstName} {review.lastName}</p>
                     <p className="text-bg-navbar-custom">{review.review}</p>
                     <p className="text-xs text-bg-navbar-custom mt-2">
@@ -203,23 +211,23 @@ const BookDetailPage = () => {
         </div>
 
         {/* Recommendations Section */}
-        <div className="bg-bg-navbar-custom shadow-lg rounded-lg p-8 mt-12">
-          <h2 className="text-2xl font-bold mb-6 text-center text-bg-text">המלצות</h2>
+        <div className="bg-bg-navbar-custom shadow-lg rounded-lg p-4 sm:p-8 mt-8 sm:mt-12">
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-bg-text">המלצות</h2>
           {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <FaSpinner className="animate-spin text-4xl text-bg-text" />
-              <p className="text-xl font-semibold text-bg-text mr-4">אנחנו מחפשים עבורך את הספרים הטובים ביותר...</p>
+            <div className="flex justify-center items-center h-48 sm:h-64">
+              <FaSpinner className="animate-spin text-3xl sm:text-4xl text-bg-text" />
+              <p className="text-lg sm:text-xl font-semibold text-bg-text mr-2 sm:mr-4">אנחנו מחפשים את הספרים הטובים ביותר עבורך, זה עלול לקחת רגע...</p>
             </div>
           ) : (
             <>
               {books.length === 0 ? (
-                <p className="text-2xl font-bold text-center text-bg-text">אין לנו המלצות עבורך כרגע, אך תמיד ניתן לפנות לספרנית לעזרה!</p>
+                <p className="text-lg sm:text-2xl font-bold text-center text-bg-text">אין לנו המלצות עבורך כרגע, אך תמיד ניתן לפנות לספרנית לעזרה!</p>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
                   {books.map((book, index) => (
                     <div
                       key={index}
-                      className="bg-bg-text shadow-md rounded-lg p-6 cursor-pointer"
+                      className="bg-bg-text shadow-md rounded-lg p-4 sm:p-6 cursor-pointer"
                       onClick={() => navigate(`/book/${book.title}`, { state: { book } })}
                     >
                       <div className="h-40 w-full flex items-center justify-center overflow-hidden rounded-lg mb-4 bg-bg-hover">
@@ -229,7 +237,7 @@ const BookDetailPage = () => {
                           className="max-h-full max-w-full object-contain"
                         />
                       </div>
-                      <h2 className="text-xl font-semibold text-bg-navbar-custom">{book.title}</h2>
+                      <h2 className="text-lg sm:text-xl font-semibold text-bg-navbar-custom">{book.title}</h2>
                       <p className="text-bg-navbar-custom">מאת {book.author}</p>
                     </div>
                   ))}
