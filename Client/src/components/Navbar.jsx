@@ -7,7 +7,7 @@ import axios from "axios";
 import UserContext from "../contexts/UserContext";
 import { GiBookmarklet } from "react-icons/gi";
 import AdminSidebar from "./AdminSidebar";
-import { FaBell, FaBars, FaTimes, FaUserShield } from "react-icons/fa";
+import { FaBell, FaUserShield } from "react-icons/fa";
 
 const NavBar = () => {
   const { navBarDisplayName } = useContext(UserContext);
@@ -17,7 +17,6 @@ const NavBar = () => {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [navOpen, setNavOpen] = useState(false); // For toggling nav links
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +50,7 @@ const NavBar = () => {
     fetchNotifications();
   }, [user]);
 
-  const isAdmin = user && user.isManager; // Check if the user is an admin
+  const isAdmin = user && user.isManager;
 
   const toggleAdminSidebar = () => {
     setShowAdminSidebar(!showAdminSidebar);
@@ -59,7 +58,6 @@ const NavBar = () => {
 
   const toggleNotifications = async () => {
     if (!showNotifications) {
-      // Mark all notifications as read when opening the dropdown
       try {
         await axios.put(`/api/users/${user.uid}/notifications/markAsRead`);
         const updatedNotifications = notifications.map(notification => ({
@@ -67,7 +65,7 @@ const NavBar = () => {
           isRead: true,
         }));
         setNotifications(updatedNotifications);
-        setUnreadCount(0); 
+        setUnreadCount(0);
       } catch (error) {
         console.error("Failed to mark notifications as read", error);
       }
@@ -75,24 +73,18 @@ const NavBar = () => {
     setShowNotifications(!showNotifications);
   };
 
-  const toggleNav = () => {
-    setNavOpen(!navOpen);
-  };
-
   const registeredUserNavLinks = [
     { name: "צור קשר", path: "/contactus" },
     { name: "צור בקשת ספר", path: "/user-requests" },
-    { name: "עדכון פרטים", path: "/more-info" }
-  ].filter(Boolean); 
+    { name: "עדכון פרטים", path: "/more-info" },
+  ].filter(Boolean);
 
   const unRegisteredUserNavLinks = [
     { name: "צור קשר", path: "/contactus" },
-    { name: "הרשמה", path: "/signup" }
+    { name: "הרשמה", path: "/signup" },
   ];
 
-  const registeredDropDownLinks = [
-    { name: "הפרופיל שלי", path: "/profile" },
-  ];
+  const registeredDropDownLinks = [{ name: "הפרופיל שלי", path: "/profile" }];
 
   const unRegisteredDropDownLinks = [];
 
@@ -117,24 +109,25 @@ const NavBar = () => {
             </div>
           </div>
 
-          <div className="flex items-center lg:hidden">
-            <button
-              onClick={toggleNav}
-              className="text-bg-text focus:outline-none absolute right-4"
-            >
-              {navOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-            </button>
-          </div>
-
-          <div className={`lg:flex lg:items-center ${navOpen ? "block" : "hidden"}`}>
+          <div className={`lg:flex lg:items-center`}>
             {user ? (
-              <NavHeaders navBarLinks={registeredUserNavLinks.map(link => ({ ...link, color: "bg-background-gradient-from" }))} />
+              <NavHeaders
+                navBarLinks={registeredUserNavLinks.map((link) => ({
+                  ...link,
+                  color: "bg-background-gradient-from",
+                }))}
+              />
             ) : (
-              <NavHeaders navBarLinks={unRegisteredUserNavLinks.map(link => ({ ...link, color: "bg-background-gradient-from" }))} />
+              <NavHeaders
+                navBarLinks={unRegisteredUserNavLinks.map((link) => ({
+                  ...link,
+                  color: "bg-background-gradient-from",
+                }))}
+              />
             )}
 
-            {user && (
-              <div className="relative ml-4">
+            <div className="flex items-center space-x-4 ml-4 relative">
+              {user && (
                 <div className="relative">
                   <FaBell
                     size={24}
@@ -146,61 +139,76 @@ const NavBar = () => {
                       {unreadCount}
                     </span>
                   )}
+                  {showNotifications && (
+                    <div
+                      className="absolute right-0 mt-2 w-64 max-h-80 bg-white border border-gray-300 rounded-lg shadow-lg overflow-y-auto z-20"
+                      style={{
+                        right: 'auto',
+                        left: 0,
+                        transform: 'translateX(-50%)',
+                        maxWidth: 'calc(100vw - 20px)',
+                      }}
+                    >
+                      {notifications.length === 0 ? (
+                        <div className="p-4 text-gray-700">אין התראות</div>
+                      ) : (
+                        notifications
+                          .slice()
+                          .reverse()
+                          .map((notification, index) => (
+                            <div
+                              key={index}
+                              className={`p-4 text-gray-700 border-b border-gray-200 ${
+                                notification.isRead ? "" : "bg-red-100"
+                              }`}
+                            >
+                              {notification.message}
+                            </div>
+                          ))
+                      )}
+                    </div>
+                  )}
                 </div>
-                {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-64 max-h-80 bg-white border border-gray-300 rounded-lg shadow-lg overflow-y-auto z-20">
-                    {notifications.length === 0 ? (
-                      <div className="p-4 text-gray-700">אין התראות</div>
-                    ) : (
-                      notifications.slice().reverse().map((notification, index) => (
-                        <div
-                          key={index}
-                          className={`p-4 text-gray-700 border-b border-gray-200 ${notification.isRead ? '' : 'bg-red-100'}`}
-                        >
-                          {notification.message}
-                        </div>
-                      ))
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+              )}
 
-{user ? (
-  <div className="relative ml-4 lg:ml-8 lg:mr-auto">
-    <DropDown
-      dropDownLinks={registeredDropDownLinks}
-      navBarLinks={registeredUserNavLinks}
-      user={user}
-      userDetails={userDetails}
-      userDisplayName={userDetails.lastName}
-    />
-  </div>
-) : (
-  <div className="relative ml-4 lg:ml-8 lg:mr-auto">
-    <DropDown
-      dropDownLinks={unRegisteredDropDownLinks}
-      navBarLinks={unRegisteredUserNavLinks}
-      user={user}
-    />
-  </div>
-)}
+              {user ? (
+                <div className="relative">
+                  <DropDown
+                    dropDownLinks={registeredDropDownLinks}
+                    navBarLinks={registeredUserNavLinks}
+                    user={user}
+                    userDetails={userDetails}
+                    userDisplayName={userDetails.lastName}
+                  />
+                </div>
+              ) : (
+                <div className="relative">
+                  <DropDown
+                    dropDownLinks={unRegisteredDropDownLinks}
+                    navBarLinks={unRegisteredUserNavLinks}
+                    user={user}
+                  />
+                </div>
+              )}
 
-
-
-            {/* Use the Admin Icon for both mobile and desktop if the user is an admin */}
-            {isAdmin && (
-              <button
-                onClick={toggleAdminSidebar}
-                className="text-bg-text hover:bg-bg-navbar-custom px-3 py-2 rounded-md text-sm font-medium"
-              >
-                <FaUserShield size={24} />
-              </button>
-            )}
+              {isAdmin && (
+                <button
+                  onClick={toggleAdminSidebar}
+                  className="text-bg-text hover:bg-bg-navbar-custom px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  <FaUserShield size={24} />
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </nav>
-      {showAdminSidebar && <AdminSidebar isVisible={showAdminSidebar} toggleSidebar={toggleAdminSidebar} />}
+      {showAdminSidebar && (
+        <AdminSidebar
+          isVisible={showAdminSidebar}
+          toggleSidebar={toggleAdminSidebar}
+        />
+      )}
     </>
   );
 };

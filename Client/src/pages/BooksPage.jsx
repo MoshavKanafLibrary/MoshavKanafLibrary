@@ -211,20 +211,20 @@ const BooksPage = () => {
           </div>
         ) : (
           <>
-            <div className="flex justify-between mb-3 sm:mb-4">
-            <div className="flex items-center gap-4">
-              <button
-                className="bg-bg-header-custom text-black px-3 py-1 sm:px-4 sm:py-2 rounded-lg hover:bg-bg-hover hover:text-white transition-colors"
-                onClick={toggleFilterDropdown}
-              >
-                סנן
-              </button>
-              <button
-                className="bg-bg-header-custom text-black px-3 py-1 sm:px-4 sm:py-2 rounded-lg whitespace-nowrap hover:bg-bg-hover hover:text-white transition-colors"
-                onClick={() => setFilterByNew(!filterByNew)}
-              >
-                {filterByNew ? 'הצג את כל הספרים' : 'הצג ספרים חדשים'}
-              </button>
+            <div className="flex flex-col sm:flex-row justify-between mb-3 sm:mb-4">
+              <div className="flex items-center gap-4">
+                <button
+                  className="bg-bg-header-custom text-black px-3 py-1 sm:px-4 sm:py-2 rounded-lg hover:bg-bg-hover hover:text-white transition-colors"
+                  onClick={toggleFilterDropdown}
+                >
+                  סנן
+                </button>
+                <button
+                  className="bg-bg-header-custom text-black px-3 py-1 sm:px-4 sm:py-2 rounded-lg whitespace-nowrap hover:bg-bg-hover hover:text-white transition-colors"
+                  onClick={() => setFilterByNew(!filterByNew)}
+                >
+                  {filterByNew ? 'הצג את כל הספרים' : 'הצג ספרים חדשים'}
+                </button>
                 {showFilterDropdown && (
                   <div className="absolute mt-2 bg-bg-header-custom rounded-lg shadow-lg p-2 sm:p-4" ref={filterRef}>
                     <div className="flex flex-col space-y-2 sm:space-y-4">
@@ -289,12 +289,12 @@ const BooksPage = () => {
                   </div>
                 )}
               </div>
-              <div className="flex items-center justify-end w-full">
+              <div className="flex items-center justify-end w-full sm:w-auto mt-2 sm:mt-0">
                 <FaSearch className="mr-1 sm:mr-2 text-bg-header-custom" />
                 <label className="text-bg-header-custom text-sm sm:text-lg mr-1 sm:mr-2">חפש:</label>
                 <input
                   type="text"
-                  className="bg-bg-header-custom text-black px-2 py-1 sm:px-3 sm:py-2 rounded-lg"
+                  className="w-full sm:w-auto bg-bg-header-custom text-black px-2 py-1 sm:px-3 sm:py-2 rounded-lg"
                   placeholder="חפש לפי כותרת או סופר"
                   value={searchQuery}
                   onChange={handleSearchInputChange}
