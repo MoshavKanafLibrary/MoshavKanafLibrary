@@ -83,7 +83,9 @@ const ProfilePage = () => {
         const books = Object.entries(borrowedBooksData).map(([title, details]) => ({
           title,
           borrowedDate: details.startDate ? new Date(details.startDate.seconds * 1000).toLocaleDateString() : 'N/A',
-          dueDate: details.endDate ? new Date(details.endDate.seconds * 1000).toLocaleDateString() : 'N/A',
+          requestDate: details.requestDate ? new Date(details.requestDate.seconds * 1000).toLocaleDateString() : 'N/A',
+          startDate: details.startDate ? new Date(details.startDate.seconds * 1000).toLocaleDateString() : 'N/A',
+          endDate: details.endDate ? new Date(details.endDate.seconds * 1000).toLocaleDateString() : 'N/A',
           status: details.status,
         }));
         setBorrowedBooks(books);
@@ -206,38 +208,46 @@ const ProfilePage = () => {
         ) : (
           <div>
             {userDetails && (
-  <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mb-8 ">
-    <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> שם מלא: {userDetails.firstName} {userDetails.lastName}</h3>
-    <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.email} :אימייל</h3>
-    <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.phone} :פלאפון</h3>
-    <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.random} :קוד משתמש</h3>
-  </div>
-)}
+              <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mb-8 ">
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> שם מלא: {userDetails.firstName} {userDetails.lastName}</h3>
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.email} :אימייל</h3>
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.phone} :פלאפון</h3>
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.random} :קוד משתמש</h3>
+              </div>
+            )}
 
             <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center">
               <h3 className="mt-6 text-2xl text-bg-text">ספרים מושאלים</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 {borrowedBooks.length > 0 ? (
                   borrowedBooks.map((book, index) => {
-                    const isExpired = new Date(book.dueDate) < new Date();
-                    const dateColor = book.status === 'pending'
+                    const isExpired = new Date(book.requestDate) < new Date();
+                    const titleColor = book.status === 'pending'
                       ? 'bg-yellow-500'
                       : book.status === 'accepted'
                         ? 'bg-green-500'
                         : isExpired
                           ? 'bg-red-500'
                           : 'bg-gray-500';
-  
+
                     return (
                       <div
                         key={index}
                         className="bg-bg-hover p-4 rounded-lg shadow-lg flex flex-col items-center"
                       >
-                        <h4 className="text-xl text-bg-navbar-custom">{book.title}</h4>
-                        <p className={`text-md ${dateColor} text-bg-navbar-custom py-2 px-4 rounded-full`}>
-                          תאריך להחזרה: {book.dueDate}
+                        <h4 className={`text-xl text-bg-navbar-custom py-2 px-4 rounded-full ${titleColor}`}>
+                          {book.title}
+                        </h4>
+                        <p className="text-md text-bg-navbar-custom mt-4">
+                          תאריך בקשה: {book.requestDate}
                         </p>
                         <p className="text-bg-navbar-custom">סטטוס: {book.status === 'pending' ? 'ממתין' : 'מאושר'}</p>
+                        {book.status === 'accepted' && (
+                          <div className="mt-4">
+                            <p className="text-bg-navbar-custom">תאריך התחלה: {book.startDate}</p>
+                            <p className="text-bg-navbar-custom">תאריך סיום: {book.endDate}</p>
+                          </div>
+                        )}
                         {book.status === 'pending' && (
                           <button
                             className="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
@@ -254,7 +264,6 @@ const ProfilePage = () => {
                 )}
               </div>
             </div>
-  
             <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mt-8">
               <h3 className="mt-6 text-2xl text-bg-text">מה כבר קראתי?</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">

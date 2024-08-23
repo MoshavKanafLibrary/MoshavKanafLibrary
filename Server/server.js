@@ -875,6 +875,7 @@ app.post("/api/users/:uid/borrow-books-list", async (req, res) => {
 
     userData.borrowBooksList[title] = {
       status: 'pending',
+      requestDate: new Date(),
       startDate: null,
       endDate: null
     };
