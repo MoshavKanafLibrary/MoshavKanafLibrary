@@ -97,8 +97,8 @@ const CreateRequestForUserPage = () => {
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
         <h1 className="text-3xl md:text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">צור בקשה עבור משתמש</h1>
         <div className="bg-bg-hover border-4 border-bg-background-gradient-from rounded-lg p-6 mb-4">
-          <div className="flex flex-col sm:flex-row justify-between mb-4 space-y-4 sm:space-y-0 sm:space-x-4">
-            <div className="border-2 bg-bg-text rounded-lg p-4 w-full sm:w-1/2">
+          <div className="flex flex-col space-y-4">
+            <div className="relative w-full">
               <label className="block text-bg-navbar-custom text-lg font-medium mb-2">חפש משתמש:</label>
               <input
                 type="text"
@@ -111,30 +111,28 @@ const CreateRequestForUserPage = () => {
                   setIsUserDropdownOpen(true);
                 }}
                 onFocus={() => setIsUserDropdownOpen(true)}
-                onBlur={() => setTimeout(() => setIsUserDropdownOpen(false), 100)} // Timeout for handling dropdown click
+                onBlur={() => setTimeout(() => setIsUserDropdownOpen(false), 200)}
               />
               {isUserDropdownOpen && (
-                <select
-                  className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom shadow border rounded text-bg-text leading-tight focus:outline-none focus:shadow-outline h-48 overflow-y-auto"
-                  value={selectedUser ? selectedUser.uid : ''}
-                  onChange={e => {
-                    const user = users.find(u => u.uid === e.target.value);
-                    setSelectedUser(user);
-                    setUserSearchQuery(`${user.firstName} ${user.lastName} (${user.email})`);
-                    setIsUserDropdownOpen(false);
-                  }}
-                  size={5}
-                >
-                  <option value="" disabled>בחר משתמש</option>
+                <div className="absolute z-10 w-full bg-bg-navbar-custom border border-bg-background-gradient-from rounded-lg shadow-lg max-h-48 overflow-y-auto">
                   {filteredUsers.map(user => (
-                    <option key={user.uid} value={user.uid}>
+                    <div
+                      key={user.uid}
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setUserSearchQuery(`${user.firstName} ${user.lastName} (${user.email})`);
+                        setIsUserDropdownOpen(false);
+                      }}
+                      className="cursor-pointer p-2 hover:bg-gray-300"
+                    >
                       {user.email} - {`${user.firstName} ${user.lastName}`}
-                    </option>
+                    </div>
                   ))}
-                </select>
+                </div>
               )}
             </div>
-            <div className="border-2 bg-bg-text rounded-lg p-4 w-full sm:w-1/2">
+
+            <div className="relative w-full">
               <label className="block text-bg-navbar-custom text-lg font-medium mb-2">חפש ספר:</label>
               <input
                 type="text"
@@ -147,27 +145,24 @@ const CreateRequestForUserPage = () => {
                   setIsBookDropdownOpen(true);
                 }}
                 onFocus={() => setIsBookDropdownOpen(true)}
-                onBlur={() => setTimeout(() => setIsBookDropdownOpen(false), 100)} // Timeout for handling dropdown click
+                onBlur={() => setTimeout(() => setIsBookDropdownOpen(false), 200)}
               />
               {isBookDropdownOpen && (
-                <select
-                  className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom shadow border rounded text-bg-text leading-tight focus:outline-none focus:shadow-outline h-48 overflow-y-auto"
-                  value={selectedBook ? selectedBook.id : ''}
-                  onChange={e => {
-                    const book = books.find(b => b.id === e.target.value);
-                    setSelectedBook(book);
-                    setBookSearchQuery(`${book.title} - ${book.author}`);
-                    setIsBookDropdownOpen(false);
-                  }}
-                  size={5}
-                >
-                  <option value="" disabled>בחר ספר</option>
+                <div className="absolute z-10 w-full bg-bg-navbar-custom border border-bg-background-gradient-from rounded-lg shadow-lg max-h-48 overflow-y-auto">
                   {filteredBooks.map(book => (
-                    <option key={book.id} value={book.id}>
+                    <div
+                      key={book.id}
+                      onClick={() => {
+                        setSelectedBook(book);
+                        setBookSearchQuery(`${book.title} - ${book.author}`);
+                        setIsBookDropdownOpen(false);
+                      }}
+                      className="cursor-pointer p-2 hover:bg-gray-300"
+                    >
                       {book.title} - {book.author}
-                    </option>
+                    </div>
                   ))}
-                </select>
+                </div>
               )}
             </div>
           </div>

@@ -10,13 +10,11 @@ const BookBorrowDetailsPage = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6); // Defines the number of items per page
+  const [userDetails, setUserDetails] = useState({});
 
   const navigate = useNavigate();
   const location = useLocation();
   const bookTitle = location.state?.bookTitle;
-  const firstName = location.state?.firstName;
-  const lastName = location.state?.lastName;
-  const phone = location.state?.phone;
   const uid = location.state?.uid;
 
   useEffect(() => {
@@ -35,10 +33,24 @@ const BookBorrowDetailsPage = () => {
       }
     };
 
-    if (bookTitle) {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await axios.get(`/api/users/${uid}`);
+        if (response.status === 200) {
+          setUserDetails(response.data);
+        } else {
+          setError("לא נמצאו פרטי המשתמש.");
+        }
+      } catch (error) {
+        setError(`נכשל בשליפת פרטי המשתמש: ${error.response?.data?.message || error.message}`);
+      }
+    };
+
+    if (bookTitle && uid) {
       fetchCopies();
+      fetchUserDetails();
     }
-  }, [bookTitle]);
+  }, [bookTitle, uid]);
 
   const handleBorrow = async (copyID) => {
     try {
@@ -54,7 +66,7 @@ const BookBorrowDetailsPage = () => {
           if (updateBorrowResponse.data.success) {
             setCopies(prevCopies => prevCopies.map(copy => {
               if (copy.copyID === copyID) {
-                return { ...copy, borrowedTo: { firstName, lastName } };
+                return { ...copy, borrowedTo: { firstName: userDetails.firstName, lastName: userDetails.lastName } };
               }
               return copy;
             }));
@@ -128,7 +140,7 @@ const BookBorrowDetailsPage = () => {
                       className="mt-4 bg-bg-hover hover:bg-bg-hover text-bg-navbar-custom font-bold py-2 px-4 rounded"
                       onClick={() => handleBorrow(copy.copyID)}
                     >
-                      השאל ל-{`${firstName} ${lastName}`}
+                      השאל ל-{`${userDetails.firstName} ${userDetails.lastName}`}
                     </button>
                   )}
                 </div>
@@ -153,10 +165,10 @@ const BookBorrowDetailsPage = () => {
             onClick={handleNotify}
           >
             <FaBell className="mr-2" />
-            הודע ל-{`${firstName} ${lastName}`} שהספר מוכן לאיסוף!
+            הודע ל-{`${userDetails.firstName} ${userDetails.lastName}`} שהספר מוכן לאיסוף!
           </button>
           <div className="mt-4 text-bg-navbar-custom text-center">
-            <strong>מספר טלפון:</strong> {phone}
+            <strong>מספר טלפון:</strong> {userDetails.phone}
           </div>
         </>
       )}
