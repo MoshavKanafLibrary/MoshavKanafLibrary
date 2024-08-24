@@ -1,229 +1,314 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
+import axios from 'axios';
 
 const SelectUserPage = () => {
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [userDetails, setUserDetails] = useState(null);
-  const [waitingList, setWaitingList] = useState([]);
   const [borrowedBooks, setBorrowedBooks] = useState([]);
   const [readBooks, setReadBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [userList, setUserList] = useState([]);
-  const [ratingLoading, setRatingLoading] = useState(true);
-  const [hasRated, setHasRated] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [userDetails, setUserDetails] = useState(null);
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const [deleteEntry, setDeleteEntry] = useState(null);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await axios.get('/api/users');
-        if (response.data.success) {
-          setUserList(response.data.users);
-        } else {
-          console.error('Error fetching users:', response.data.message);
-          setError('Error fetching users');
-        }
+        setUsers(response.data.users);
+        setFilteredUsers(response.data.users);
       } catch (error) {
         console.error('Error fetching users:', error);
-        setError('Error fetching users');
-      } finally {
-        setLoading(false);
       }
     };
-
+    
     fetchUsers();
   }, []);
 
   useEffect(() => {
-    const fetchUserDetails = async () => {
-      if (!selectedUser) return;
+    const lowerCaseQuery = userSearchQuery.toLowerCase();
+    const filtered = users.filter(user =>
+      user.email.toLowerCase().includes(lowerCaseQuery) ||
+      user.firstName.toLowerCase().includes(lowerCaseQuery) ||
+      user.lastName.toLowerCase().includes(lowerCaseQuery)
+    );
+    setFilteredUsers(filtered);
+  }, [userSearchQuery, users]);
 
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await axios.get(`/api/users/${selectedUser}`);
-        if (response.data) {
-          setUserDetails(response.data);
-        } else {
-          setError('User details not found');
-        }
-
-        const waitingListResponse = await axios.get('/api/waiting-list/details');
-        if (waitingListResponse.data.success) {
-          const userWaitingList = waitingListResponse.data.waitingListDetails.filter(entry => entry.uid === selectedUser);
-          setWaitingList(userWaitingList);
-        } else {
-          console.error('Error fetching waiting list:', waitingListResponse.data.message);
-        }
-
-        const borrowedBooksResponse = await axios.get(`/api/users/${selectedUser}/present-borrow-books-list`);
-        const borrowedBooksData = borrowedBooksResponse.data.borrowBooksList || {};
-        const books = Object.entries(borrowedBooksData).map(([title, details]) => ({
-          title,
-          borrowedDate: details.startDate ? new Date(details.startDate.seconds * 1000).toLocaleDateString() : 'N/A',
-          dueDate: details.endDate ? new Date(details.endDate.seconds * 1000).toLocaleDateString() : 'N/A',
-          status: details.status,
-          copyID: details.copyID,
-        }));
-        setBorrowedBooks(books);
-
-        const historyBooksResponse = await axios.get(`/api/users/${selectedUser}/historyBooks`);
-        const historyBooksData = historyBooksResponse.data.historyBooks || [];
-        const readBooks = historyBooksData.map(book => ({
-          title: book.title,
-          readDate: book.readDate ? new Date(book.readDate.seconds * 1000).toLocaleDateString() : 'N/A',
-        }));
-        setReadBooks(readBooks);
-
-        fetchRatings(readBooks);
-      } catch (error) {
-        console.error('Error fetching user details:', error);
-        setError('Error fetching user details');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchRatings = async (books) => {
-      try {
-        const ratingStatus = {};
-        for (const book of books) {
-          const bookResponse = await axios.get(`/api/books/names`);
-          const bookDetails = bookResponse.data.bookNames.find(b => b.title === book.title);
-          if (bookDetails) {
-            const ratingResponse = await axios.get(`/api/books/${bookDetails.id}/rating-status`, { params: { uid: selectedUser } });
-            ratingStatus[book.title] = ratingResponse.data.hasRated;
-          }
-        }
-        setHasRated(ratingStatus);
-      } catch (error) {
-        console.error('Error fetching ratings:', error);
-      } finally {
-        setRatingLoading(false);
-      }
-    };
-
-    if (selectedUser) {
-      fetchUserDetails();
+  const convertToDateString = (date) => {
+    if (!date) return 'N/A';
+    if (date.seconds) { 
+      return new Date(date.seconds * 1000).toLocaleDateString();
     }
-  }, [selectedUser]);
-
-  const handleUserChange = (event) => {
-    setSelectedUser(event.target.value);
+    return new Date(date).toLocaleDateString(); 
   };
 
-  const getAlignmentClass = (length) => {
-    if (length === 1) return 'justify-center'; 
-    if (length === 2) return 'justify-between'; 
-    return 'justify-start'; 
+  const handleUserSelect = async (uid) => {
+    setLoading(true);
+
+    try {
+      const userDetailsResponse = await axios.get(`/api/users/${uid}`);
+      setUserDetails(userDetailsResponse.data);
+      
+      const historyResponse = await axios.get(`/api/users/${uid}/historyBooks`);
+      const booksData = historyResponse.data.historyBooks || [];
+      const books = booksData.map(book => ({
+        title: book.title,
+        returnDate: convertToDateString(book.returnDate),
+        requestDate: convertToDateString(book.requestDate),
+        startDate: convertToDateString(book.startDate),
+      }));
+      setReadBooks(books);
+
+      const borrowedBooksResponse = await axios.get(`/api/users/${uid}/present-borrow-books-list`);
+      const borrowedBooksData = borrowedBooksResponse.data.borrowBooksList || {};
+      const borrowedBooks = Object.entries(borrowedBooksData).map(([title, details]) => ({
+        title,
+        borrowedDate: convertToDateString(details.borrowedDate),
+        requestDate: convertToDateString(details.requestDate),
+        startDate: convertToDateString(details.startDate),
+        endDate: convertToDateString(details.endDate),
+        status: details.status,
+      }));
+      setBorrowedBooks(borrowedBooks);
+
+      // Set the selected user details for display
+      setSelectedUser({
+        firstName: userDetailsResponse.data.firstName,
+        lastName: userDetailsResponse.data.lastName,
+        email: userDetailsResponse.data.email,
+        uid: uid,
+      });
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      setSelectedUser(null); // Reset if there's an error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = async (title) => {
+    setDeleteEntry(title);
+    setShowConfirmPopup(true);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteEntry) {
+      try {
+        const bookResponse = await axios.get(`/api/books/names`);
+        const book = bookResponse.data.bookNames.find(book => book.title === deleteEntry);
+
+        if (book) {
+          const deleteRequestResponse = await axios.delete(`/api/books/${book.id}/waiting-list`, { data: { uid: selectedUser.uid } });
+          if (deleteRequestResponse.data.success) {
+            console.log("Borrow request deleted successfully");
+
+            const deleteBorrowListResponse = await axios.delete(`/api/users/${selectedUser.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title: deleteEntry } });
+            if (deleteBorrowListResponse.data.success) {
+              console.log("Book entry deleted from borrowBooks-list successfully");
+
+              setBorrowedBooks(prevBooks => prevBooks.filter(book => book.title !== deleteEntry));
+
+              await notifyManagers(deleteEntry);
+            } else {
+              console.error("Failed to delete book entry from borrowBooks-list");
+            }
+          } else {
+            console.error("Failed to delete borrow request");
+          }
+        } else {
+          console.error("Book not found");
+        }
+      } catch (error) {
+        console.error(`Error canceling borrow request: ${error.response?.data?.message || error.message}`);
+      } finally {
+        setShowConfirmPopup(false);
+        setDeleteEntry(null);
+      }
+    }
+  };
+
+  const notifyManagers = async (bookTitle) => {
+    try {
+      const usersResponse = await axios.get('/api/users');
+      const managers = usersResponse.data.users.filter(user => user.isManager);
+
+      const notificationPromises = managers.map(manager =>
+        axios.post(`/api/users/${manager.id}/notifications`, {
+          message: `המנהל ${selectedUser.firstName} ${selectedUser.lastName} ביטל את בקשת ההשאלה לספר "${bookTitle}".`
+        })
+      );
+
+      await Promise.all(notificationPromises);
+      console.log("Managers notified successfully.");
+    } catch (error) {
+      console.error(`Error notifying managers: ${error.response?.data?.message || error.message}`);
+    }
   };
 
   return (
-    <div className="relative pt-16 sm:pt-20 z-10 h-screen overflow-x-hidden" dir="rtl">
-      <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-bg-navbar-custom text-center">פרטי משתמש</h1>
-      
+    <div className="relative pt-20 z-10 h-screen overflow-x-hidden" dir="rtl">
+      <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-bg-navbar-custom text-center">בחר משתמש</h1>
       <div className="container mx-auto px-4 py-8">
+        <div className="relative w-full mb-4 flex justify-center">
+          <div className="w-full sm:w-1/2 relative">
+            <label className="block text-bg-navbar-custom text-lg font-medium mb-2">חפש משתמש:</label>
+            <input
+              type="text"
+              className="w-full p-2 text-lg bg-bg-navbar-custom shadow border rounded text-bg-text leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="הכנס שם משתמש, אימייל או שם פרטי"
+              value={selectedUser ? `${selectedUser.firstName} ${selectedUser.lastName} (${selectedUser.email})` : userSearchQuery}
+              onChange={e => {
+                setUserSearchQuery(e.target.value);
+                setSelectedUser(null);
+                setIsUserDropdownOpen(true);
+              }}
+              onFocus={() => setIsUserDropdownOpen(true)}
+              onBlur={() => setTimeout(() => setIsUserDropdownOpen(false), 200)}
+            />
+            {isUserDropdownOpen && (
+              <div
+                className="absolute z-10 w-full bg-bg-navbar-custom border border-bg-background-gradient-from rounded-lg shadow-lg max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-track-rounded scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                style={{ direction: 'rtl', textAlign: 'right' }}
+              >
+                {filteredUsers.map(user => (
+                  <div
+                    key={user.uid}
+                    onClick={() => {
+                      handleUserSelect(user.uid);
+                      setUserSearchQuery(`${user.firstName} ${user.lastName} (${user.email})`);
+                      setIsUserDropdownOpen(false);
+                    }}
+                    className="cursor-pointer p-2 hover:bg-gray-300 text-right"
+                  >
+                    {user.email} - {`${user.firstName} ${user.lastName}`}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
         {loading ? (
           <div className="flex justify-center items-center h-screen">
-            <FaSpinner className="animate-spin text-4xl sm:text-6xl text-bg-navbar-custom" />
+            <FaSpinner className="animate-spin text-6xl text-bg-navbar-custom" />
           </div>
-        ) : error ? (
-          <div className="text-red-500 text-center">{error}</div>
         ) : (
-          <>
-            <div className="mb-8 text-center">
-              <label htmlFor="userSelect" className="block text-base sm:text-lg font-bold mb-2 text-bg-navbar-custom">בחר משתמש</label>
-              <select
-                id="userSelect"
-                value={selectedUser ?? ""}
-                onChange={handleUserChange}
-                className="p-2 border rounded-md bg-bg-navbar-custom text-bg-text text-sm sm:text-base"
-              >
-                <option value="">בחר משתמש</option>
-                {userList.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.firstName} {user.lastName} - {user.email}
-                  </option>
-                ))}
-              </select>
+          <div>
+            {userDetails && (
+              <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mb-8">
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">
+                  שם מלא: {userDetails.firstName} {userDetails.lastName}
+                </h3>
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">
+                  אימייל: {userDetails.email}
+                </h3>
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">
+                  פלאפון: {userDetails.phone}
+                </h3>
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">
+                  קוד משתמש: {userDetails.random}
+                </h3>
+              </div>
+            )}
+
+            <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center">
+              <h3 className="mt-6 text-2xl text-bg-text">ספרים מושאלים</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                {borrowedBooks.length > 0 ? (
+                  borrowedBooks.map((book, index) => {
+                    const isExpired = new Date(book.requestDate) < new Date();
+                    const titleColor = book.status === 'pending'
+                      ? 'bg-yellow-500'
+                      : book.status === 'accepted'
+                        ? 'bg-green-500'
+                        : isExpired
+                          ? 'bg-red-500'
+                          : 'bg-gray-500';
+
+                    return (
+                      <div
+                        key={index}
+                        className="bg-bg-hover p-4 rounded-lg shadow-lg flex flex-col items-center"
+                      >
+                        <h4 className={`text-xl text-bg-navbar-custom py-2 px-4 rounded-full ${titleColor}`}>
+                          {book.title}
+                        </h4>
+                        <p className="text-md text-bg-navbar-custom mt-4">
+                          תאריך בקשה: {book.requestDate}
+                        </p>
+                        <p className="text-bg-navbar-custom">סטטוס: {book.status === 'pending' ? 'ממתין' : 'מאושר'}</p>
+                        {book.status === 'accepted' && (
+                          <div className="mt-4">
+                            <p className="text-bg-navbar-custom">תאריך התחלה: {book.startDate}</p>
+                            <p className="text-bg-navbar-custom">תאריך סיום: {book.endDate}</p>
+                          </div>
+                        )}
+                        {book.status === 'pending' && (
+                          <button
+                            className="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                            onClick={() => handleCancel(book.title)}
+                          >
+                            בטל
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-4">לא השאלת ספרים עדיין.</p>
+                )}
+              </div>
             </div>
 
-            {userDetails && (
-              <>
-                <div className="bg-bg-navbar-custom p-4 sm:p-6 rounded-lg shadow-lg text-center mb-8">
-                  <h3 className="text-lg sm:text-xl font-extrabold text-bg-background-gradient-via mb-2 sm:mb-4">
-                    שם מלא: {userDetails.firstName || 'N/A'} {userDetails.lastName || 'N/A'}
-                  </h3>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-bg-background-gradient-via mb-2 sm:mb-4">
-                    אימייל: {userDetails.email || 'N/A'}
-                  </h3>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-bg-background-gradient-via mb-2 sm:mb-4">
-                    פלאפון: {userDetails.phone || 'N/A'}
-                  </h3>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-bg-background-gradient-via mb-2 sm:mb-4">
-                    קוד משתמש: {userDetails.random || 'N/A'}
-                  </h3>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-bg-background-gradient-via mb-2 sm:mb-4">
-                    מנהל: {userDetails.isManager ? "כן" : "לא"}
-                  </h3>
-                </div>
+            <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mt-8">
+              <h3 className="mt-6 text-2xl text-bg-text">מה כבר קראתי?</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                {readBooks.length > 0 ? (
+                  readBooks.map((book, index) => (
+                    <div
+                      key={index}
+                      className="bg-bg-hover p-4 rounded-lg shadow-lg flex flex-col items-center"
+                    >
+                      <h4 className="text-xl text-bg-navbar-custom">{book.title}</h4>
+                      <p className="text-bg-navbar-custom">תאריך בקשה: {book.requestDate}</p>
+                      <p className="text-bg-navbar-custom">תאריך התחלה: {book.startDate}</p>
+                      <p className="text-bg-navbar-custom">תאריך החזרה בפועל: {book.returnDate}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-4">לא קראת ספרים עדיין.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
-                <div className="bg-bg-navbar-custom p-4 sm:p-6 rounded-lg shadow-lg text-center">
-                  <h3 className="mt-4 sm:mt-6 text-lg sm:text-xl text-bg-text">ספרים בתהליכי השאלה</h3>
-                  <div className={`grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 mt-2 sm:mt-4 ${getAlignmentClass(borrowedBooks.length)}`}>
-                    {borrowedBooks.length > 0 ? (
-                      borrowedBooks.map((book) => {
-                        const isExpired = new Date(book.dueDate) < new Date();
-                        const dateColor = book.status === 'pending'
-                          ? 'bg-yellow-500'
-                          : book.status === 'accepted'
-                            ? 'bg-green-500'
-                            : isExpired
-                              ? 'bg-red-500'
-                              : 'bg-gray-500';
-
-                        return (
-                          <div
-                            key={book.copyID || book.title}
-                            className="bg-bg-hover p-3 sm:p-4 rounded-lg shadow-lg flex flex-col items-center"
-                          >
-                            <h4 className="text-base sm:text-lg text-bg-navbar-custom">{book.title}</h4>
-                            <p className={`text-sm sm:text-md ${dateColor} text-bg-navbar-custom py-1 sm:py-2 px-2 sm:px-4 rounded-full`}>
-                              תאריך להחזרה: {book.dueDate}
-                            </p>
-                            <p className="text-bg-navbar-custom text-sm sm:text-base">סטטוס: {book.status === 'pending' ? 'ממתין' : 'מאושר'}</p>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-2 sm:mt-4">לא השאלת ספרים עדיין.</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="bg-bg-navbar-custom p-4 sm:p-6 rounded-lg shadow-lg text-center mt-8">
-                  <h3 className="mt-4 sm:mt-6 text-lg sm:text-xl text-bg-text">ספרים בהיסטוריה</h3>
-                  <div className={`grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 mt-2 sm:mt-4 ${getAlignmentClass(readBooks.length)}`}>
-                    {readBooks.length > 0 ? (
-                      readBooks.map((book, index) => (
-                        <div
-                          key={`${book.title}-${index}`}
-                          className="bg-bg-hover p-3 sm:p-4 rounded-lg shadow-lg flex flex-col items-center"
-                        >
-                          <h4 className="text-base sm:text-lg text-bg-navbar-custom">{book.title}</h4>
-                          <p className="text-bg-navbar-custom text-sm sm:text-base">תאריך קריאה: {book.readDate}</p>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-2 sm:mt-4">לא קראת ספרים עדיין.</p>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
-          </>
+        {showConfirmPopup && (
+          <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-8 rounded-lg shadow-lg">
+              <h2 className="text-2xl font-bold mb-4">אשר מחיקה</h2>
+              <p>האם אתה בטוח שברצונך למחוק בקשת השאלה זו?</p>
+              <div className="mt-6 flex justify-end">
+                <button 
+                  onClick={() => setShowConfirmPopup(false)}
+                  className="mr-4 px-4 py-2 bg-gray-300 rounded"
+                >
+                  בטל
+                </button>
+                <button 
+                  onClick={confirmDelete}
+                  className="px-4 py-2 bg-red-600 text-white rounded"
+                >
+                  אשר
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
