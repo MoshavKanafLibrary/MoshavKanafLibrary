@@ -412,6 +412,22 @@ app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
   }
 });
 
+app.get("/api/counter", async (req, res) => {
+  try {
+    const counterRef = doc(db, 'counters', 'bookCounter');
+    const counterDoc = await getDoc(counterRef);
+
+    if (!counterDoc.exists()) {
+      res.status(200).json({ count: 6000 }); // Default count if the document does not exist
+    } else {
+      const currentCount = counterDoc.data().count;
+      res.status(200).json({ count: currentCount });
+    }
+  } catch (error) {
+    console.error("Error getting counter:", error);
+    res.status(500).json({ error: "Failed to get counter" });
+  }
+});
 
 
 const getAndUpdateCounter = async (incrementBy) => {

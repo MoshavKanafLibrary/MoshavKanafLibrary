@@ -20,6 +20,42 @@ const AddOrUpdateBookPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
+  const [baseNumber, setBaseNumber] = useState(null);
+
+  const [copyNumbers, setCopyNumbers] = useState([]);
+
+
+
+  useEffect(() => {
+    const fetchBaseNumber = async () => {
+      try {
+        const response = await axios.get('/api/counter');
+        setBaseNumber(response.data.count);
+      } catch (error) {
+        console.error("Error fetching base number:", error);
+      }
+    };
+  
+    fetchBaseNumber();
+  }, []);
+  
+
+  useEffect(() => {
+    if (baseNumber !== null && copies > 0) {
+      const updatedCopyNumbers = Array.from({ length: copies }, (_, i) => baseNumber + i);
+      setCopyNumbers(updatedCopyNumbers);
+    } else {
+      setCopyNumbers([]);
+    }
+  }, [copies, baseNumber]);
+  
+
+
+
+
+
+
+  
   const location = useLocation();
   const navigate = useNavigate();
   const bookData = location.state?.bookData;
@@ -107,6 +143,7 @@ const AddOrUpdateBookPage = () => {
         const response = await axios.post(`/api/books/${bookData.id}/addCopy`);
         newCopyIds.push(response.data.copyID);
       }
+
       setCopiesID([...copiesID, ...newCopyIds]);
       setCopies(copies + newCopiesCount);
       setSuccessMessage("עותקים נוספו בהצלחה.");
@@ -266,25 +303,31 @@ const AddOrUpdateBookPage = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-bg-text text-md mb-2">מספרי עותקים</label>
-            {copiesID.map((copyID, index) => (
-              <div key={index} className="flex items-center mb-2">
-                <input
-                  className="bg-bg-background-textbox shadow border rounded w-full py-3 px-4 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline"
-                  type="text"
-                  value={copyID}
-                  readOnly
-                />
-                <button
-                  type="button"
-                  className="bg-red-600 hover:bg-red-700 text-bg-navbar-custom font-bold py-2 px-4 rounded ml-2"
-                  onClick={() => handleRemoveCopy(copyID)}
-                >
-                  הסר
-                </button>
-              </div>
-            ))}
-          </div>
+  {copies > 0 && (
+    <>
+      <label className="block text-bg-text text-md mb-2">מספרי עותקים</label>
+      {baseNumber !== null && (
+        <div className="bg-bg-background-textbox shadow border rounded w-full py-3 px-4 text-bg-navbar-custom flex items-center">
+          <span>{copyNumbers.join(', ')}</span>
+          {isEditMode && copyNumbers.length > 0 && (
+            <button
+              type="button"
+              className="bg-red-600 hover:bg-red-700 text-bg-navbar-custom font-bold py-2 px-4 rounded ml-4"
+              onClick={() => handleRemoveCopy(copyNumbers[copyNumbers.length - 1])} // Adjust as needed
+            >
+              הסר
+            </button>
+          )}
+        </div>
+      )}
+    </>
+  )}
+</div>
+
+
+
+
+
 
           {isEditMode && (
             <div className="mb-4">
