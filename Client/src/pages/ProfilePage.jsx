@@ -71,6 +71,14 @@ const ProfilePage = () => {
       }
     };
 
+    const convertToDateString = (date) => {
+      if (!date) return 'N/A';
+      if (date.seconds) { 
+        return new Date(date.seconds * 1000).toLocaleDateString();
+      }
+      return new Date(date).toLocaleDateString(); 
+    };
+
     const fetchBorrowedBooks = async () => {
       if (!user) {
         console.error("No user is currently logged in.");
@@ -80,12 +88,13 @@ const ProfilePage = () => {
       try {
         const response = await axios.get(`/api/users/${user.uid}/present-borrow-books-list`);
         const borrowedBooksData = response.data.borrowBooksList || {};
+        console.log(borrowedBooksData);
         const books = Object.entries(borrowedBooksData).map(([title, details]) => ({
           title,
-          borrowedDate: details.startDate ? new Date(details.startDate.seconds * 1000).toLocaleDateString() : 'N/A',
-          requestDate: details.requestDate ? new Date(details.requestDate.seconds * 1000).toLocaleDateString() : 'N/A',
-          startDate: details.startDate ? new Date(details.startDate.seconds * 1000).toLocaleDateString() : 'N/A',
-          endDate: details.endDate ? new Date(details.endDate.seconds * 1000).toLocaleDateString() : 'N/A',
+          borrowedDate: convertToDateString(details.borrowedDate),
+          requestDate: convertToDateString(details.requestDate),
+          startDate: convertToDateString(details.startDate),
+          endDate: convertToDateString(details.endDate),
           status: details.status,
         }));
         setBorrowedBooks(books);
