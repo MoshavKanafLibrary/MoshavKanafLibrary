@@ -35,23 +35,25 @@ const ProfilePage = () => {
         console.error("No user is currently logged in.");
         return;
       }
-
+    
       try {
         const response = await axios.get(`/api/users/${user.uid}/historyBooks`);
         const booksData = response.data.historyBooks || [];
         const books = booksData.map(book => ({
           title: book.title,
-          returnDate: new Date(book.returnDate.seconds * 1000).toLocaleDateString()
+          returnDate: new Date(book.returnDate.seconds * 1000).toLocaleDateString(),
+          requestDate: book.requestDate ? new Date(book.requestDate.seconds * 1000).toLocaleDateString() : 'N/A',
+          startDate: book.startDate ? new Date(book.startDate.seconds * 1000).toLocaleDateString() : 'N/A',
         }));
         setReadBooks(books);
-
+    
         // Fetch ratings in parallel after basic details are set
         fetchRatings(books);
       } catch (error) {
         console.error('Error fetching history books:', error);
       }
     };
-
+    
     const fetchRatings = async (books) => {
       try {
         const ratingStatus = {};
@@ -274,51 +276,54 @@ const ProfilePage = () => {
               </div>
             </div>
             <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mt-8">
-              <h3 className="mt-6 text-2xl text-bg-text">מה כבר קראתי?</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                {readBooks.length > 0 ? (
-                  readBooks.map((book, index) => (
-                    <div
-                      key={index}
-                      className="bg-bg-hover p-4 rounded-lg shadow-lg flex flex-col items-center"
-                    >
-                      <h4 className="text-xl text-bg-navbar-custom">{book.title}</h4>
-                      <p className="text-bg-navbar-custom">תאריך החזרה בפועל: {book.returnDate}</p>
-  
-                      {ratingLoading ? (
-                        <FaSpinner className="animate-spin text-2xl text-bg-navbar-custom mt-4" />
+            <h3 className="mt-6 text-2xl text-bg-text">מה כבר קראתי?</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+              {readBooks.length > 0 ? (
+                readBooks.map((book, index) => (
+                  <div
+                    key={index}
+                    className="bg-bg-hover p-4 rounded-lg shadow-lg flex flex-col items-center"
+                  >
+                    <h4 className="text-xl text-bg-navbar-custom">{book.title}</h4>
+                    <p className="text-bg-navbar-custom">תאריך בקשה: {book.requestDate}</p>
+                    <p className="text-bg-navbar-custom">תאריך התחלה: {book.startDate}</p>
+                    <p className="text-bg-navbar-custom">תאריך החזרה בפועל: {book.returnDate}</p>
+
+                    {ratingLoading ? (
+                      <FaSpinner className="animate-spin text-2xl text-bg-navbar-custom mt-4" />
+                    ) : (
+                      !hasRated[book.title] ? (
+                        <div className="mt-4">
+                          <label className="text-bg-navbar-custom">דרג את הספר:</label>
+                          <select
+                            className="ml-2 bg-gray-200 p-1 rounded"
+                            value={ratings[book.title] || ""}
+                            onChange={(e) => handleRatingChange(book.title, parseInt(e.target.value))}
+                          >
+                            <option value="">בחר דירוג</option>
+                            {[1, 2, 3, 4, 5].map(value => (
+                              <option key={value} value={value}>{value}</option>
+                            ))}
+                          </select>
+                          <button
+                            className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-4 rounded"
+                            onClick={() => submitRating(book.title)}
+                          >
+                            שלח
+                          </button>
+                        </div>
                       ) : (
-                        !hasRated[book.title] ? (
-                          <div className="mt-4">
-                            <label className="text-bg-navbar-custom">דרג את הספר:</label>
-                            <select
-                              className="ml-2 bg-gray-200 p-1 rounded"
-                              value={ratings[book.title] || ""}
-                              onChange={(e) => handleRatingChange(book.title, parseInt(e.target.value))}
-                            >
-                              <option value="">בחר דירוג</option>
-                              {[1, 2, 3, 4, 5].map(value => (
-                                <option key={value} value={value}>{value}</option>
-                              ))}
-                            </select>
-                            <button
-                              className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-4 rounded"
-                              onClick={() => submitRating(book.title)}
-                            >
-                              שלח
-                            </button>
-                          </div>
-                        ) : (
-                          <p className="text-green-500 mt-4">דרגת את הספר הזה</p>
-                        )
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-4">לא קראת ספרים עדיין.</p>
-                )}
-              </div>
+                        <p className="text-green-500 mt-4">דרגת את הספר הזה</p>
+                      )
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-4">לא קראת ספרים עדיין.</p>
+              )}
             </div>
+          </div>
+
           </div>
         )}
       </div>

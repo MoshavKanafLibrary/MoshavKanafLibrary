@@ -155,22 +155,26 @@ app.get('/api/users/:uid/historyBooks', async (req, res) => {
       const historyBooks = user.historyBooks || [];
       console.log("Initial History Books found:", historyBooks.length);
 
-      // Fetch each book's title using the copyID
+      // Fetch each book's title and relevant dates
       const booksDetails = historyBooks.map(historyBook => ({
         title: historyBook.title,
-        returnDate: historyBook.returnDate
+        returnDate: historyBook.returnDate,
+        requestDate: historyBook.requestDate,
+        startDate: historyBook.startDate
       }));
 
       console.log("Processed History Books:", booksDetails.length);
       console.log(booksDetails);
       return res.status(200).json({ success: true, historyBooks: booksDetails });
+    } else {
+      return res.status(404).json({ success: false, message: "User not found in local cache" });
     }
-
   } catch (error) {
     console.error('Error fetching user history books:', error);
     return res.status(500).json({ success: false, message: `Error fetching data: ${error.message}` });
   }
 });
+
 
 const getUniqueCopyID = async () => {
   let isUnique = false;
@@ -1015,10 +1019,19 @@ app.put('/api/users/:uid/addToHistory', async (req, res) => {
 
     const userData = userSnap.data();
     const historyBooks = userData.historyBooks || [];
+    
+    // Get the corresponding borrowed book entry
+    const borrowedBook = userData.borrowBooksList ? userData.borrowBooksList[title] : null;
+
+    if (!borrowedBook) {
+      return res.status(404).json({ success: false, message: "Borrowed book entry not found" });
+    }
 
     historyBooks.push({
       copyID: copyID,
       title: title,
+      requestDate: borrowedBook.requestDate || null,
+      startDate: borrowedBook.startDate || null,
       returnDate: new Date()
     });
 
