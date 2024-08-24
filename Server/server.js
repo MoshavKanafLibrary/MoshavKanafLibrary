@@ -158,7 +158,7 @@ app.get('/api/users/:uid/historyBooks', async (req, res) => {
       // Fetch each book's title using the copyID
       const booksDetails = historyBooks.map(historyBook => ({
         title: historyBook.title,
-        readDate: historyBook.readDate
+        returnDate: historyBook.returnDate
       }));
 
       console.log("Processed History Books:", booksDetails.length);
@@ -1003,7 +1003,7 @@ app.put('/api/users/:uid/addToHistory', async (req, res) => {
     historyBooks.push({
       copyID: copyID,
       title: title,
-      readDate: new Date()
+      returnDate: new Date()
     });
 
     await updateDoc(userRef, { historyBooks });

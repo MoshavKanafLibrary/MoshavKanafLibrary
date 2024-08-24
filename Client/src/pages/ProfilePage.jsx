@@ -41,7 +41,7 @@ const ProfilePage = () => {
         const booksData = response.data.historyBooks || [];
         const books = booksData.map(book => ({
           title: book.title,
-          readDate: new Date(book.readDate.seconds * 1000).toLocaleDateString()
+          returnDate: new Date(book.returnDate.seconds * 1000).toLocaleDateString()
         }));
         setReadBooks(books);
 
@@ -283,7 +283,7 @@ const ProfilePage = () => {
                       className="bg-bg-hover p-4 rounded-lg shadow-lg flex flex-col items-center"
                     >
                       <h4 className="text-xl text-bg-navbar-custom">{book.title}</h4>
-                      <p className="text-bg-navbar-custom">תאריך קריאה: {book.readDate}</p>
+                      <p className="text-bg-navbar-custom">תאריך החזרה בפועל: {book.returnDate}</p>
   
                       {ratingLoading ? (
                         <FaSpinner className="animate-spin text-2xl text-bg-navbar-custom mt-4" />
