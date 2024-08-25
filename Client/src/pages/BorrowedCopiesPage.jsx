@@ -145,9 +145,10 @@ const BorrowedCopiesPage = () => {
             <thead className="bg-bg-text text-bg-navbar-custom text-sm sm:text-lg">
               <tr>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">כותר</th>
-                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">שם משאיל</th>
-                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מייל</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מזהה עותק</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">שם משאיל</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">קוד משתמש</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מייל</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">תאריך בקשה</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">תאריך התחלה</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">תאריך סיום</th>
@@ -158,20 +159,29 @@ const BorrowedCopiesPage = () => {
               {currentBooks.length > 0 ? currentBooks.map((book, index) => (
                 <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom">
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.title}</td>
-                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{`${book.firstName} ${book.lastName}`}</td>
-                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.email}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.copyID}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{`${book.firstName} ${book.lastName}`}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.random}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.email}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.requestDate}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.startDate}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.endDate}</td>
-                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">
-                    <button
-                      onClick={() => returnCopy(book.copyID, book.title, book.uid)}
-                      className="bg-red-500 hover:bg-red-700 text-bg-navbar-custom font-bold py-1 sm:py-2 px-2 sm:px-4 rounded"
-                    >
-                      החזרה
-                    </button>
-                  </td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 flex justify-end gap-4">
+  <button
+    onClick={() => returnCopy(book.copyID, book.title, book.uid)}
+    className="bg-bg-text hover:bg-green-700 text-bg-navbar-custom font-bold py-1 sm:py-2 px-2 sm:px-4 rounded"
+  >
+    החזרת ספר
+  </button>
+  <button
+    className="bg-bg-text hover:bg-green-700 text-bg-navbar-custom font-bold py-1 sm:py-2 px-2 sm:px-4 rounded"
+  >
+    עדכון תאריך החזרה
+  </button>
+</td>
+
+
+
                 </tr>
               )) : <tr><td colSpan="8" className="text-center py-2 sm:py-4 text-bg-navbar-custom">לא נמצאו עותקים מושאלים</td></tr>}
             </tbody>
