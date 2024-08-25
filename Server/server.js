@@ -1482,3 +1482,70 @@ app.get('/api/waiting-list/details', async (req, res) => {
     res.status(500).json({ success: false, message: `Error fetching waiting list details: ${error.message}` });
   }
 });
+
+
+const convertToLocaleString = (dateOrTimestamp) => {
+  if (!dateOrTimestamp) return null;
+
+  let date;
+  if (typeof dateOrTimestamp.seconds === 'number') {
+    date = new Date(dateOrTimestamp.seconds * 1000);
+  } else {
+    date = new Date(dateOrTimestamp);
+  }
+
+  return date.toLocaleString("en-GB", {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    timeZone: 'Asia/Jerusalem'
+  });
+};
+
+const getBorrowedBooksDetails = () => {
+  const borrowedBooksDetails = [];
+
+  for (let [uid, userData] of localUsersData) {
+    if (userData.borrowBooksList) {
+      for (let [title, bookInfo] of Object.entries(userData.borrowBooksList)) {
+        if (bookInfo.status === 'accepted') {
+          // Find the corresponding copyID
+          const copyID = Array.from(localCopiesData.values())
+            .find(copy => copy.title === title && copy.borrowedTo && copy.borrowedTo.uid === uid)?.copyID || null;
+          
+          borrowedBooksDetails.push({
+            uid: uid,
+            random: userData.random || null, 
+            email: userData.email,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            title: title,
+            requestDate: convertToLocaleString(bookInfo.requestDate),
+            startDate: convertToLocaleString(bookInfo.startDate),
+            endDate: convertToLocaleString(bookInfo.endDate),
+            status: bookInfo.status,
+            copyID: copyID // Add the copyID here
+          });
+        }
+      }
+    }
+  }
+
+  return borrowedBooksDetails;
+};
+
+
+
+app.get("/api/borrowed-books-details", async (req, res) => {
+  try {
+    const borrowedBooksDetails = getBorrowedBooksDetails(); 
+    res.status(200).json({ success: true, borrowedBooks: borrowedBooksDetails });
+  } catch (error) {
+    console.error("Error fetching borrowed books details:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch borrowed books details" });
+  }
+});
+

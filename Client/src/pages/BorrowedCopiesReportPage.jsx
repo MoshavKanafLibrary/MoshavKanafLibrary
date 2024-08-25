@@ -38,7 +38,8 @@ const BorrowedCopiesReportPage = () => {
       (book.uid && book.uid.toLowerCase().includes(lowerCaseQuery)) ||
       (book.firstName && book.firstName.toLowerCase().includes(lowerCaseQuery)) ||
       (book.lastName && book.lastName.toLowerCase().includes(lowerCaseQuery)) ||
-      (book.email && book.email.toLowerCase().includes(lowerCaseQuery))
+      (book.email && book.email.toLowerCase().includes(lowerCaseQuery)) ||
+      (book.copyID && String(book.copyID).toLowerCase().includes(lowerCaseQuery))
     );
     setFilteredBooks(filtered);
     setCurrentPage(1); // Reset to first page on new search
@@ -86,6 +87,7 @@ const BorrowedCopiesReportPage = () => {
       תאריך_בקשה: book.requestDate,
       תאריך_התחלה: book.startDate,
       תאריך_סיום: book.endDate,
+      מזהה_עותק: book.copyID,  
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataForExport);
@@ -115,6 +117,7 @@ const BorrowedCopiesReportPage = () => {
             <thead className="bg-bg-text text-bg-navbar-custom text-sm sm:text-lg">
               <tr>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">כותר</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מזהה עותק</th> 
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">שם משאיל</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">קוד משתמש</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מייל</th>
@@ -127,14 +130,16 @@ const BorrowedCopiesReportPage = () => {
               {currentBooks.length > 0 ? currentBooks.map((book, index) => (
                 <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom">
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.title}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.copyID}</td> 
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{`${book.firstName} ${book.lastName}`}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.random}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.email}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.requestDate}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.startDate}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.endDate}</td>
+
                 </tr>
-              )) : <tr><td colSpan="7" className="text-center py-2 sm:py-4 text-bg-navbar-custom">לא נמצאו ספרים מושאלים</td></tr>}
+              )) : <tr><td colSpan="8" className="text-center py-2 sm:py-4 text-bg-navbar-custom">לא נמצאו ספרים מושאלים</td></tr>}
             </tbody>
           </table>
         </div>

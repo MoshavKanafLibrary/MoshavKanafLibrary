@@ -5,8 +5,8 @@ import useUser from '../hooks/useUser'; // Import the custom hook to get the use
 
 const BorrowedCopiesPage = () => {
   const { user } = useUser(); // Get the user object
-  const [borrowedCopies, setBorrowedCopies] = useState([]);
-  const [filteredCopies, setFilteredCopies] = useState([]);
+  const [borrowedBooks, setBorrowedBooks] = useState([]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -15,47 +15,41 @@ const BorrowedCopiesPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    axios.get("/api/copies/borrowed")
+    axios.get("/api/borrowed-books-details")
       .then(response => {
-        if (response.data.success && Array.isArray(response.data.borrowedCopies)) {
-          setBorrowedCopies(response.data.borrowedCopies);
-          setFilteredCopies(response.data.borrowedCopies);
+        if (response.data.success && Array.isArray(response.data.borrowedBooks)) {
+          setBorrowedBooks(response.data.borrowedBooks);
+          setFilteredBooks(response.data.borrowedBooks);
         } else {
           console.error("Unexpected data format:", response.data);
         }
         setLoading(false);
       })
       .catch(error => {
-        console.error("Error fetching borrowed copies:", error);
+        console.error("Error fetching borrowed books details:", error);
         setLoading(false);
       });
   }, []);
 
   useEffect(() => {
     const lowerCaseQuery = searchQuery.toLowerCase();
-  
-    const filtered = borrowedCopies.filter(copy => {
-      const titleMatch = String(copy.title).toLowerCase().includes(lowerCaseQuery);
-  
-      const copyIDMatch = String(copy.copyID).toLowerCase().includes(lowerCaseQuery);
-  
-      const borrowerMatch = 
-        (copy.borrowedTo.firstName && String(copy.borrowedTo.firstName).toLowerCase().includes(lowerCaseQuery)) ||
-        (copy.borrowedTo.lastName && String(copy.borrowedTo.lastName).toLowerCase().includes(lowerCaseQuery)) ||
-        (copy.borrowedTo.uid && String(copy.borrowedTo.uid).toLowerCase().includes(lowerCaseQuery));
-  
-      return titleMatch || copyIDMatch || borrowerMatch;
-    });
-  
-    setFilteredCopies(filtered);
+    const filtered = borrowedBooks.filter(book =>
+      (book.title && book.title.toLowerCase().includes(lowerCaseQuery)) ||
+      (book.uid && book.uid.toLowerCase().includes(lowerCaseQuery)) ||
+      (book.firstName && book.firstName.toLowerCase().includes(lowerCaseQuery)) ||
+      (book.lastName && book.lastName.toLowerCase().includes(lowerCaseQuery)) ||
+      (book.email && book.email.toLowerCase().includes(lowerCaseQuery)) ||
+      (book.copyID && book.copyID.toString().includes(lowerCaseQuery)) // Include copyID in search
+    );
+    setFilteredBooks(filtered);
     setCurrentPage(1); // Reset to first page on new search
-  }, [searchQuery, borrowedCopies]);
-  
-  const indexOfLastCopy = currentPage * itemsPerPage;
-  const indexOfFirstCopy = indexOfLastCopy - itemsPerPage;
-  const currentCopies = filteredCopies.slice(indexOfFirstCopy, indexOfLastCopy);
+  }, [searchQuery, borrowedBooks]);
 
-  const totalPages = Math.ceil(filteredCopies.length / itemsPerPage);
+  const indexOfLastBook = currentPage * itemsPerPage;
+  const indexOfFirstBook = indexOfLastBook - itemsPerPage;
+  const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook);
+
+  const totalPages = Math.ceil(filteredBooks.length / itemsPerPage);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -70,15 +64,12 @@ const BorrowedCopiesPage = () => {
       try {
         const response = await axios.put('/api/copies/returnCopy', { copyID, borrowerUID });
         if (response.data.success) {
-          // Remove the returned copy from both borrowedCopies and filteredCopies
-          setBorrowedCopies(prevCopies => prevCopies.filter(copy => copy.copyID !== copyID));
-          setFilteredCopies(prevCopies => prevCopies.filter(copy => copy.copyID !== copyID));
+          setBorrowedBooks(prevBooks => prevBooks.filter(book => book.copyID !== copyID));
+          setFilteredBooks(prevBooks => prevBooks.filter(book => book.copyID !== copyID));
           setSuccessMessage("Book returned successfully.");
   
-          // Add the returned book to the borrower's history
           await axios.put(`/api/users/${borrowerUID}/addToHistory`, { copyID, title });
   
-          // Delete the book entry from the borrower's borrow-books-list
           const deleteBorrowListResponse = await axios.delete(`/api/users/${borrowerUID}/borrow-books-list/deletebookfromborrowlist`, { data: { title } });
           if (deleteBorrowListResponse.data.success) {
             console.log("Book entry deleted from borrow-books-list successfully");
@@ -96,7 +87,7 @@ const BorrowedCopiesPage = () => {
       }
     }
   };
-  
+
   const renderPageNumbers = () => {
     const pages = [];
     const maxPageNumbersToShow = 5;
@@ -154,53 +145,35 @@ const BorrowedCopiesPage = () => {
             <thead className="bg-bg-text text-bg-navbar-custom text-sm sm:text-lg">
               <tr>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">כותר</th>
-                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">הושאל ל</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">שם משאיל</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מייל</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מזהה עותק</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">תאריך בקשה</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">תאריך התחלה</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">תאריך סיום</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">פעולות</th>
               </tr>
             </thead>
             <tbody className="text-bg-text">
-              {currentCopies.length > 0 ? currentCopies.map((copy, index) => (
+              {currentBooks.length > 0 ? currentBooks.map((book, index) => (
                 <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom">
-                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{copy.title}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.title}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{`${book.firstName} ${book.lastName}`}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.email}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.copyID}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.requestDate}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.startDate}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.endDate}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">
-                    {Array.isArray(copy.borrowedTo) ? (
-                      copy.borrowedTo.map((borrower, i) => (
-                        <div key={i} className="mb-2">
-                          <strong>שם:</strong> {borrower.firstName} {borrower.lastName}<br />
-                          <strong>מזהה משתמש:</strong> {borrower.uid}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="mb-2">
-                        <strong>שם:</strong> {copy.borrowedTo.firstName} {copy.borrowedTo.lastName}<br />
-                        <strong>מזהה משתמש:</strong> {copy.borrowedTo.uid}
-                      </div>
-                    )}
-                  </td>
-                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{copy.copyID}</td>
-                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">
-                    {Array.isArray(copy.borrowedTo) ? (
-                      copy.borrowedTo.map((borrower, i) => (
-                        <button
-                          key={i}
-                          onClick={() => returnCopy(copy.copyID, copy.title, borrower.uid)}
-                          className="bg-red-500 hover:bg-red-700 text-bg-navbar-custom font-bold py-1 sm:py-2 px-2 sm:px-4 rounded mr-2"
-                        >
-                          החזרה
-                        </button>
-                      ))
-                    ) : (
-                      <button
-                        onClick={() => returnCopy(copy.copyID, copy.title, copy.borrowedTo.uid)}
-                        className="bg-red-500 hover:bg-red-700 text-bg-navbar-custom font-bold py-1 sm:py-2 px-2 sm:px-4 rounded"
-                      >
-                        החזרה
-                      </button>
-                    )}
+                    <button
+                      onClick={() => returnCopy(book.copyID, book.title, book.uid)}
+                      className="bg-red-500 hover:bg-red-700 text-bg-navbar-custom font-bold py-1 sm:py-2 px-2 sm:px-4 rounded"
+                    >
+                      החזרה
+                    </button>
                   </td>
                 </tr>
-              )) : <tr><td colSpan="4" className="text-center py-2 sm:py-4 text-bg-navbar-custom">לא נמצאו עותקים מושאלים</td></tr>}
+              )) : <tr><td colSpan="8" className="text-center py-2 sm:py-4 text-bg-navbar-custom">לא נמצאו עותקים מושאלים</td></tr>}
             </tbody>
           </table>
         </div>
