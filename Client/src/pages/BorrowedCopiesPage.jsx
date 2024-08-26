@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
-import useUser from '../hooks/useUser'; // Import the custom hook to get the user
+import useUser from '../hooks/useUser';
 
 const BorrowedCopiesPage = () => {
-  const { user } = useUser(); // Get the user object
+  const { user } = useUser();
   const [borrowedBooks, setBorrowedBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -13,6 +13,7 @@ const BorrowedCopiesPage = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [showOverdue, setShowOverdue] = useState(false); // Track the state of the button
 
   useEffect(() => {
     axios.get("/api/borrowed-books-details")
@@ -39,10 +40,10 @@ const BorrowedCopiesPage = () => {
       (book.firstName && book.firstName.toLowerCase().includes(lowerCaseQuery)) ||
       (book.lastName && book.lastName.toLowerCase().includes(lowerCaseQuery)) ||
       (book.email && book.email.toLowerCase().includes(lowerCaseQuery)) ||
-      (book.copyID && book.copyID.toString().includes(lowerCaseQuery)) // Include copyID in search
+      (book.copyID && book.copyID.toString().includes(lowerCaseQuery))
     );
     setFilteredBooks(filtered);
-    setCurrentPage(1); // Reset to first page on new search
+    setCurrentPage(1);
   }, [searchQuery, borrowedBooks]);
 
   const indexOfLastBook = currentPage * itemsPerPage;
@@ -53,6 +54,59 @@ const BorrowedCopiesPage = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const filterOverdueBooks = () => {
+    if (showOverdue) {
+      // If currently showing overdue books, reset to showing all books
+      setFilteredBooks(borrowedBooks);
+      setShowOverdue(false);
+    } else {
+      // Filter for overdue books
+      const today = new Date(); 
+      console.log("Today's Date:", today);
+  
+      const parseCustomDate = (dateString) => {
+        const [day, month, year, time] = dateString.split(' ').filter(part => part !== 'at');
+        const [hour, minute, second] = time.split(':');
+        const months = {
+          January: 0, February: 1, March: 2, April: 3,
+          May: 4, June: 5, July: 6, August: 7,
+          September: 8, October: 9, November: 10, December: 11
+        };
+        return new Date(year, months[month], day, hour, minute, second);
+      };
+  
+      const overdueBooks = borrowedBooks.filter(book => {
+        let endDate;
+  
+        if (book.endDate) {
+          if (typeof book.endDate === 'object' && book.endDate.seconds) {
+            // If endDate is a timestamp
+            endDate = new Date(book.endDate.seconds * 1000);
+            console.log(`Book: ${book.title} - TIMESTAMP endDate:`, endDate);
+          } else {
+            // If endDate is a string date
+            endDate = parseCustomDate(book.endDate);
+            console.log(`Book: ${book.title} - Parsed endDate:`, endDate);
+          }
+        } else {
+          console.log(`Book: ${book.title} - No endDate found`);
+        }
+  
+        const isOverdue = endDate < today;
+        console.log(`Book: ${book.title} - isOverdue:`, isOverdue);
+  
+        return isOverdue; // Only books with overdue dates
+      });
+  
+      console.log("Filtered Overdue Books:", overdueBooks);
+  
+      setFilteredBooks(overdueBooks);
+      setShowOverdue(true);
+    }
+
+    setCurrentPage(1); // Reset to the first page after filtering
+  };
+  
   const returnCopy = async (copyID, title, borrowerUID) => {
     if (!user) {
       setErrorMessage("User is not logged in.");
@@ -101,8 +155,15 @@ const BorrowedCopiesPage = () => {
       });
   
       if (response.data.success) {
+        // Update the local state with the new end date
+        setBorrowedBooks(prevBooks => prevBooks.map(book =>
+          book.copyID === copyID ? { ...book, endDate: newEndDate } : book
+        ));
+        setFilteredBooks(prevBooks => prevBooks.map(book =>
+          book.copyID === copyID ? { ...book, endDate: newEndDate } : book
+        ));
+  
         setSuccessMessage("Return date updated successfully.");
-        // Update the state or re-fetch the data to reflect changes
       } else {
         setErrorMessage("Failed to update return date.");
       }
@@ -112,7 +173,6 @@ const BorrowedCopiesPage = () => {
     }
   };
   
-
   const renderPageNumbers = () => {
     const pages = [];
     const maxPageNumbersToShow = 5;
@@ -158,13 +218,23 @@ const BorrowedCopiesPage = () => {
             <span className="block sm:inline"> {errorMessage}</span>
           </div>
         )}
+        <div className="flex justify-between mb-4">
         <input
-          type="text"
-          className="w-full p-2 sm:p-3 mb-4 text-base sm:text-lg bg-bg-navbar-custom text-bg-text"
-          placeholder="חפש עותקים מושאלים..."
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-        />
+  type="text"
+  className="w-11/12 p-2 sm:p-3 text-base sm:text-lg bg-bg-navbar-custom text-bg-text ml-2"
+  placeholder="חפש עותקים מושאלים..."
+  value={searchQuery}
+  onChange={e => setSearchQuery(e.target.value)}
+/>
+
+          <button
+            className="bg-bg-header-custom text-bg-text ml-1.5 px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-bg-hover hover:text-white"
+            onClick={filterOverdueBooks}
+          >
+            {showOverdue ? "הצג הכל" : "מאחרים"}
+          </button>
+        </div>
+
         <div className="overflow-x-auto mb-4">
           <table className="min-w-full bg-bg-navbar-custom rounded-lg shadow-lg text-sm sm:text-base">
             <thead className="bg-bg-text text-bg-navbar-custom text-sm sm:text-lg">
@@ -192,30 +262,26 @@ const BorrowedCopiesPage = () => {
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.startDate}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.endDate}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 flex justify-end gap-4">
-  <button
-    onClick={() => returnCopy(book.copyID, book.title, book.uid)}
-    className="bg-bg-text hover:bg-green-700 text-bg-navbar-custom font-bold py-1 sm:py-2 px-2 sm:px-4 rounded"
-  >
-    החזרת ספר
-  </button>
-  <button
-  className="bg-bg-text hover:bg-green-700 text-bg-navbar-custom font-bold py-1 sm:py-2 px-2 sm:px-4 rounded"
-  onClick={() => {
-    const newEndDate = prompt("הכנס תאריך חדש בפורמט DD-MM-YYYY:");
-    if (newEndDate) {
-      updateReturnDate(book.copyID, book.title, book.uid, newEndDate);
-    }
-  }}
->
-  עדכון תאריך החזרה
-</button>
-
-</td>
-
-
-
+                    <button
+                      onClick={() => returnCopy(book.copyID, book.title, book.uid)}
+                      className="bg-bg-text hover:bg-green-700 text-bg-navbar-custom font-bold py-1 sm:py-2 px-2 sm:px-4 rounded"
+                    >
+                      החזרת ספר
+                    </button>
+                    <button
+                      className="bg-bg-text hover:bg-green-700 text-bg-navbar-custom font-bold py-1 sm:py-2 px-2 sm:px-4 rounded"
+                      onClick={() => {
+                        const newEndDate = prompt("הכנס תאריך חדש בפורמט DD-MM-YYYY:");
+                        if (newEndDate) {
+                          updateReturnDate(book.copyID, book.title, book.uid, newEndDate);
+                        }
+                      }}
+                    >
+                      עדכון תאריך החזרה
+                    </button>
+                  </td>
                 </tr>
-              )) : <tr><td colSpan="8" className="text-center py-2 sm:py-4 text-bg-navbar-custom">לא נמצאו עותקים מושאלים</td></tr>}
+              )) : <tr><td colSpan="9" className="text-center py-2 sm:py-4 text-bg-navbar-custom">לא נמצאו עותקים מושאלים</td></tr>}
             </tbody>
           </table>
         </div>
@@ -244,3 +310,4 @@ const BorrowedCopiesPage = () => {
 };
 
 export default BorrowedCopiesPage;
+
