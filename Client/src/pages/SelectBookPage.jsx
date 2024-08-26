@@ -36,23 +36,6 @@ const SelectBookPage = () => {
     setFilteredBooks(filtered);
   }, [bookSearchQuery, books]);
 
-  const convertToDateString = (date) => {
-    if (!date) return 'N/A';
-    if (date.seconds) { 
-      return new Date(date.seconds * 1000).toLocaleDateString("en-US", {
-        month: "short",
-        day: "2-digit",
-        year: "numeric"
-      });
-    }
-    const convertedDate = new Date(date);
-    return isNaN(convertedDate) ? 'N/A' : convertedDate.toLocaleDateString("en-US", {
-      month: "short",
-      day: "2-digit",
-      year: "numeric"
-    });
-  };
-
   const handleBookSelect = async (id) => {
     setLoading(true);
 
@@ -64,17 +47,28 @@ const SelectBookPage = () => {
       const allCopies = copiesResponse.data.copies;
       setCopies(allCopies);
 
-      const borrowed = allCopies.filter(copy => copy.borrowedTo);
-      setBorrowedCopies(borrowed.map(copy => ({
-        ...copy,
-        borrowedTo: {
-          ...copy.borrowedTo,
-          startDate: convertToDateString(copy.borrowedTo.startDate),
-          endDate: convertToDateString(copy.borrowedTo.endDate),
-        },
-      })));
+      // Fetch borrowed books details
+      const borrowedBooksResponse = await axios.get('/api/borrowed-books-details');
+      const borrowedDetails = borrowedBooksResponse.data.borrowedBooks;
 
-      const available = allCopies.filter(copy => !copy.borrowedTo);
+      const borrowed = allCopies.filter(copy => {
+        const detail = borrowedDetails.find(detail => detail.copyID === copy.copyID);
+        return detail;
+      }).map(copy => {
+        const detail = borrowedDetails.find(detail => detail.copyID === copy.copyID);
+        return {
+          ...copy,
+          borrowedTo: {
+            ...detail,
+            startDate: detail.startDate,
+            endDate: detail.endDate,
+          },
+        };
+      });
+
+      setBorrowedCopies(borrowed);
+
+      const available = allCopies.filter(copy => !borrowed.some(borrowedCopy => borrowedCopy.copyID === copy.copyID));
       setAvailableCopies(available);
 
       const waitingListResponse = await axios.get('/api/waiting-list/details');
@@ -201,7 +195,7 @@ const SelectBookPage = () => {
                       className="bg-bg-hover p-4 rounded-lg shadow-lg"
                     >
                       <h4 className="text-xl text-bg-navbar-custom">{entry.firstName} {entry.lastName}</h4>
-                      <p className="text-bg-navbar-custom">תאריך בקשה: {convertToDateString(entry.waitingDate)}</p>
+                      <p className="text-bg-navbar-custom">תאריך בקשה: {entry.waitingDate}</p>
                       <p className="text-bg-navbar-custom">אימייל: {entry.email}</p>
                     </li>
                   ))
