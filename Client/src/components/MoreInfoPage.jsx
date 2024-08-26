@@ -55,6 +55,9 @@ const MoreInfoPage = () => {
               <label className="block text-bg-navbar-custom text-sm mb-2">
                 כתובת האימייל שלך: {user.email}
               </label>
+              <label className="block text-bg-navbar-custom text-sm mb-2">
+                קוד משתמש {user.random}
+              </label>
             </div>
           )}
           <div className="mb-3">

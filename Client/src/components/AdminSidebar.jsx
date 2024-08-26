@@ -70,7 +70,7 @@ const AdminSidebar = ({ isVisible, toggleSidebar }) => {
               </li>
               <li className="flex items-center p-2 sm:p-2 hover:bg-bg-hover hover:text-bg-header-custom rounded cursor-pointer" onClick={() => handleNavigate("/all-requests", { mode: 0 })}>
                 <FaTasks className="text-sm sm:text-lg ml-2 sm:ml-2" />
-                <span className="text-xs sm:text-sm">בקשות כלליות</span>
+                <span className="text-xs sm:text-sm">בקשות ספרים</span>
               </li>
             </ul>
           )}
