@@ -88,6 +88,31 @@ const BorrowedCopiesPage = () => {
     }
   };
 
+  const updateReturnDate = async (copyID, title, borrowerUID, newEndDate) => {
+    if (!user) {
+      setErrorMessage("User is not logged in.");
+      return;
+    }
+  
+    try {
+      const response = await axios.put(`/api/users/${borrowerUID}/borrow-books-list/update-return-date`, {
+        title: title,
+        newEndDate: newEndDate,
+      });
+  
+      if (response.data.success) {
+        setSuccessMessage("Return date updated successfully.");
+        // Update the state or re-fetch the data to reflect changes
+      } else {
+        setErrorMessage("Failed to update return date.");
+      }
+    } catch (error) {
+      console.error("Error updating return date:", error);
+      setErrorMessage("Error updating return date: " + (error.response ? error.response.data.message : error.message));
+    }
+  };
+  
+
   const renderPageNumbers = () => {
     const pages = [];
     const maxPageNumbersToShow = 5;
@@ -174,10 +199,17 @@ const BorrowedCopiesPage = () => {
     החזרת ספר
   </button>
   <button
-    className="bg-bg-text hover:bg-green-700 text-bg-navbar-custom font-bold py-1 sm:py-2 px-2 sm:px-4 rounded"
-  >
-    עדכון תאריך החזרה
-  </button>
+  className="bg-bg-text hover:bg-green-700 text-bg-navbar-custom font-bold py-1 sm:py-2 px-2 sm:px-4 rounded"
+  onClick={() => {
+    const newEndDate = prompt("הכנס תאריך חדש בפורמט DD-MM-YYYY:");
+    if (newEndDate) {
+      updateReturnDate(book.copyID, book.title, book.uid, newEndDate);
+    }
+  }}
+>
+  עדכון תאריך החזרה
+</button>
+
 </td>
 
 

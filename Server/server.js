@@ -1549,3 +1549,63 @@ app.get("/api/borrowed-books-details", async (req, res) => {
   }
 });
 
+
+const convertToValidDate = (dateStr) => {
+  const [day, month, year] = dateStr.split('-');
+  return `${year}-${month}-${day}`;
+};
+
+app.put("/api/users/:uid/borrow-books-list/update-return-date", async (req, res) => {
+  const { uid } = req.params;
+  const { title, newEndDate } = req.body;
+
+  if (!title || !newEndDate) {
+    return res.status(400).json({ success: false, message: "Book title and new end date are required" });
+  }
+
+  try {
+    // Convert the newEndDate to the correct format
+    const formattedDate = convertToValidDate(newEndDate);
+    console.log("Formatted newEndDate:", formattedDate);
+
+    // Convert the newEndDate to a JavaScript Date object
+    const endDate = new Date(formattedDate);
+    console.log("Converted endDate:", endDate); // לוג עבור התאריך לאחר ההמרה
+
+    // Check if the date is valid
+    if (isNaN(endDate.getTime())) {
+      console.error("Invalid date provided:", newEndDate);
+      return res.status(400).json({ success: false, message: "Invalid date format provided." });
+    }
+
+    // Reference to the user document
+    const userRef = doc(db, "users", uid);
+
+    // Get the user document snapshot
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    let userData = userSnap.data();
+
+    // Verify if the book exists in the borrowBooksList
+    if (!userData.borrowBooksList || !userData.borrowBooksList[title]) {
+      return res.status(404).json({ success: false, message: "Book entry not found in borrowBooksList" });
+    }
+
+    // Update the end date in the borrowBooksList
+    userData.borrowBooksList[title].endDate = endDate;
+
+    // Update the user document in Firestore
+    await updateDoc(userRef, { borrowBooksList: userData.borrowBooksList });
+
+    // Update the local cache
+    localUsersData.set(uid, userData);
+
+    res.status(200).json({ success: true, message: "Return date updated successfully" });
+  } catch (error) {
+    console.error("Error updating return date:", error);
+    res.status(500).json({ success: false, message: `Failed to update return date: ${error.message}` });
+  }
+});
