@@ -155,13 +155,13 @@ app.get('/api/users/:uid/historyBooks', async (req, res) => {
       const historyBooks = user.historyBooks || [];
       console.log("Initial History Books found:", historyBooks.length);
 
-      // Fetch each book's title and relevant dates
       const booksDetails = historyBooks.map(historyBook => ({
         title: historyBook.title,
-        returnDate: historyBook.returnDate,
-        requestDate: historyBook.requestDate,
-        startDate: historyBook.startDate
+        returnDate: historyBook.returnDate ? historyBook.returnDate : new Date().getTime(),
+        requestDate: historyBook.requestDate ? historyBook.requestDate : new Date().getTime(),
+        startDate: historyBook.startDate ? historyBook.startDate : new Date().getTime()
       }));
+      
 
       console.log("Processed History Books:", booksDetails.length);
       console.log(booksDetails);
