@@ -49,7 +49,7 @@ const UserRequestsPage = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full " dir="rtl">
       <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">
-        שלח בקשה
+        צור בקשת ספר
       </h1>
       <form
         className="bg-bg-hover shadow-2xl rounded-lg md:px-16 px-4 pt-10 pb-12 w-full sm:w-3/4 lg:w-1/2"

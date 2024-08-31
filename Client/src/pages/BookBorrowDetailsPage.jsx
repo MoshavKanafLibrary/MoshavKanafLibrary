@@ -10,13 +10,11 @@ const BookBorrowDetailsPage = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6); // Defines the number of items per page
+  const [userDetails, setUserDetails] = useState({});
 
   const navigate = useNavigate();
   const location = useLocation();
   const bookTitle = location.state?.bookTitle;
-  const firstName = location.state?.firstName;
-  const lastName = location.state?.lastName;
-  const phone = location.state?.phone;
   const uid = location.state?.uid;
 
   useEffect(() => {
@@ -35,10 +33,24 @@ const BookBorrowDetailsPage = () => {
       }
     };
 
-    if (bookTitle) {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await axios.get(`/api/users/${uid}`);
+        if (response.status === 200) {
+          setUserDetails(response.data);
+        } else {
+          setError("לא נמצאו פרטי המשתמש.");
+        }
+      } catch (error) {
+        setError(`נכשל בשליפת פרטי המשתמש: ${error.response?.data?.message || error.message}`);
+      }
+    };
+
+    if (bookTitle && uid) {
       fetchCopies();
+      fetchUserDetails();
     }
-  }, [bookTitle]);
+  }, [bookTitle, uid]);
 
   const handleBorrow = async (copyID) => {
     try {
@@ -54,7 +66,7 @@ const BookBorrowDetailsPage = () => {
           if (updateBorrowResponse.data.success) {
             setCopies(prevCopies => prevCopies.map(copy => {
               if (copy.copyID === copyID) {
-                return { ...copy, borrowedTo: [{ firstName, lastName }] };
+                return { ...copy, borrowedTo: { firstName: userDetails.firstName, lastName: userDetails.lastName } };
               }
               return copy;
             }));
@@ -109,7 +121,7 @@ const BookBorrowDetailsPage = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full" dir="rtl">
-      <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">פרטי השאלה עבור "{bookTitle}"</h1>
+      <h1 className="text-3xl md:text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">פרטי השאלה עבור "{bookTitle}"</h1>
       {isLoading ? (
         <div className="flex justify-center items-center">
           <FaSpinner className="animate-spin text-6xl text-bg-navbar-custom" />
@@ -119,16 +131,16 @@ const BookBorrowDetailsPage = () => {
           {copies.length > 0 ? (
             <div className="w-full px-4 flex flex-wrap justify-center gap-4">
               {currentItems.map((copy, index) => (
-                <div key={index} className="bg-bg-navbar-custom p-4 rounded-lg shadow mb-4" style={{ width: 'calc(40% - 16px)' }}>
+                <div key={index} className="bg-bg-navbar-custom p-4 rounded-lg shadow mb-4 w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
                   <div><strong>כותר:</strong> {copy.title}</div>
                   <div><strong>מספר עותק:</strong> {copy.copyID}</div>
-                  <div><strong>סטטוס:</strong> {copy.borrowedTo && copy.borrowedTo.length > 0 ? `הושאל ל-${copy.borrowedTo[0].firstName} ${copy.borrowedTo[0].lastName}` : "זמין"}</div>
+                  <div><strong>סטטוס:</strong> {copy.borrowedTo ? `הושאל ל-${copy.borrowedTo.firstName} ${copy.borrowedTo.lastName}` : "זמין"}</div>
                   {!copy.borrowedTo && (
                     <button
-                      className="mt-4 bg-bg-hover hover:bg-bg-hover text-bg-navbar-custom font-bold py-2 px-4 rounded max-w-xs"
+                      className="mt-4 bg-bg-hover hover:bg-bg-hover text-bg-navbar-custom font-bold py-2 px-4 rounded"
                       onClick={() => handleBorrow(copy.copyID)}
                     >
-                      השאל ל-{`${firstName} ${lastName}`}
+                      השאל ל-{`${userDetails.firstName} ${userDetails.lastName}`}
                     </button>
                   )}
                 </div>
@@ -149,20 +161,20 @@ const BookBorrowDetailsPage = () => {
             ))}
           </div>
           <button
-            className="flex items-center justify-center mt-8 bg-blue-500 hover:bg-blue-600 text-bg-navbar-custom font-bold py-3 px-4 rounded"
+            className="flex items-center justify-center mt-8 bg-blue-500 hover:bg-blue-600 text-bg-navbar-custom font-bold py-3 px-4 rounded w-full max-w-xs"
             onClick={handleNotify}
           >
             <FaBell className="mr-2" />
-            הודע ל-{`${firstName} ${lastName}`} שהספר מוכן לאיסוף!
+            הודע ל-{`${userDetails.firstName} ${userDetails.lastName}`} שהספר מוכן לאיסוף!
           </button>
-          <div className="mt-4 text-bg-navbar-custom">
-            <strong>מספר טלפון:</strong> {phone}
+          <div className="mt-4 text-bg-navbar-custom text-center">
+            <strong>מספר טלפון:</strong> {userDetails.phone}
           </div>
         </>
       )}
-      {error && <div className="text-red-500 p-3 rounded bg-gray-100 my-2">{error}</div>}
-      {successMessage && <div className="text-green-500 p-3 rounded bg-gray-100 my-2">{successMessage}</div>}
-      <button onClick={() => navigate(-1)} className="mt-4 bg-bg-hover hover:bg-bg-hover text-bg-navbar-custom font-bold py-2 px-4 rounded">
+      {error && <div className="text-red-500 p-3 rounded bg-gray-100 my-2 text-center">{error}</div>}
+      {successMessage && <div className="text-green-500 p-3 rounded bg-gray-100 my-2 text-center">{successMessage}</div>}
+      <button onClick={() => navigate(-1)} className="mt-4 bg-bg-hover hover:bg-bg-hover text-bg-navbar-custom font-bold py-2 px-4 rounded w-full max-w-xs">
         חזור
       </button>
     </div>

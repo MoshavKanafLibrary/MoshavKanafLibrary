@@ -70,46 +70,46 @@ const PermissionsPage = () => {
     <>
       {loading && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <FaSpinner className="animate-spin text-white text-6xl" />
+          <FaSpinner className="animate-spin text-white text-4xl sm:text-6xl" />
         </div>
       )}
       <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">כל המשתמשים</h1>
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">כל המשתמשים</h1>
         <input
           type="text"
-          className="w-full p-2 mb-4 text-lg"
+          className="w-full p-2 mb-4 text-sm sm:text-lg bg-bg-navbar-custom text-bg-text"
           placeholder="חפש משתמשים לפי שם, תעודת זהות, אימייל, פלאפון, מזהה רנדומלי, או סטטוס מנהל..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
         <div className="overflow-x-auto mb-4">
-          <table className="min-w-full bg-bg-navbar-custom rounded-lg shadow-lg">
-            <thead className="bg-bg-text text-bg-navbar-custom text-lg">
+          <table className="min-w-full bg-bg-navbar-custom rounded-lg shadow-lg text-sm sm:text-base">
+            <thead className="bg-bg-text text-bg-navbar-custom">
               <tr>
-                <th className="py-4 px-6 text-right">תעודת זהות</th>
-                <th className="py-4 px-6 text-right">שם פרטי</th>
-                <th className="py-4 px-6 text-right">שם משפחה</th>
-                <th className="py-4 px-6 text-right">אימייל</th>
-                <th className="py-4 px-6 text-right">פלאפון</th>
-                <th className="py-4 px-6 text-right">מזהה רנדומלי</th>
-                <th className="py-4 px-6 text-right">הרשאות מנהל</th>
-                <th className="py-4 px-6 text-right">פעולות</th>
+                <th className="py-2 sm:py-4 px-3 sm:px-6 text-right">תעודת זהות</th>
+                <th className="py-2 sm:py-4 px-3 sm:px-6 text-right">שם פרטי</th>
+                <th className="py-2 sm:py-4 px-3 sm:px-6 text-right">שם משפחה</th>
+                <th className="py-2 sm:py-4 px-3 sm:px-6 text-right">אימייל</th>
+                <th className="py-2 sm:py-4 px-3 sm:px-6 text-right">פלאפון</th>
+                <th className="py-2 sm:py-4 px-3 sm:px-6 text-right">מזהה רנדומלי</th>
+                <th className="py-2 sm:py-4 px-3 sm:px-6 text-right">הרשאות מנהל</th>
+                <th className="py-2 sm:py-4 px-3 sm:px-6 text-right">פעולות</th>
               </tr>
             </thead>
             <tbody className="text-bg-text">
               {currentUsers.length > 0 ? currentUsers.map((user, index) => (
                 <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom">
-                  <td className="py-4 px-6 text-right">{user.uid}</td>
-                  <td className="py-4 px-6 text-right">{user.firstName}</td>
-                  <td className="py-4 px-6 text-right">{user.lastName}</td>
-                  <td className="py-4 px-6 text-right">{user.email}</td>
-                  <td className="py-4 px-6 text-right">{user.phone}</td>
-                  <td className="py-4 px-6 text-right">{user.random}</td>
-                  <td className="py-4 px-6 text-right">{user.isManager ? 'כן' : 'לא'}</td>
-                  <td className="py-4 px-6 text-right">
+                  <td className="py-2 sm:py-4 px-3 sm:px-6 text-right">{user.uid}</td>
+                  <td className="py-2 sm:py-4 px-3 sm:px-6 text-right">{user.firstName}</td>
+                  <td className="py-2 sm:py-4 px-3 sm:px-6 text-right">{user.lastName}</td>
+                  <td className="py-2 sm:py-4 px-3 sm:px-6 text-right">{user.email}</td>
+                  <td className="py-2 sm:py-4 px-3 sm:px-6 text-right">{user.phone}</td>
+                  <td className="py-2 sm:py-4 px-3 sm:px-6 text-right">{user.random}</td>
+                  <td className="py-2 sm:py-4 px-3 sm:px-6 text-right">{user.isManager ? 'כן' : 'לא'}</td>
+                  <td className="py-2 sm:py-4 px-3 sm:px-6 text-right">
                     <button
                       onClick={() => toggleManagerStatus(user.uid, user.isManager)}
-                      className={`font-bold py-2 px-4 rounded ${user.isManager ? 'bg-bg-hover text-bg-navbar-custom' : 'bg-bg-hover text-bg-navbar-custom'}`}
+                      className={`font-bold py-1 sm:py-2 px-3 sm:px-4 rounded ${user.isManager ? 'bg-bg-hover text-bg-navbar-custom' : 'bg-bg-hover text-bg-navbar-custom'}`}
                     >
                       {user.isManager ? 'בטל מנהל' : 'עשה מנהל'}
                     </button>
@@ -124,7 +124,7 @@ const PermissionsPage = () => {
             <button
               key={i + 1}
               onClick={() => paginate(i + 1)}
-              className={`mx-1 px-4 py-2 rounded ${currentPage === i + 1 ? 'bg-bg-hover hover:bg-bg-hover text-bg-navbar-custom' : 'bg-bg-navbar-custom text-bg-text'}`}
+              className={`mx-1 px-3 sm:px-4 py-1 sm:py-2 rounded ${currentPage === i + 1 ? 'bg-bg-hover hover:bg-bg-hover text-bg-navbar-custom' : 'bg-bg-navbar-custom text-bg-text'}`}
             >
               {i + 1}
             </button>

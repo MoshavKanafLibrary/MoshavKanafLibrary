@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { FaSpinner, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
 
 const WaitingListPage = () => {
   const [loading, setLoading] = useState(true);
-  const [waitingList, setWaitingList] = useState([]);
+  const [waitingListDetails, setWaitingListDetails] = useState([]);
   const [filteredWaitingList, setFilteredWaitingList] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,52 +15,30 @@ const WaitingListPage = () => {
   const [deleteEntry, setDeleteEntry] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchWaitingListData = async () => {
-      setLoading(true);
-      try {
-        const { data: booksData } = await axios.get("/api/books/getAllBooksData");
-        if (booksData.success) {
-          const waitingListUsersPromises = booksData.books
-            .filter(book => book.waitingList && book.waitingList.length > 0)
-            .flatMap(book => book.waitingList.map(async waitingEntry => {
-              try {
-                const { data: userData } = await axios.get(`/api/users/${waitingEntry.uid}`);
-                return {
-                  ...userData,
-                  bookTitle: book.title,
-                  waitingDate: waitingEntry.Time ? format(new Date(waitingEntry.Time.seconds * 1000), "MMM dd, yyyy p") : 'Date unknown',
-                  uid: waitingEntry.uid,
-                  email: userData.email,
-                  firstName: userData.firstName, // Adding firstName
-                  lastName: userData.lastName, // Adding lastName
-                  bookId: book.id
-                };
-              } catch (userError) {
-                console.error(`Error fetching user data for UID ${waitingEntry.uid}:`, userError);
-                return null; // Skip this entry if user data fetch fails
-              }
-            }));
-
-          const waitingListUsers = (await Promise.all(waitingListUsersPromises)).filter(Boolean); // Filter out null values
-          setWaitingList(waitingListUsers);
-          setFilteredWaitingList(waitingListUsers);
-        } else {
-          console.error("Error fetching books data:", booksData);
-        }
-      } catch (error) {
-        console.error("Error fetching waiting list data:", error);
-      } finally {
-        setLoading(false);
+  const fetchWaitingListDetails = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('/api/waiting-list/details');
+      if (response.data.success) {
+        setWaitingListDetails(response.data.waitingListDetails);
+        setFilteredWaitingList(response.data.waitingListDetails);
+      } else {
+        console.error('Error fetching waiting list details:', response.data.message);
       }
-    };
-
-    fetchWaitingListData();
+    } catch (error) {
+      console.error('Error fetching waiting list details:', error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
+    fetchWaitingListDetails();
+  }, [fetchWaitingListDetails]);
+
+  useEffect(() => {
     const lowerCaseQuery = searchQuery.toLowerCase();
-    const filtered = waitingList.filter(entry =>
+    const filtered = waitingListDetails.filter(entry =>
       (entry.firstName?.toLowerCase() || '').includes(lowerCaseQuery) ||
       (entry.lastName?.toLowerCase() || '').includes(lowerCaseQuery) ||
       (entry.email?.toLowerCase() || '').includes(lowerCaseQuery) ||
@@ -69,18 +46,18 @@ const WaitingListPage = () => {
       (entry.waitingDate?.toLowerCase() || '').includes(lowerCaseQuery)
     );
     setFilteredWaitingList(filtered);
-    setCurrentPage(1); // Reset to first page on new search
-  }, [searchQuery, waitingList]);
+    setCurrentPage(1);
+  }, [searchQuery, waitingListDetails]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredWaitingList.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredWaitingList.length / itemsPerPage);
 
-  const paginate = pageNumber => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleRowClick = (entry) => {
-    navigate('/BookBorrowDetails', { state: { bookTitle: entry.bookTitle, firstName: entry.firstName, lastName: entry.lastName, phone: entry.phone, uid: entry.uid, email: entry.email } });
+    navigate('/BookBorrowDetails', { state: { ...entry } });
   };
 
   const handleDeleteClick = (entry) => {
@@ -91,10 +68,20 @@ const WaitingListPage = () => {
   const confirmDelete = async () => {
     if (deleteEntry) {
       try {
-        await axios.delete(`/api/books/${deleteEntry.bookId}/waiting-list`, { data: { uid: deleteEntry.uid } });
-        await axios.delete(`/api/users/${deleteEntry.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title: deleteEntry.bookTitle } });
-        setWaitingList(prevList => prevList.filter(entry => entry.uid !== deleteEntry.uid));
-        setFilteredWaitingList(prevList => prevList.filter(entry => entry.uid !== deleteEntry.uid));
+        console.log("Deleting entry:", deleteEntry);
+        const responseBook = await axios.delete(`/api/books/${deleteEntry.bookId}/waiting-list`, { data: { uid: deleteEntry.uid } });
+        const responseUser = await axios.delete(`/api/users/${deleteEntry.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title: deleteEntry.bookTitle } });
+
+        if (responseBook.status === 200 && responseUser.status === 200) {
+          console.log("Both delete requests were successful");
+          const updatedWaitingList = waitingListDetails.filter(entry => !(entry.uid === deleteEntry.uid && entry.bookId === deleteEntry.bookId));
+          const updatedFilteredWaitingList = filteredWaitingList.filter(entry => !(entry.uid === deleteEntry.uid && entry.bookId === deleteEntry.bookId));
+
+          setWaitingListDetails(updatedWaitingList);
+          setFilteredWaitingList(updatedFilteredWaitingList);
+        } else {
+          console.error("Error in one of the delete requests:", responseBook, responseUser);
+        }
       } catch (error) {
         console.error("Error deleting request:", error);
       } finally {
@@ -120,7 +107,7 @@ const WaitingListPage = () => {
         <button
           key={i}
           onClick={() => paginate(i)}
-          className={`px-4 py-2 mx-1 rounded-lg ${i === currentPage ? 'bg-bg-hover text-bg-navbar-custom' : 'bg-bg-hover text-bg-navbar-custom'}`}
+          className={`px-2 py-1 sm:px-4 sm:py-2 mx-1 sm:mx-2 rounded-lg ${i === currentPage ? 'bg-bg-header-custom text-black' : 'bg-bg-header-custom text-black hover:bg-bg-hover hover:text-white'}`}
         >
           {i}
         </button>
@@ -146,7 +133,6 @@ const WaitingListPage = () => {
           className="mb-10 p-2 w-full border rounded-md bg-bg-navbar-custom text-bg-text"
         />
         <div className="flex flex-col space-y-2">
-          {/* Header Row */}
           <div className="hidden sm:grid sm:grid-cols-6 text-center font-bold bg-bg-text p-4 rounded-lg text-bg-navbar-custom">
             <div>Uid</div>
             <div>שם פרטי</div>
@@ -155,7 +141,6 @@ const WaitingListPage = () => {
             <div>תאריך בקשה</div>
             <div>כותר הספר</div>
           </div>
-          {/* Entries */}
           {currentItems.length > 0 ? (
             currentItems.map((entry, index) => (
               <div key={index}
@@ -175,22 +160,19 @@ const WaitingListPage = () => {
                 <div className="sm:block">{entry.waitingDate}</div>
                 <div className="sm:block">{entry.bookTitle}</div>
                 <FaTimes
-                  className="absolute top-0 right-0 m-2 text-red-600 cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteClick(entry);
-                  }}
+                  className="absolute top-2 right-2 text-red-500 cursor-pointer hover:text-red-700"
+                  onClick={(e) => { e.stopPropagation(); handleDeleteClick(entry); }}
                 />
               </div>
             ))
           ) : (
-            <div className="text-center py-4 text-bg-navbar-custom">לא נמצאו בקשות</div>
+            <div className="text-center text-bg-navbar-custom">לא נמצאו תוצאות</div>
           )}
         </div>
         {totalPages > 1 && (
           <div className="flex justify-center mt-8">
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
+              className="px-2 sm:px-4 py-1 sm:py-2 mx-1 sm:mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
             >
@@ -198,7 +180,7 @@ const WaitingListPage = () => {
             </button>
             {renderPageNumbers()}
             <button
-              className="px-4 py-2 mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
+              className="px-2 sm:px-4 py-1 sm:py-2 mx-1 sm:mx-2 rounded-lg bg-bg-hover text-bg-navbar-custom"
               onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
@@ -206,31 +188,29 @@ const WaitingListPage = () => {
             </button>
           </div>
         )}
-      </div>
-
-      {/* Confirmation Popup */}
-      {showConfirmPopup && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-bg-navbar-custom p-4 sm:p-8 rounded-lg shadow-lg max-w-sm w-full mx-2">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-bg-text">אישור מחיקה</h2>
-            <p className="text-bg-text">האם אתה בטוח שברצונך למחוק את הבקשה?</p>
-            <div className="mt-6 flex justify-end">
-              <button 
-                onClick={() => setShowConfirmPopup(false)}
-                className="mr-2 px-4 py-2 bg-gray-300 rounded text-bg-text"
-              >
-                ביטול
-              </button>
-              <button 
-                onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 text-bg-navbar-custom rounded"
-              >
-                אישור
-              </button>
+        {showConfirmPopup && (
+          <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <h2 className="text-xl font-bold mb-4">אישור מחיקה</h2>
+              <p>האם אתה בטוח שברצונך למחוק את הבקשה של {deleteEntry?.firstName} {deleteEntry?.lastName}?</p>
+              <div className="mt-4 flex justify-between">
+                <button
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg"
+                  onClick={confirmDelete}
+                >
+                  אישור
+                </button>
+                <button
+                  className="px-4 py-2 bg-gray-300 text-black rounded-lg"
+                  onClick={() => setShowConfirmPopup(false)}
+                >
+                  ביטול
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 };

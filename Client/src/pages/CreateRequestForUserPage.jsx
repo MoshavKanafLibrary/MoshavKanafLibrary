@@ -5,10 +5,16 @@ import { FaSpinner } from 'react-icons/fa';
 const CreateRequestForUserPage = () => {
   const [users, setUsers] = useState([]);
   const [books, setBooks] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedBook, setSelectedBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [bookSearchQuery, setBookSearchQuery] = useState('');
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isBookDropdownOpen, setIsBookDropdownOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,12 +26,14 @@ const CreateRequestForUserPage = () => {
 
         if (usersResponse.data.success && Array.isArray(usersResponse.data.users)) {
           setUsers(usersResponse.data.users);
+          setFilteredUsers(usersResponse.data.users);
         } else {
           console.error("Unexpected data format:", usersResponse.data);
         }
 
         if (booksResponse.data.success && Array.isArray(booksResponse.data.books)) {
           setBooks(booksResponse.data.books);
+          setFilteredBooks(booksResponse.data.books);
         } else {
           console.error("Unexpected data format:", booksResponse.data);
         }
@@ -39,6 +47,25 @@ const CreateRequestForUserPage = () => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const lowerCaseQuery = userSearchQuery.toLowerCase();
+    const filtered = users.filter(user =>
+      user.email.toLowerCase().includes(lowerCaseQuery) ||
+      user.firstName.toLowerCase().includes(lowerCaseQuery) ||
+      user.lastName.toLowerCase().includes(lowerCaseQuery)
+    );
+    setFilteredUsers(filtered);
+  }, [userSearchQuery, users]);
+
+  useEffect(() => {
+    const lowerCaseQuery = bookSearchQuery.toLowerCase();
+    const filtered = books.filter(book =>
+      book.title.toLowerCase().includes(lowerCaseQuery) ||
+      book.author.toLowerCase().includes(lowerCaseQuery)
+    );
+    setFilteredBooks(filtered);
+  }, [bookSearchQuery, books]);
 
   const handleRequest = async () => {
     if (!selectedUser || !selectedBook) {
@@ -67,45 +94,76 @@ const CreateRequestForUserPage = () => {
           <FaSpinner className="animate-spin text-white text-6xl" />
         </div>
       )}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10 " dir="rtl">
-        <h1 className="text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">צור בקשה עבור משתמש</h1>
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-10" dir="rtl">
+        <h1 className="text-3xl md:text-5xl font-extrabold text-center mb-8 tracking-wide text-bg-navbar-custom">צור בקשה עבור משתמש</h1>
         <div className="bg-bg-hover border-4 border-bg-background-gradient-from rounded-lg p-6 mb-4">
-          <div className="flex justify-between mb-4">
-            <div className="border-2 bg-bg-text rounded-lg p-4 w-1/2 pr-2">
-              <label className="block text-bg-navbar-custom text-lg font-medium mb-2">בחר משתמש:</label>
-              <select
+          <div className="flex flex-col space-y-4">
+            <div className="relative w-full">
+              <label className="block text-bg-navbar-custom text-lg font-medium mb-2">חפש משתמש:</label>
+              <input
+                type="text"
                 className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom shadow border rounded text-bg-text leading-tight focus:outline-none focus:shadow-outline"
-                value={selectedUser ? selectedUser.uid : ''}
+                placeholder="הכנס שם משתמש, אימייל או שם פרטי"
+                value={selectedUser ? `${selectedUser.firstName} ${selectedUser.lastName} (${selectedUser.email})` : userSearchQuery}
                 onChange={e => {
-                  const user = users.find(u => u.uid === e.target.value);
-                  setSelectedUser(user);
+                  setUserSearchQuery(e.target.value);
+                  setSelectedUser(null);
+                  setIsUserDropdownOpen(true);
                 }}
-              >
-                <option value="" disabled>בחר משתמש</option>
-                {users.map(user => (
-                  <option key={user.uid} value={user.uid}>
-                    {user.email} - {`${user.firstName} ${user.lastName}`}
-                  </option>
-                ))}
-              </select>
+                onFocus={() => setIsUserDropdownOpen(true)}
+                onBlur={() => setTimeout(() => setIsUserDropdownOpen(false), 200)}
+              />
+              {isUserDropdownOpen && (
+                <div className="absolute z-10 w-full bg-bg-navbar-custom border border-bg-background-gradient-from rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  {filteredUsers.map(user => (
+                    <div
+                      key={user.uid}
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setUserSearchQuery(`${user.firstName} ${user.lastName} (${user.email})`);
+                        setIsUserDropdownOpen(false);
+                      }}
+                      className="cursor-pointer p-2 hover:bg-gray-300"
+                    >
+                      {user.email} - {`${user.firstName} ${user.lastName}`}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="border-2 bg-bg-text rounded-lg p-4 w-1/2 pl-2">
-              <label className="block text-bg-navbar-custom text-lg font-medium mb-2">בחר ספר:</label>
-              <select
+
+            <div className="relative w-full">
+              <label className="block text-bg-navbar-custom text-lg font-medium mb-2">חפש ספר:</label>
+              <input
+                type="text"
                 className="w-full p-2 mb-4 text-lg bg-bg-navbar-custom shadow border rounded text-bg-text leading-tight focus:outline-none focus:shadow-outline"
-                value={selectedBook ? selectedBook.id : ''}
+                placeholder="הכנס שם ספר או סופר"
+                value={selectedBook ? `${selectedBook.title} - ${selectedBook.author}` : bookSearchQuery}
                 onChange={e => {
-                  const book = books.find(b => b.id === e.target.value);
-                  setSelectedBook(book);
+                  setBookSearchQuery(e.target.value);
+                  setSelectedBook(null);
+                  setIsBookDropdownOpen(true);
                 }}
-              >
-                <option value="" disabled>בחר ספר</option>
-                {books.map(book => (
-                  <option key={book.id} value={book.id}>
-                    {book.title} - {book.author}
-                  </option>
-                ))}
-              </select>
+                onFocus={() => setIsBookDropdownOpen(true)}
+                onBlur={() => setTimeout(() => setIsBookDropdownOpen(false), 200)}
+              />
+              {isBookDropdownOpen && (
+                <div className="absolute z-10 w-full bg-bg-navbar-custom border border-bg-background-gradient-from rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                  {filteredBooks.map(book => (
+                    <div
+                      key={book.id}
+                      onClick={() => {
+                        setSelectedBook(book);
+                        setBookSearchQuery(`${book.title} - ${book.author}`);
+                        setIsBookDropdownOpen(false);
+                      }}
+                      className="cursor-pointer p-2 hover:bg-gray-300"
+                    >
+                      {book.title} - {book.author}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

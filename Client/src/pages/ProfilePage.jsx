@@ -13,30 +13,47 @@ const ProfilePage = () => {
   const [ratings, setRatings] = useState({});
   const [hasRated, setHasRated] = useState({});
   const [ratingLoading, setRatingLoading] = useState(true);
+  const [userDetails, setUserDetails] = useState(null);
 
   useEffect(() => {
-    const fetchUserHistoryBooks = async () => {
+    const fetchUserDetails = async () => {
       if (!user) {
         console.error("No user is currently logged in.");
         return;
       }
 
       try {
+        const response = await axios.get(`/api/users/${user.uid}`);
+        setUserDetails(response.data);
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+      }
+    };
+
+    const fetchUserHistoryBooks = async () => {
+      if (!user) {
+        console.error("No user is currently logged in.");
+        return;
+      }
+    
+      try {
         const response = await axios.get(`/api/users/${user.uid}/historyBooks`);
         const booksData = response.data.historyBooks || [];
         const books = booksData.map(book => ({
           title: book.title,
-          readDate: new Date(book.readDate.seconds * 1000).toLocaleDateString()
+          returnDate: new Date(book.returnDate.seconds * 1000).toLocaleDateString(),
+          requestDate: book.requestDate ? new Date(book.requestDate.seconds * 1000).toLocaleDateString() : 'N/A',
+          startDate: book.startDate ? new Date(book.startDate.seconds * 1000).toLocaleDateString() : 'N/A',
         }));
         setReadBooks(books);
-
+    
         // Fetch ratings in parallel after basic details are set
         fetchRatings(books);
       } catch (error) {
         console.error('Error fetching history books:', error);
       }
     };
-
+    
     const fetchRatings = async (books) => {
       try {
         const ratingStatus = {};
@@ -56,6 +73,14 @@ const ProfilePage = () => {
       }
     };
 
+    const convertToDateString = (date) => {
+      if (!date) return 'N/A';
+      if (date.seconds) { 
+        return new Date(date.seconds * 1000).toLocaleDateString();
+      }
+      return new Date(date).toLocaleDateString(); 
+    };
+
     const fetchBorrowedBooks = async () => {
       if (!user) {
         console.error("No user is currently logged in.");
@@ -65,10 +90,13 @@ const ProfilePage = () => {
       try {
         const response = await axios.get(`/api/users/${user.uid}/present-borrow-books-list`);
         const borrowedBooksData = response.data.borrowBooksList || {};
+        console.log(borrowedBooksData);
         const books = Object.entries(borrowedBooksData).map(([title, details]) => ({
           title,
-          borrowedDate: details.startDate ? new Date(details.startDate.seconds * 1000).toLocaleDateString() : 'N/A',
-          dueDate: details.endDate ? new Date(details.endDate.seconds * 1000).toLocaleDateString() : 'N/A',
+          borrowedDate: convertToDateString(details.borrowedDate),
+          requestDate: convertToDateString(details.requestDate),
+          startDate: convertToDateString(details.startDate),
+          endDate: convertToDateString(details.endDate),
           status: details.status,
         }));
         setBorrowedBooks(books);
@@ -80,6 +108,7 @@ const ProfilePage = () => {
     };
 
     if (user) {
+      fetchUserDetails();
       fetchUserHistoryBooks();
       fetchBorrowedBooks();
     }
@@ -189,30 +218,47 @@ const ProfilePage = () => {
           </div>
         ) : (
           <div>
+            {userDetails && (
+              <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mb-8 ">
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> שם מלא: {userDetails.firstName} {userDetails.lastName}</h3>
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.email} :אימייל</h3>
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.phone} :פלאפון</h3>
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.random} :קוד משתמש</h3>
+              </div>
+            )}
+
             <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center">
               <h3 className="mt-6 text-2xl text-bg-text">ספרים מושאלים</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 {borrowedBooks.length > 0 ? (
                   borrowedBooks.map((book, index) => {
-                    const isExpired = new Date(book.dueDate) < new Date();
-                    const dateColor = book.status === 'pending'
+                    const isExpired = new Date(book.requestDate) < new Date();
+                    const titleColor = book.status === 'pending'
                       ? 'bg-yellow-500'
                       : book.status === 'accepted'
                         ? 'bg-green-500'
                         : isExpired
                           ? 'bg-red-500'
                           : 'bg-gray-500';
-  
+
                     return (
                       <div
                         key={index}
                         className="bg-bg-hover p-4 rounded-lg shadow-lg flex flex-col items-center"
                       >
-                        <h4 className="text-xl text-bg-navbar-custom">{book.title}</h4>
-                        <p className={`text-md ${dateColor} text-bg-navbar-custom py-2 px-4 rounded-full`}>
-                          תאריך להחזרה: {book.dueDate}
+                        <h4 className={`text-xl text-bg-navbar-custom py-2 px-4 rounded-full ${titleColor}`}>
+                          {book.title}
+                        </h4>
+                        <p className="text-md text-bg-navbar-custom mt-4">
+                          תאריך בקשה: {book.requestDate}
                         </p>
                         <p className="text-bg-navbar-custom">סטטוס: {book.status === 'pending' ? 'ממתין' : 'מאושר'}</p>
+                        {book.status === 'accepted' && (
+                          <div className="mt-4">
+                            <p className="text-bg-navbar-custom">תאריך התחלה: {book.startDate}</p>
+                            <p className="text-bg-navbar-custom">תאריך סיום: {book.endDate}</p>
+                          </div>
+                        )}
                         {book.status === 'pending' && (
                           <button
                             className="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
@@ -229,53 +275,55 @@ const ProfilePage = () => {
                 )}
               </div>
             </div>
-  
             <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mt-8">
-              <h3 className="mt-6 text-2xl text-bg-text">מה כבר קראתי?</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                {readBooks.length > 0 ? (
-                  readBooks.map((book, index) => (
-                    <div
-                      key={index}
-                      className="bg-bg-hover p-4 rounded-lg shadow-lg flex flex-col items-center"
-                    >
-                      <h4 className="text-xl text-bg-navbar-custom">{book.title}</h4>
-                      <p className="text-bg-navbar-custom">תאריך קריאה: {book.readDate}</p>
-  
-                      {ratingLoading ? (
-                        <FaSpinner className="animate-spin text-2xl text-bg-navbar-custom mt-4" />
+            <h3 className="mt-6 text-2xl text-bg-text">מה כבר קראתי?</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+              {readBooks.length > 0 ? (
+                readBooks.map((book, index) => (
+                  <div
+                    key={index}
+                    className="bg-bg-hover p-4 rounded-lg shadow-lg flex flex-col items-center"
+                  >
+                    <h4 className="text-xl text-bg-navbar-custom">{book.title}</h4>
+                    <p className="text-bg-navbar-custom">תאריך בקשה: {book.requestDate}</p>
+                    <p className="text-bg-navbar-custom">תאריך התחלה: {book.startDate}</p>
+                    <p className="text-bg-navbar-custom">תאריך החזרה בפועל: {book.returnDate}</p>
+
+                    {ratingLoading ? (
+                      <FaSpinner className="animate-spin text-2xl text-bg-navbar-custom mt-4" />
+                    ) : (
+                      !hasRated[book.title] ? (
+                        <div className="mt-4">
+                          <label className="text-bg-navbar-custom">דרג את הספר:</label>
+                          <select
+                            className="ml-2 bg-gray-200 p-1 rounded"
+                            value={ratings[book.title] || ""}
+                            onChange={(e) => handleRatingChange(book.title, parseInt(e.target.value))}
+                          >
+                            <option value="">בחר דירוג</option>
+                            {[1, 2, 3, 4, 5].map(value => (
+                              <option key={value} value={value}>{value}</option>
+                            ))}
+                          </select>
+                          <button
+                            className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-4 rounded"
+                            onClick={() => submitRating(book.title)}
+                          >
+                            שלח
+                          </button>
+                        </div>
                       ) : (
-                        !hasRated[book.title] ? (
-                          <div className="mt-4">
-                            <label className="text-bg-navbar-custom">דרג את הספר:</label>
-                            <select
-                              className="ml-2 bg-gray-200 p-1 rounded"
-                              value={ratings[book.title] || ""}
-                              onChange={(e) => handleRatingChange(book.title, parseInt(e.target.value))}
-                            >
-                              <option value="">בחר דירוג</option>
-                              {[1, 2, 3, 4, 5].map(value => (
-                                <option key={value} value={value}>{value}</option>
-                              ))}
-                            </select>
-                            <button
-                              className="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-4 rounded"
-                              onClick={() => submitRating(book.title)}
-                            >
-                              שלח
-                            </button>
-                          </div>
-                        ) : (
-                          <p className="text-green-500 mt-4">דרגת את הספר הזה</p>
-                        )
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-4">לא קראת ספרים עדיין.</p>
-                )}
-              </div>
+                        <p className="text-green-500 mt-4">דרגת את הספר הזה</p>
+                      )
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-bg-text col-span-1 sm:col-span-2 text-center mt-4">לא קראת ספרים עדיין.</p>
+              )}
             </div>
+          </div>
+
           </div>
         )}
       </div>
@@ -304,7 +352,6 @@ const ProfilePage = () => {
       )}
     </div>
   );
-  
 };
 
 export default ProfilePage;
