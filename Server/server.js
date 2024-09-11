@@ -1651,3 +1651,23 @@ app.post("/api/users/:uid/accept-borrow-books-list", async (req, res) => {
   }
 });
 
+
+// Endpoint to get the average rating and rating count for a book
+app.get("/api/books/:id/rating-details", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const bookData = localBooksData.get(id);
+
+    if (bookData && bookData.ratings) {
+      const totalRatings = bookData.ratings.reduce((acc, curr) => acc + curr.rating, 0);
+      const ratingCount = bookData.ratings.length;
+      const averageRating = totalRatings / ratingCount;
+      return res.status(200).json({ averageRating, ratingCount });
+    } else {
+      return res.status(200).json({ averageRating: 0, ratingCount: 0 });
+    }
+  } catch (error) {
+    console.error("Error fetching rating details:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch rating details" });
+  }
+});
