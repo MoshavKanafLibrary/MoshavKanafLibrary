@@ -80,17 +80,17 @@ const BorrowedCopiesReportPage = () => {
   const exportToExcel = () => {
     // Prepare the data for export
     const dataForExport = filteredBooks.map(book => ({
-      כותר: book.title,
-      שם_משאיל: `${book.firstName} ${book.lastName}`,
-      כמות_נפשות: book.familySize,
-      קוד_משתמש: book.random,
-      מייל: book.email,
-      תאריך_בקשה: book.requestDate,
-      תאריך_התחלה: book.startDate,
+      מזהה_עותק: book.copyID,
       תאריך_סיום: book.endDate,
-      מזהה_עותק: book.copyID,  
+      תאריך_התחלה: book.startDate,
+      תאריך_בקשה: book.requestDate,
+      מייל: book.email,
+      קוד_משתמש: book.random,
+      כמות_נפשות: book.familySize,
+      שם_משאיל: `${book.firstName} ${book.lastName}`,
+      כותר: book.title
     }));
-
+  
     const worksheet = XLSX.utils.json_to_sheet(dataForExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Borrowed Books');

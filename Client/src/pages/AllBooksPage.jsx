@@ -54,13 +54,33 @@ const AllBooksPage = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const exportToExcel = () => {
-    const filteredBooksWithoutWaitingList = filteredBooks.map(({ waitingList, ...rest }) => rest);
-
-    const worksheet = XLSX.utils.json_to_sheet(filteredBooksWithoutWaitingList);
+    // Create the Excel data with specific headers and fields
+    const excelData = filteredBooks.map(book => ({
+      'סוג כותר': book.titleType,
+      'קוד מיקום': book.locatorCode,
+      'מספרי עותקים': book.copiesID.join(', '),
+      'עותקים': book.copies,
+      'סיווג': book.classification,
+      'מחבר': book.author,
+      'כותר': book.title,
+    }));
+    
+  
+    // Create the worksheet and the workbook
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Books');
+  
+    // Adjust column widths for readability
+    const columnWidths = Object.keys(excelData[0]).map((key) => ({
+      wch: Math.max(...excelData.map(book => (book[key] ? book[key].toString().length : 10)), key.length)
+    }));
+    worksheet['!cols'] = columnWidths; // Set column widths
+  
+    // Write the workbook to a file
     XLSX.writeFile(workbook, 'books.xlsx');
   };
+  
 
   const renderPageNumbers = () => {
     const pages = [];

@@ -75,11 +75,30 @@ const AllUsersPage = () => {
   };
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(filteredUsers);
+    const excelData = filteredUsers.map(user => ({
+      'הרשאות מנהל': user.isManager ? 'כן' : 'לא',
+      'פלאפון': user.phone,
+      'אימייל': user.email,
+      'מספר נפשות במשפחה': user.familySize,
+      'שם משפחה': user.lastName,
+      'שם פרטי': user.firstName,
+      'מזהה משתמש': user.random
+    }));
+  
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+    
+    // Adding auto width for better readability
+    const columnWidths = Object.keys(excelData[0]).map((key) => ({
+      wch: Math.max(...excelData.map(user => (user[key] ? user[key].toString().length : 10)), key.length)
+    }));
+    
+    worksheet['!cols'] = columnWidths; // Set column widths
+    
     XLSX.writeFile(workbook, 'users.xlsx');
   };
+  
 
   return (
     <>
