@@ -7,13 +7,14 @@ import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCtIIl1TYhXig2JM9K9KKTPXfLPI7rIkcs",
-  authDomain: "lib-moshavkanaf.firebaseapp.com",
-  projectId: "lib-moshavkanaf",
-  storageBucket: "lib-moshavkanaf.appspot.com",
-  messagingSenderId: "25824000957",
-  appId: "1:25824000957:web:361d8d1512bb3dbb0030d4",
-  measurementId: "G-P4RSY4HQZ4"
+  apiKey: "AIzaSyBmOPl5T6NZU_uuLpf923LWlUd-3VQ-CZ8",
+  authDomain: "library-eae50.firebaseapp.com",
+  databaseURL: "https://library-eae50-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "library-eae50",
+  storageBucket: "library-eae50.appspot.com",
+  messagingSenderId: "147258996344",
+  appId: "1:147258996344:web:2a4a3e23e7f9327f309f8d",
+  measurementId: "G-CKZ548XRFZ"
 };
 
 
