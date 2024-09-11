@@ -82,6 +82,7 @@ const BorrowedCopiesReportPage = () => {
     const dataForExport = filteredBooks.map(book => ({
       כותר: book.title,
       שם_משאיל: `${book.firstName} ${book.lastName}`,
+      כמות_נפשות: book.familySize,
       קוד_משתמש: book.random,
       מייל: book.email,
       תאריך_בקשה: book.requestDate,
@@ -119,6 +120,7 @@ const BorrowedCopiesReportPage = () => {
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">כותר</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מזהה עותק</th> 
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">שם משאיל</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">כמות נפשות במשפחה</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">קוד משתמש</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מייל</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">תאריך בקשה</th>
@@ -132,6 +134,7 @@ const BorrowedCopiesReportPage = () => {
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.title}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.copyID}</td> 
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{`${book.firstName} ${book.lastName}`}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.familySize}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.random}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.email}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.requestDate}</td>

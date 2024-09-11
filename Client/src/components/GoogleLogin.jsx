@@ -21,15 +21,16 @@ const GoogleLogin = () => {
           displayName: user.displayName,
           firstName: "",
           lastName: "",
-          phone: ""
+          phone: "",
+          familySize:""
         });
 
         navigate("/more-info");
       } else {
         const userDoc = await axios.get(`/api/users/${user.uid}`);
-        const { firstName, lastName, phone } = userDoc.data;
+        const { firstName, lastName, phone, familySize } = userDoc.data;
 
-        if (!firstName || !lastName || !phone) {
+        if (!firstName || !lastName || !phone || !familySize) {
           navigate("/more-info");
         } else {
           navigate("/");

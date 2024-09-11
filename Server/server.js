@@ -107,9 +107,9 @@ app.get("/api/users/:uid", async (req, res) => {
 app.put("/api/users/:uid", async (req, res) => {
   try {
     const { uid } = req.params;
-    const { firstName, lastName, phone } = req.body;
+    const { firstName, lastName, phone, familySize } = req.body;
 
-    if (!firstName || !lastName || !phone) {
+    if (!firstName || !lastName || !phone || !familySize) {
       return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
@@ -123,11 +123,11 @@ app.put("/api/users/:uid", async (req, res) => {
     }
 
     // Update the user document with new data
-    await updateDoc(userRef, { firstName, lastName, phone });
+    await updateDoc(userRef, { firstName, lastName, phone, familySize });
 
     // Update local cache
     if (localUsersData.has(uid)) {
-      localUsersData.set(uid, { ...localUsersData.get(uid), firstName, lastName, phone });
+      localUsersData.set(uid, { ...localUsersData.get(uid), firstName, lastName, phone, familySize });
     }
 
     res.status(200).json({ success: true, message: "User data updated successfully" });
@@ -236,7 +236,7 @@ app.put("/api/displaynames/:uid", async (req, res) => {
 app.post("/api/users/signUp", async (req, res) => {
   try {
     console.log("Request body:", req.body); 
-    const { uid, email, displayName, firstName, lastName, phone } = req.body; 
+    const { uid, email, displayName, firstName, lastName, phone, familySize } = req.body; 
     const random = Math.floor(Math.random() * 1000000);
     const usersCollection = collection(db, "users");
 
@@ -249,13 +249,14 @@ app.post("/api/users/signUp", async (req, res) => {
       firstName: firstName,
       lastName: lastName,
       phone: phone,
+      familySize: familySize,
       random: random,
       isManager: false,
       historyBooks: [] 
     });
 
     console.log("User created successfully"); 
-    localUsersData.set(uid, { id: uid, uid, email, displayName, firstName, lastName, phone, random, isManager: false, historyBooks: [] });
+    localUsersData.set(uid, { id: uid, uid, email, displayName, firstName, lastName, phone, familySize, random, isManager: false, historyBooks: [] });
 
     res.status(200).json({ success: true });
   } catch (error) {
@@ -736,7 +737,7 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
     const userData = localUsersData.get(uid);
-    const { firstName, lastName, phone } = userData;
+    const { firstName, lastName, phone, familySize } = userData;
     let copyData = null;
     for (let [key, value] of localCopiesData) {
       if (value.copyID === copyID) {
@@ -748,7 +749,7 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
       return res.status(404).json({ success: false, message: "Copy not found" });
     }
 
-    const newBorrowedEntry = { firstName, lastName, phone, uid };
+    const newBorrowedEntry = { firstName, lastName, phone, familySize, uid };
     const copyDat = localCopiesData.get(copyID);
     const copyDocRef = doc(db, "copies", copyDat.id);
     await updateDoc(copyDocRef, { borrowedTo: newBorrowedEntry });
@@ -1460,10 +1461,12 @@ app.get('/api/waiting-list/details', async (req, res) => {
             const waitingDate = entry.Time?.seconds ? new Date(entry.Time.seconds * 1000) : new Date();
             waitingListDetails.push({
               uid: entry.uid,
+              random: userData.random,
               bookTitle: book.title,
               waitingDate: waitingDate.toLocaleString("en-US", { month: "short", day: "2-digit", year: "numeric", hour: "numeric", minute: "numeric" }),
               firstName: userData.firstName,
               lastName: userData.lastName,
+              familySize: userData.familySize,
               email: userData.email,
               bookId: book.id,
             });
@@ -1522,6 +1525,7 @@ const getBorrowedBooksDetails = () => {
             email: userData.email,
             firstName: userData.firstName,
             lastName: userData.lastName,
+            familySize: userData.familySize,
             title: title,
             requestDate: convertToLocaleString(bookInfo.requestDate),
             startDate: convertToLocaleString(bookInfo.startDate),

@@ -223,6 +223,9 @@ const SelectUserPage = () => {
                   אימייל: {userDetails.email}
                 </h3>
                 <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">
+                  כמות נפשות במשפחה: {userDetails.familySize}
+                </h3>
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">
                   פלאפון: {userDetails.phone}
                 </h3>
                 <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">

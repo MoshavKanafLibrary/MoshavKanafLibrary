@@ -104,6 +104,7 @@ const AllUsersPage = () => {
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מזהה משתמש</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">שם פרטי</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">שם משפחה</th>
+                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מספר נפשות במשפחה</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">אימייל</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">פלאפון</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">הרשאות מנהל</th>
@@ -112,9 +113,10 @@ const AllUsersPage = () => {
             <tbody className="text-bg-text">
               {currentUsers.length > 0 ? currentUsers.map((user, index) => (
                 <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom">
-                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.uid}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.random}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.firstName}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.lastName}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.familySize}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.email}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.phone}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.isManager ? 'כן' : 'לא'}</td>

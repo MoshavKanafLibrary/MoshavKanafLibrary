@@ -133,10 +133,11 @@ const WaitingListPage = () => {
           className="mb-10 p-2 w-full border rounded-md bg-bg-navbar-custom text-bg-text"
         />
         <div className="flex flex-col space-y-2">
-          <div className="hidden sm:grid sm:grid-cols-6 text-center font-bold bg-bg-text p-4 rounded-lg text-bg-navbar-custom">
-            <div>Uid</div>
+          <div className="hidden sm:grid sm:grid-cols-7 text-center font-bold bg-bg-text p-4 rounded-lg text-bg-navbar-custom">
+            <div>מזהה משתמש</div>
             <div>שם פרטי</div>
             <div>שם משפחה</div>
+            <div>כמות נפשות במשפחה</div>
             <div>אימייל</div>
             <div>תאריך בקשה</div>
             <div>כותר הספר</div>
@@ -144,7 +145,7 @@ const WaitingListPage = () => {
           {currentItems.length > 0 ? (
             currentItems.map((entry, index) => (
               <div key={index}
-                className={`grid grid-cols-1 sm:grid-cols-6 text-center bg-bg-navbar-custom hover:bg-bg-hover hover:text-bg-navbar-custom p-4 rounded-lg shadow cursor-pointer relative`}
+                className={`grid grid-cols-1 sm:grid-cols-7 text-center bg-bg-navbar-custom hover:bg-bg-hover hover:text-bg-navbar-custom p-4 rounded-lg shadow cursor-pointer relative`}
                 onMouseEnter={() => setHoverIndex(index)}
                 onMouseLeave={() => setHoverIndex(-1)}
                 onClick={() => handleRowClick(entry)}
@@ -153,9 +154,10 @@ const WaitingListPage = () => {
                   transition: 'transform 0.2s'
                 }}
               >
-                <div className="sm:block">{entry.uid}</div>
+                <div className="sm:block">{entry.random}</div>
                 <div className="sm:block">{entry.firstName}</div>
                 <div className="sm:block">{entry.lastName}</div>
+                <div className="sm:block">{entry.familySize}</div>
                 <div className="sm:block">{entry.email}</div>
                 <div className="sm:block">{entry.waitingDate}</div>
                 <div className="sm:block">{entry.bookTitle}</div>
