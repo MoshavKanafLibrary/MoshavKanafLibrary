@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import useUser from '../hooks/useUser';
 import axios from 'axios';
 import { debounce } from 'lodash';
+import { FaCommentDots } from 'react-icons/fa';
 
 const fetchAllBooks = async () => {
   try {
@@ -42,7 +43,6 @@ const BooksPage = () => {
   const [showRatingDropdown, setShowRatingDropdown] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [filterByNew, setFilterByNew] = useState(false); // New state for filtering by new books
-
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const maxPageNumbersToShow = 5;
@@ -309,12 +309,19 @@ const BooksPage = () => {
                     className="bg-bg-header-custom shadow-xl rounded-lg p-2 sm:p-4 text-center h-64 sm:h-80 lg:h-96 w-full mx-auto cursor-pointer"
                     onClick={() => handleCardClick(book)}
                   >
-                    <div className="h-3/5 sm:h-4/5 w-full">
+                    <div className="h-3/5 sm:h-4/5 w-full relative">
                       <img
                         src={book.imageURL}
                         alt={book.title}
                         className="h-full w-full object-cover rounded-lg"
                       />
+                      {book.reviews && book.reviews.length > 0 && (
+                        <div className="absolute top-2 right-2 bg-green-600 text-white text-xs rounded-full px-2 py-1 flex items-center">
+                          <FaCommentDots className="ml-1" /> 
+                          {book.reviews.length}
+                        </div>
+                      )}
+
                     </div>
                     <div className="h-2/5 sm:h-1/5">
                       <h2 className="text-lg sm:text-xl font-semibold text-black">{book.title}</h2>
