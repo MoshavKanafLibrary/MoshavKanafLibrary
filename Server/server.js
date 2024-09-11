@@ -1609,3 +1609,41 @@ app.put("/api/users/:uid/borrow-books-list/update-return-date", async (req, res)
     res.status(500).json({ success: false, message: `Failed to update return date: ${error.message}` });
   }
 });
+
+
+app.post("/api/users/:uid/accept-borrow-books-list", async (req, res) => {
+  const { uid } = req.params;
+  const { title } = req.body;
+
+  if (!title) {
+    return res.status(400).json({ success: false, message: "Book title is required" });
+  }
+  const userRef = doc(db, "users", uid);
+  try {
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    let userData = userSnap.data();
+    if (!userData.borrowBooksList) {
+      userData.borrowBooksList = {};
+    }
+
+    userData.borrowBooksList[title] = {
+      status: 'accepted',
+      requestDate: new Date(),
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+    };
+
+    await updateDoc(userRef, { borrowBooksList: userData.borrowBooksList });
+    localUsersData.set(uid, userData);
+
+    res.status(200).json({ success: true, message: "Borrow books list updated successfully" });
+  } catch (error) {
+    console.error("Detailed error:", error);
+    res.status(500).json({ success: false, message: `Failed to update borrow books list: ${error.message || 'Unknown error'}` });
+  }
+});
+

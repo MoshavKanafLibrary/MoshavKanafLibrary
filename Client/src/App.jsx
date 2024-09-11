@@ -68,6 +68,7 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
           <Route path="/SelectUser" element={<SelectUserPage />} /> 
           <Route path="/SelectBook" element={<SelectBookPage />} /> 
+          <Route path="/SelectUser/:uid" element={<SelectUserPage />} />
         </Routes>
       </div>
     </BrowserRouter>
