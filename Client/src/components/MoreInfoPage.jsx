@@ -11,14 +11,18 @@ const MoreInfoPage = () => {
   const [phone, setPhone] = useState("");
   const [familySize, setfamilySize] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Monitor user data changes and perform actions accordingly
     if (user && !isLoading) {
-      console.log("User is now available:", user);
+      setFirstName(user.firstName || "");  // Prefill the firstName field
+      setLastName(user.lastName || "");    // Prefill the lastName field
+      setPhone(user.phone || "");          // Prefill the phone field
+      setfamilySize(user.familySize || "");// Prefill the family size field
     }
   }, [user, isLoading]);
+  
 
   const validateAndNavigate = async (e) => {
     e.preventDefault();
