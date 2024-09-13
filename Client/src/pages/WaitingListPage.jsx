@@ -132,45 +132,47 @@ const WaitingListPage = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="mb-10 p-2 w-full border rounded-md bg-bg-navbar-custom text-bg-text"
         />
-        <div className="flex flex-col space-y-2">
-          <div className="hidden sm:grid sm:grid-cols-7 text-center font-bold bg-bg-text p-4 rounded-lg text-bg-navbar-custom">
-            <div>מזהה משתמש</div>
-            <div>שם פרטי</div>
-            <div>שם משפחה</div>
-            <div>כמות נפשות במשפחה</div>
-            <div>אימייל</div>
-            <div>תאריך בקשה</div>
-            <div>כותר הספר</div>
-          </div>
-          {currentItems.length > 0 ? (
-            currentItems.map((entry, index) => (
-              <div key={index}
-                className={`grid grid-cols-1 sm:grid-cols-7 text-center bg-bg-navbar-custom hover:bg-bg-hover hover:text-bg-navbar-custom p-4 rounded-lg shadow cursor-pointer relative`}
-                onMouseEnter={() => setHoverIndex(index)}
-                onMouseLeave={() => setHoverIndex(-1)}
-                onClick={() => handleRowClick(entry)}
-                style={{
-                  transform: hoverIndex === index ? 'translateX(10px)' : 'none',
-                  transition: 'transform 0.2s'
-                }}
-              >
-                <div className="sm:block">{entry.random}</div>
-                <div className="sm:block">{entry.firstName}</div>
-                <div className="sm:block">{entry.lastName}</div>
-                <div className="sm:block">{entry.familySize}</div>
-                <div className="sm:block">{entry.email}</div>
-                <div className="sm:block">{entry.waitingDate}</div>
-                <div className="sm:block">{entry.bookTitle}</div>
-                <FaTimes
-                  className="absolute top-2 right-2 text-red-500 cursor-pointer hover:text-red-700"
-                  onClick={(e) => { e.stopPropagation(); handleDeleteClick(entry); }}
-                />
-              </div>
-            ))
-          ) : (
-            <div className="text-center text-bg-navbar-custom">לא נמצאו תוצאות</div>
-          )}
-        </div>
+     <div className="flex flex-col space-y-2">
+  <div className="hidden sm:grid sm:grid-cols-7 text-center font-bold bg-bg-text p-4 rounded-lg text-bg-navbar-custom">
+    <div className="min-w-0">מזהה משתמש</div>
+    <div className="min-w-0">שם פרטי</div>
+    <div className="min-w-0">שם משפחה</div>
+    <div className="min-w-0">כמות נפשות במשפחה</div>
+    <div className="min-w-0 pr-4">אימייל</div>  {/* הוספת רווח בצד ימין */}
+    <div className="min-w-0 pl-4">תאריך בקשה</div>  {/* הוספת רווח בצד שמאל */}
+    <div className="min-w-0">כותר הספר</div>
+  </div>
+  {currentItems.length > 0 ? (
+    currentItems.map((entry, index) => (
+      <div key={index}
+        className={`grid grid-cols-1 sm:grid-cols-7 text-center bg-bg-navbar-custom hover:bg-bg-hover hover:text-bg-navbar-custom p-4 rounded-lg shadow cursor-pointer relative`}
+        onMouseEnter={() => setHoverIndex(index)}
+        onMouseLeave={() => setHoverIndex(-1)}
+        onClick={() => handleRowClick(entry)}
+        style={{
+          transform: hoverIndex === index ? 'translateX(10px)' : 'none',
+          transition: 'transform 0.2s'
+        }}
+      >
+        <div className="sm:block min-w-0">{entry.random}</div>
+        <div className="sm:block min-w-0">{entry.firstName}</div>
+        <div className="sm:block min-w-0">{entry.lastName}</div>
+        <div className="sm:block min-w-0">{entry.familySize}</div>
+        <div className="sm:block min-w-0 pl-4">{entry.email}</div>
+        <div className="sm:block min-w-0 pr-4">{entry.waitingDate}</div>
+        <div className="sm:block min-w-0">{entry.bookTitle}</div>
+        <FaTimes
+          className="absolute top-2 right-2 text-red-500 cursor-pointer hover:text-red-700"
+          onClick={(e) => { e.stopPropagation(); handleDeleteClick(entry); }}
+        />
+      </div>
+    ))
+  ) : (
+    <div className="text-center text-bg-navbar-custom">לא נמצאו תוצאות</div>
+  )}
+</div>
+
+
         {totalPages > 1 && (
           <div className="flex justify-center mt-8">
             <button
