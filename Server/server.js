@@ -107,9 +107,9 @@ app.get("/api/users/:uid", async (req, res) => {
 app.put("/api/users/:uid", async (req, res) => {
   try {
     const { uid } = req.params;
-    const { firstName, lastName, phone } = req.body;
+    const { firstName, lastName, phone, familySize } = req.body;
 
-    if (!firstName || !lastName || !phone) {
+    if (!firstName || !lastName || !phone || !familySize) {
       return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
@@ -123,11 +123,11 @@ app.put("/api/users/:uid", async (req, res) => {
     }
 
     // Update the user document with new data
-    await updateDoc(userRef, { firstName, lastName, phone });
+    await updateDoc(userRef, { firstName, lastName, phone, familySize });
 
     // Update local cache
     if (localUsersData.has(uid)) {
-      localUsersData.set(uid, { ...localUsersData.get(uid), firstName, lastName, phone });
+      localUsersData.set(uid, { ...localUsersData.get(uid), firstName, lastName, phone, familySize });
     }
 
     res.status(200).json({ success: true, message: "User data updated successfully" });
@@ -236,7 +236,7 @@ app.put("/api/displaynames/:uid", async (req, res) => {
 app.post("/api/users/signUp", async (req, res) => {
   try {
     console.log("Request body:", req.body); 
-    const { uid, email, displayName, firstName, lastName, phone } = req.body; 
+    const { uid, email, displayName, firstName, lastName, phone, familySize } = req.body; 
     const random = Math.floor(Math.random() * 1000000);
     const usersCollection = collection(db, "users");
 
@@ -249,13 +249,14 @@ app.post("/api/users/signUp", async (req, res) => {
       firstName: firstName,
       lastName: lastName,
       phone: phone,
+      familySize: familySize,
       random: random,
       isManager: false,
       historyBooks: [] 
     });
 
     console.log("User created successfully"); 
-    localUsersData.set(uid, { id: uid, uid, email, displayName, firstName, lastName, phone, random, isManager: false, historyBooks: [] });
+    localUsersData.set(uid, { id: uid, uid, email, displayName, firstName, lastName, phone, familySize, random, isManager: false, historyBooks: [] });
 
     res.status(200).json({ success: true });
   } catch (error) {
@@ -736,7 +737,7 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
     const userData = localUsersData.get(uid);
-    const { firstName, lastName, phone } = userData;
+    const { firstName, lastName, phone, familySize } = userData;
     let copyData = null;
     for (let [key, value] of localCopiesData) {
       if (value.copyID === copyID) {
@@ -748,7 +749,7 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
       return res.status(404).json({ success: false, message: "Copy not found" });
     }
 
-    const newBorrowedEntry = { firstName, lastName, phone, uid };
+    const newBorrowedEntry = { firstName, lastName, phone, familySize, uid };
     const copyDat = localCopiesData.get(copyID);
     const copyDocRef = doc(db, "copies", copyDat.id);
     await updateDoc(copyDocRef, { borrowedTo: newBorrowedEntry });
@@ -1460,10 +1461,12 @@ app.get('/api/waiting-list/details', async (req, res) => {
             const waitingDate = entry.Time?.seconds ? new Date(entry.Time.seconds * 1000) : new Date();
             waitingListDetails.push({
               uid: entry.uid,
+              random: userData.random,
               bookTitle: book.title,
               waitingDate: waitingDate.toLocaleString("en-US", { month: "short", day: "2-digit", year: "numeric", hour: "numeric", minute: "numeric" }),
               firstName: userData.firstName,
               lastName: userData.lastName,
+              familySize: userData.familySize,
               email: userData.email,
               bookId: book.id,
             });
@@ -1522,6 +1525,7 @@ const getBorrowedBooksDetails = () => {
             email: userData.email,
             firstName: userData.firstName,
             lastName: userData.lastName,
+            familySize: userData.familySize,
             title: title,
             requestDate: convertToLocaleString(bookInfo.requestDate),
             startDate: convertToLocaleString(bookInfo.startDate),
@@ -1607,5 +1611,63 @@ app.put("/api/users/:uid/borrow-books-list/update-return-date", async (req, res)
   } catch (error) {
     console.error("Error updating return date:", error);
     res.status(500).json({ success: false, message: `Failed to update return date: ${error.message}` });
+  }
+});
+
+
+app.post("/api/users/:uid/accept-borrow-books-list", async (req, res) => {
+  const { uid } = req.params;
+  const { title } = req.body;
+
+  if (!title) {
+    return res.status(400).json({ success: false, message: "Book title is required" });
+  }
+  const userRef = doc(db, "users", uid);
+  try {
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    let userData = userSnap.data();
+    if (!userData.borrowBooksList) {
+      userData.borrowBooksList = {};
+    }
+
+    userData.borrowBooksList[title] = {
+      status: 'accepted',
+      requestDate: new Date(),
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+    };
+
+    await updateDoc(userRef, { borrowBooksList: userData.borrowBooksList });
+    localUsersData.set(uid, userData);
+
+    res.status(200).json({ success: true, message: "Borrow books list updated successfully" });
+  } catch (error) {
+    console.error("Detailed error:", error);
+    res.status(500).json({ success: false, message: `Failed to update borrow books list: ${error.message || 'Unknown error'}` });
+  }
+});
+
+
+// Endpoint to get the average rating and rating count for a book
+app.get("/api/books/:id/rating-details", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const bookData = localBooksData.get(id);
+
+    if (bookData && bookData.ratings) {
+      const totalRatings = bookData.ratings.reduce((acc, curr) => acc + curr.rating, 0);
+      const ratingCount = bookData.ratings.length;
+      const averageRating = totalRatings / ratingCount;
+      return res.status(200).json({ averageRating, ratingCount });
+    } else {
+      return res.status(200).json({ averageRating: 0, ratingCount: 0 });
+    }
+  } catch (error) {
+    console.error("Error fetching rating details:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch rating details" });
   }
 });

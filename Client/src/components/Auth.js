@@ -30,13 +30,13 @@ export async function logout() {
   }
 }
 
-export async function signUp(auth, email, password, displayName, firstName, lastName, phone) {
+export async function signUp(auth, email, password, displayName, firstName, lastName, phone, familySize) {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
     // Add user to Firestore with all fields
-    await addNewUserToDb(user, email, displayName, firstName, lastName, phone);
+    await addNewUserToDb(user, email, displayName, firstName, lastName, phone, familySize);
 
     return { status: true, user };
   } catch (e) {

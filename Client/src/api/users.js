@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const addNewUserToDb = async (user, email, displayName, firstName, lastName, phone) => {
+export const addNewUserToDb = async (user, email, displayName, firstName, lastName, phone, familySize) => {
   const uid = user.uid;
   console.log({ uid, email, displayName, firstName, lastName, phone }); // Log all fields to ensure they are not undefined
 
@@ -11,7 +11,8 @@ export const addNewUserToDb = async (user, email, displayName, firstName, lastNa
     displayName: displayName,
     firstName: firstName,
     lastName: lastName,
-    phone: phone
+    phone: phone,
+    familySize: familySize
   });
 
   return response.data; // Return the response data for further use if needed

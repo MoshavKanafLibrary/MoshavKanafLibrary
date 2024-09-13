@@ -80,16 +80,17 @@ const BorrowedCopiesReportPage = () => {
   const exportToExcel = () => {
     // Prepare the data for export
     const dataForExport = filteredBooks.map(book => ({
-      כותר: book.title,
-      שם_משאיל: `${book.firstName} ${book.lastName}`,
-      קוד_משתמש: book.random,
-      מייל: book.email,
-      תאריך_בקשה: book.requestDate,
-      תאריך_התחלה: book.startDate,
+      מזהה_עותק: book.copyID,
       תאריך_סיום: book.endDate,
-      מזהה_עותק: book.copyID,  
+      תאריך_התחלה: book.startDate,
+      תאריך_בקשה: book.requestDate,
+      מייל: book.email,
+      קוד_משתמש: book.random,
+      כמות_נפשות: book.familySize,
+      שם_משאיל: `${book.firstName} ${book.lastName}`,
+      כותר: book.title
     }));
-
+  
     const worksheet = XLSX.utils.json_to_sheet(dataForExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Borrowed Books');
@@ -119,6 +120,7 @@ const BorrowedCopiesReportPage = () => {
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">כותר</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מזהה עותק</th> 
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">שם משאיל</th>
+                <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">כמות נפשות במשפחה</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">קוד משתמש</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מייל</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">תאריך בקשה</th>
@@ -132,6 +134,7 @@ const BorrowedCopiesReportPage = () => {
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.title}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.copyID}</td> 
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{`${book.firstName} ${book.lastName}`}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.familySize}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.random}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.email}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{book.requestDate}</td>

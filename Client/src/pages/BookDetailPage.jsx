@@ -15,6 +15,8 @@ const BookDetailPage = () => {
   const [reviews, setReviews] = useState([]);
   const [reviewText, setReviewText] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [averageRating, setAverageRating] = useState(0);
+  const [ratingCount, setRatingCount] = useState(0); // Number of raters
   const { user } = useUser();
 
   const successMessageRef = useRef(null);
@@ -55,6 +57,16 @@ const BookDetailPage = () => {
       .catch(error => {
         console.error("Error fetching reviews:", error.message);
       });
+
+    // Fetch average rating and rating count
+    axios.get(`/api/books/${book.id}/rating-details`)
+      .then(response => {
+        setAverageRating(response.data.averageRating);
+        setRatingCount(response.data.ratingCount);
+      })
+      .catch(error => {
+        console.error("Error fetching rating details:", error.message);
+      });
   }, [book, navigate]);
 
   useEffect(() => {
@@ -62,6 +74,23 @@ const BookDetailPage = () => {
       successMessageRef.current?.scrollIntoView({ behavior: 'smooth' }); 
     }
   }, [successMessage]);
+
+  const getStars = (rating) => {
+    if (rating === null) {
+      return 'N/A';
+    }
+    const goldStars = Math.floor(rating);
+    const grayStars = 5 - goldStars;
+
+    return (
+      <span className="text-yellow-500 inline-block">
+        {'★'.repeat(goldStars)}
+        <span className="text-gray-500">
+          {'☆'.repeat(grayStars)}
+        </span>
+      </span>
+    );
+  };
 
   const handleOrderNow = async () => {
     if (!user) {
@@ -138,6 +167,16 @@ const BookDetailPage = () => {
                   <p>{book.summary}</p>
                 </div>
                 <p className="text-sm text-bg-text mb-4 sm:mb-6">מאת {book.author}</p>
+
+                {/* Display the rating only if there are raters */}
+                {ratingCount > 0 && (
+                  <div className="text-sm text-bg-text mb-4 sm:mb-6">
+                    דירוג ממוצע: {getStars(averageRating)}
+                    <br />
+                    ({ratingCount} מדרגים)
+                  </div>
+                )}
+
               </div>
               <div className="flex flex-col items-center">
                 <button
@@ -162,7 +201,8 @@ const BookDetailPage = () => {
 
           {/* Reviews Section */}
           <div className="lg:col-span-1 bg-bg-navbar-custom shadow-lg rounded-lg p-4 sm:p-6 max-h-[400px] sm:max-h-[600px] overflow-y-auto">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-bg-text">ביקורות משתמשים</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center text-bg-text"> ביקורות משתמשים ({reviews.length}) </h2>
+
             <div className="mb-4 sm:mb-6">
               {user ? (
                 <div className="flex flex-col space-y-4 sm:space-y-6">

@@ -54,6 +54,34 @@ const BorrowedCopiesPage = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const sendOverdueNotification = async (user, bookTitle) => {
+    try {
+      await axios.post(`/api/users/${user.uid}/send-email`, {
+        message: `הספר "${bookTitle}" מאחר, יש להחזירו בהקדם.`,
+      });
+      await axios.post(`/api/users/${user.uid}/notifications`, {
+        message: `הספר "${bookTitle}" מאחר, יש להחזירו בהקדם.`,
+      });
+      console.log(`Notification sent for overdue book: ${bookTitle}`);
+    } catch (error) {
+      console.error("Error sending overdue notification:", error);
+    }
+  };
+
+  const sendReturnDateChangeNotification = async (user, bookTitle, newEndDate) => {
+    try {
+      await axios.post(`/api/users/${user.uid}/send-email`, {
+        message: `תאריך החזרת הספר "${bookTitle}" עודכן ל-${newEndDate}.`,
+      });
+      await axios.post(`/api/users/${user.uid}/notifications`, {
+        message: `תאריך החזרת הספר "${bookTitle}" עודכן ל-${newEndDate}.`,
+      });
+      console.log(`Notification sent for return date change of book: ${bookTitle}`);
+    } catch (error) {
+      console.error("Error sending return date change notification:", error);
+    }
+  };
+
   const filterOverdueBooks = () => {
     if (showOverdue) {
       // If currently showing overdue books, reset to showing all books
@@ -96,6 +124,11 @@ const BorrowedCopiesPage = () => {
         console.log(`Book: ${book.title} - isOverdue:`, isOverdue);
   
         return isOverdue; // Only books with overdue dates
+      });
+  
+      overdueBooks.forEach(book => {
+        const user = { uid: book.uid, firstName: book.firstName, lastName: book.lastName };
+        sendOverdueNotification(user, book.title);
       });
   
       console.log("Filtered Overdue Books:", overdueBooks);
@@ -163,6 +196,9 @@ const BorrowedCopiesPage = () => {
           book.copyID === copyID ? { ...book, endDate: newEndDate } : book
         ));
   
+        const user = { uid: borrowerUID }; 
+        sendReturnDateChangeNotification(user, title, newEndDate);
+  
         setSuccessMessage("Return date updated successfully.");
       } else {
         setErrorMessage("Failed to update return date.");
@@ -198,6 +234,7 @@ const BorrowedCopiesPage = () => {
     return pages;
   };
 
+  
   return (
     <>
       {loading && (
@@ -310,4 +347,3 @@ const BorrowedCopiesPage = () => {
 };
 
 export default BorrowedCopiesPage;
-

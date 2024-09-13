@@ -75,11 +75,30 @@ const AllUsersPage = () => {
   };
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(filteredUsers);
+    const excelData = filteredUsers.map(user => ({
+      'הרשאות מנהל': user.isManager ? 'כן' : 'לא',
+      'פלאפון': user.phone,
+      'אימייל': user.email,
+      'מספר נפשות במשפחה': user.familySize,
+      'שם משפחה': user.lastName,
+      'שם פרטי': user.firstName,
+      'מזהה משתמש': user.random
+    }));
+  
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+    
+    // Adding auto width for better readability
+    const columnWidths = Object.keys(excelData[0]).map((key) => ({
+      wch: Math.max(...excelData.map(user => (user[key] ? user[key].toString().length : 10)), key.length)
+    }));
+    
+    worksheet['!cols'] = columnWidths; // Set column widths
+    
     XLSX.writeFile(workbook, 'users.xlsx');
   };
+  
 
   return (
     <>
@@ -104,6 +123,7 @@ const AllUsersPage = () => {
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מזהה משתמש</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">שם פרטי</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">שם משפחה</th>
+                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">מספר נפשות במשפחה</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">אימייל</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">פלאפון</th>
                 <th className="py-2 sm:py-4 px-2 sm:px-6 text-right">הרשאות מנהל</th>
@@ -112,9 +132,10 @@ const AllUsersPage = () => {
             <tbody className="text-bg-text">
               {currentUsers.length > 0 ? currentUsers.map((user, index) => (
                 <tr key={index} className="border-b border-bg-text hover:bg-bg-hover hover:text-bg-navbar-custom">
-                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.uid}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.random}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.firstName}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.lastName}</td>
+                  <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.familySize}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.email}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.phone}</td>
                   <td className="py-2 sm:py-4 px-2 sm:px-6 text-right">{user.isManager ? 'כן' : 'לא'}</td>

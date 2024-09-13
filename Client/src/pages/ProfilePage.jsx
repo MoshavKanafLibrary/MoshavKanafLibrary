@@ -222,6 +222,7 @@ const ProfilePage = () => {
               <div className="bg-bg-navbar-custom p-6 rounded-lg shadow-lg text-center mb-8 ">
                 <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> שם מלא: {userDetails.firstName} {userDetails.lastName}</h3>
                 <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.email} :אימייל</h3>
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.familySize} :כמות נפשות במשפחה</h3>
                 <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.phone} :פלאפון</h3>
                 <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4"> {userDetails.random} :קוד משתמש</h3>
               </div>

@@ -9,25 +9,30 @@ const MoreInfoPage = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
+  const [familySize, setfamilySize] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Monitor user data changes and perform actions accordingly
     if (user && !isLoading) {
-      console.log("User is now available:", user);
+      setFirstName(user.firstName || "");  // Prefill the firstName field
+      setLastName(user.lastName || "");    // Prefill the lastName field
+      setPhone(user.phone || "");          // Prefill the phone field
+      setfamilySize(user.familySize || "");// Prefill the family size field
     }
   }, [user, isLoading]);
+  
 
   const validateAndNavigate = async (e) => {
     e.preventDefault();
-    if (!firstName || !lastName || !phone) {
+    if (!firstName || !lastName || !phone || !familySize) {
       setErrorMessage("All fields are required.");
       return;
     }
     try {
       if (user && user.uid) {
-        await axios.put(`/api/users/${user.uid}`, { firstName, lastName, phone });
+        await axios.put(`/api/users/${user.uid}`, { firstName, lastName, phone, familySize });
         navigate("/");
       } else {
         setErrorMessage("Invalid user data.");
@@ -91,6 +96,17 @@ const MoreInfoPage = () => {
               placeholder="הכנס את מספר הפלאפון שלך"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+          <div className="mb-3">
+            <label className="block text-bg-navbar-custom text-sm mb-2">
+               מספר נפשות במשפחה
+            </label>
+            <input
+              className="bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="הכנס את מספר הנפשות במשפחה"
+              value={familySize}
+              onChange={(e) => setfamilySize(e.target.value)}
             />
           </div>
         </div>

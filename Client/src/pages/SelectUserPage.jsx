@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FaSpinner } from 'react-icons/fa';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
 const SelectUserPage = () => {
+  const { uid } = useParams(); // Fetch uid from URL if it exists
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -15,6 +17,7 @@ const SelectUserPage = () => {
   const [userSearchQuery, setUserSearchQuery] = useState('');
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
+  // Fetch user list on component mount
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -29,6 +32,14 @@ const SelectUserPage = () => {
     fetchUsers();
   }, []);
 
+  // Fetch specific user data by uid if it exists
+  useEffect(() => {
+    if (uid) {
+      handleUserSelect(uid);
+    }
+  }, [uid]);
+
+  // Filter users based on the search query
   useEffect(() => {
     const lowerCaseQuery = userSearchQuery.toLowerCase();
     const filtered = users.filter(user =>
@@ -39,6 +50,7 @@ const SelectUserPage = () => {
     setFilteredUsers(filtered);
   }, [userSearchQuery, users]);
 
+  // Helper function to convert Firebase date format to a readable string
   const convertToDateString = (date) => {
     if (!date) return 'N/A';
     if (date.seconds) { 
@@ -47,13 +59,14 @@ const SelectUserPage = () => {
     return new Date(date).toLocaleDateString(); 
   };
 
+  // Fetch user details, borrowed books, and read books based on uid
   const handleUserSelect = async (uid) => {
     setLoading(true);
 
     try {
       const userDetailsResponse = await axios.get(`/api/users/${uid}`);
       setUserDetails(userDetailsResponse.data);
-      
+
       const historyResponse = await axios.get(`/api/users/${uid}/historyBooks`);
       const booksData = historyResponse.data.historyBooks || [];
       const books = booksData.map(book => ({
@@ -91,11 +104,13 @@ const SelectUserPage = () => {
     }
   };
 
+  // Handle book request cancellation
   const handleCancel = async (title) => {
     setDeleteEntry(title);
     setShowConfirmPopup(true);
   };
 
+  // Confirm deletion of the request
   const confirmDelete = async () => {
     if (deleteEntry) {
       try {
@@ -112,7 +127,6 @@ const SelectUserPage = () => {
               console.log("Book entry deleted from borrowBooks-list successfully");
 
               setBorrowedBooks(prevBooks => prevBooks.filter(book => book.title !== deleteEntry));
-
               await notifyManagers(deleteEntry);
             } else {
               console.error("Failed to delete book entry from borrowBooks-list");
@@ -132,6 +146,7 @@ const SelectUserPage = () => {
     }
   };
 
+  // Notify managers of cancellation
   const notifyManagers = async (bookTitle) => {
     try {
       const usersResponse = await axios.get('/api/users');
@@ -206,6 +221,9 @@ const SelectUserPage = () => {
                 </h3>
                 <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">
                   אימייל: {userDetails.email}
+                </h3>
+                <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">
+                  כמות נפשות במשפחה: {userDetails.familySize}
                 </h3>
                 <h3 className="text-2xl font-extrabold text-bg-background-gradient-via mb-4">
                   פלאפון: {userDetails.phone}
