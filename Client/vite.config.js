@@ -13,4 +13,9 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      external: ['react-leaflet', 'leaflet'], // Define react-leaflet and leaflet as external
+    },
+  },
 });
