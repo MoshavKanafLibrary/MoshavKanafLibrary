@@ -13,6 +13,7 @@ const SignUpPage = () => {
   const [displayName, setDisplayName] = useState("");
   const [firstName, setFirstName] = useState(""); // New field
   const [lastName, setLastName] = useState(""); // New field
+  const [familySize, setfamilySize] = useState(""); // New field
   const [phone, setPhone] = useState(""); // New field
   const [error, setError] = useState("");
   const [hasClickedCreateAccount, setHasClickedCreateAccount] = useState(false);
@@ -50,7 +51,7 @@ const SignUpPage = () => {
       return;
     }
 
-    let result = await signUp(auth, email, password, displayName, firstName, lastName, phone);
+    let result = await signUp(auth, email, password, displayName, firstName, lastName, familySize, phone);
     if (result.status) {
       console.log("המשתמש נוצר בהצלחה.");
       try {
@@ -60,6 +61,7 @@ const SignUpPage = () => {
           displayName,
           firstName, // New field
           lastName, // New field
+          familySize,
           phone, // New field
         });
         if (userResponse.status === 200) {
@@ -181,6 +183,17 @@ const SignUpPage = () => {
               placeholder="הכנס את שם משפחתך"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
+            />
+          </div>
+          <div className="mb-3">
+            <label className="block text-bg-navbar-custom text-sm mb-2">
+              מספר נפשות במשפחה
+            </label>
+            <input
+              className="bg-bg-hover shadow appearance-none border rounded w-full py-2 px-3 text-bg-navbar-custom leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="הכנס את מספר הנפשות במשפחה"
+              value={familySize}
+              onChange={(e) => setfamilySize(e.target.value)}
             />
           </div>
           <div className="mb-3">
