@@ -4,6 +4,13 @@ import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
 import useUser from '../hooks/useUser';
 
+/*
+ * BookDetailPage component displays detailed information about a specific book, 
+ * including user reviews, recommendations, and an option to place an order or add the book to the waiting list.
+ * It includes user reviews with an option to submit a review, rate the book, and check if the user is logged in before submitting.
+ * It also shows similar book recommendations based on the title of the selected book.
+ */
+
 const BookDetailPage = () => {
   const { state } = useLocation();
   const navigate = useNavigate();

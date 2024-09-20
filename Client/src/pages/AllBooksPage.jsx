@@ -4,6 +4,12 @@ import { FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 
+/*
+* AllBooksPage component for displaying and filtering a list of books with pagination and search functionality.
+* Allows exporting the filtered list of books to an Excel file and provides pagination controls for navigating through pages.
+*/
+
+
 const AllBooksPage = () => {
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);

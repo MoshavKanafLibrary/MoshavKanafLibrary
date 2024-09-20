@@ -3,6 +3,13 @@ import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 
+/*
+ * AllUsersPage component for displaying and filtering a list of users with pagination and search functionality.
+ * Users can be filtered by various fields such as first name, last name, UID, email, phone, or manager status.
+ * It also provides an option to export the filtered user list to an Excel file.
+ */
+
+
 const AllUsersPage = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);

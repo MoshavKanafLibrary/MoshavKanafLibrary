@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { FaPlus, FaEdit, FaBook, FaTasks, FaPrint, FaBookReader, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
+// AdminSidebar component for managing navigation options in an admin panel, 
+// with expandable sections for books, requests, reports, and permissions
+
 const AdminSidebar = ({ isVisible, toggleSidebar }) => {
   const navigate = useNavigate();
   const [expandBooks, setExpandBooks] = useState(true);
@@ -10,7 +13,7 @@ const AdminSidebar = ({ isVisible, toggleSidebar }) => {
   const [expandPermissions, setExpandPermissions] = useState(true);
 
   const handleNavigate = (path, state = {}) => {
-    toggleSidebar(); // Close the sidebar when a link is clicked
+    toggleSidebar(); 
     navigate(path, { state });
   };
 
@@ -25,7 +28,7 @@ const AdminSidebar = ({ isVisible, toggleSidebar }) => {
       <div
         className={`fixed top-16 sm:top-[64px] right-0 w-56 sm:w-72 h-[calc(100%-4rem)] sm:h-[calc(100%-64px)] bg-bg-navbar-custom text-bg-text flex flex-col rounded-lg transition-transform duration-300 transform ${
           isVisible ? 'translate-x-0' : 'translate-x-full'
-        } sm:translate-x-0 z-50 sm:z-auto overflow-y-auto`} // מאפשר גלילה כלפי מטה
+        } sm:translate-x-0 z-50 sm:z-auto overflow-y-auto`}
         dir="rtl"
       >
         <div className="pt-4">

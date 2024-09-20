@@ -7,6 +7,9 @@ import {
 } from "react-icons/go";
 import { useNavigate, Link } from "react-router-dom";
 
+// DropDown component for handling a dropdown menu in the navigation bar, 
+// with options for logged-in users and guests, including a logout function.
+
 const DropDown = ({
   dropDownLinks,
   navBarLinks,

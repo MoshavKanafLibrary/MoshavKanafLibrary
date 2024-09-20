@@ -3,6 +3,12 @@ import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 
+/*
+ * This component allows an admin or librarian to create a book request or borrow a book for a user.
+ * It fetches users and books from the server, allows the admin to search for a user and a book, 
+ * and then submit a request for the user to borrow the selected book.
+ * The component also handles real-time search filtering for users and books.
+ */
 
 const CreateRequestForUserPage = () => {
   const [users, setUsers] = useState([]);

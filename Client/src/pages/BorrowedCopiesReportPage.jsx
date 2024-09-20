@@ -2,7 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
-
+/*
+ * BorrowedCopiesReportPage component displays a report of borrowed book copies with search and pagination features.
+ * It fetches the borrowed books data from the server and allows users to filter the results based on search queries.
+ * Users can export the filtered data to an Excel file for further analysis.
+ * The component supports pagination and displays a loader while the data is being fetched.
+ */
 const BorrowedCopiesReportPage = () => {
   const [borrowedBooks, setBorrowedBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);

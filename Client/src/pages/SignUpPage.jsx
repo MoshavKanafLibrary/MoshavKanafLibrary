@@ -5,16 +5,19 @@ import { signUp } from "../components/Auth";
 import { auth } from "../components/FireBaseAuth";
 import { FaSpinner } from "react-icons/fa";
 import axios from "axios";
+/*
+ * SignUpPage component provides a form for new users to create an account.
+ */
 
 const SignUpPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [firstName, setFirstName] = useState(""); // New field
-  const [lastName, setLastName] = useState(""); // New field
-  const [familySize, setfamilySize] = useState(""); // New field
-  const [phone, setPhone] = useState(""); // New field
+  const [firstName, setFirstName] = useState(""); 
+  const [lastName, setLastName] = useState(""); 
+  const [familySize, setfamilySize] = useState(""); 
+  const [phone, setPhone] = useState(""); 
   const [error, setError] = useState("");
   const [hasClickedCreateAccount, setHasClickedCreateAccount] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,16 +56,15 @@ const SignUpPage = () => {
 
     let result = await signUp(auth, email, password, displayName, firstName, lastName, familySize, phone);
     if (result.status) {
-      console.log("המשתמש נוצר בהצלחה.");
       try {
         const userResponse = await axios.post("/api/users/signUp", {
           uid: result.user.uid,
           email,
           displayName,
-          firstName, // New field
-          lastName, // New field
+          firstName, 
+          lastName, 
           familySize,
-          phone, // New field
+          phone, 
         });
         if (userResponse.status === 200) {
           navigate("/");
@@ -74,7 +76,6 @@ const SignUpPage = () => {
         setError("נכשל ביצירת המשתמש.");
       }
     } else {
-      console.log("נכשל ביצירת משתמש:", result.message);
       setError(result.message.replace("Firebase:", "").trim());
     }
     setIsLoading(false);

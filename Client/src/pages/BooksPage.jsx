@@ -6,6 +6,14 @@ import axios from 'axios';
 import { debounce } from 'lodash';
 import { FaCommentDots } from 'react-icons/fa';
 
+/*
+ * BooksPage component displays a list of books with filtering and search options.
+ * Users can filter books by categories, authors, ratings, and search for specific titles or authors.
+ * It also provides pagination to navigate through the list of books.
+ * The page displays a loader while fetching data and supports real-time filtering and debounced search functionality.
+ */
+
+
 const fetchAllBooks = async () => {
   try {
     const response = await axios.get('/api/books/getAllBooksData');
@@ -42,7 +50,7 @@ const BooksPage = () => {
   const [showAuthorDropdown, setShowAuthorDropdown] = useState(false);
   const [showRatingDropdown, setShowRatingDropdown] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
-  const [filterByNew, setFilterByNew] = useState(false); // New state for filtering by new books
+  const [filterByNew, setFilterByNew] = useState(false); 
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const maxPageNumbersToShow = 5;

@@ -3,6 +3,14 @@ import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
 import useUser from '../hooks/useUser';
 
+/*
+ * BorrowedCopiesPage component handles the display and management of borrowed books.
+ * It provides functionality to search for borrowed books, filter overdue books, and manage book returns.
+ * Users can update the return date, filter overdue books, and return books through the interface.
+ * The component fetches data from the server and supports pagination and notification sending for overdue books.
+ */
+
+
 const BorrowedCopiesPage = () => {
   const { user } = useUser();
   const [borrowedBooks, setBorrowedBooks] = useState([]);
@@ -62,7 +70,6 @@ const BorrowedCopiesPage = () => {
       await axios.post(`/api/users/${user.uid}/notifications`, {
         message: `הספר "${bookTitle}" מאחר, יש להחזירו בהקדם.`,
       });
-      console.log(`Notification sent for overdue book: ${bookTitle}`);
     } catch (error) {
       console.error("Error sending overdue notification:", error);
     }
@@ -76,7 +83,6 @@ const BorrowedCopiesPage = () => {
       await axios.post(`/api/users/${user.uid}/notifications`, {
         message: `תאריך החזרת הספר "${bookTitle}" עודכן ל-${newEndDate}.`,
       });
-      console.log(`Notification sent for return date change of book: ${bookTitle}`);
     } catch (error) {
       console.error("Error sending return date change notification:", error);
     }
@@ -90,7 +96,6 @@ const BorrowedCopiesPage = () => {
     } else {
       // Filter for overdue books
       const today = new Date(); 
-      console.log("Today's Date:", today);
   
       const parseCustomDate = (dateString) => {
         const [day, month, year, time] = dateString.split(' ').filter(part => part !== 'at');
@@ -110,18 +115,14 @@ const BorrowedCopiesPage = () => {
           if (typeof book.endDate === 'object' && book.endDate.seconds) {
             // If endDate is a timestamp
             endDate = new Date(book.endDate.seconds * 1000);
-            console.log(`Book: ${book.title} - TIMESTAMP endDate:`, endDate);
           } else {
             // If endDate is a string date
             endDate = parseCustomDate(book.endDate);
-            console.log(`Book: ${book.title} - Parsed endDate:`, endDate);
           }
         } else {
-          console.log(`Book: ${book.title} - No endDate found`);
         }
   
         const isOverdue = endDate < today;
-        console.log(`Book: ${book.title} - isOverdue:`, isOverdue);
   
         return isOverdue; // Only books with overdue dates
       });
@@ -130,8 +131,6 @@ const BorrowedCopiesPage = () => {
         const user = { uid: book.uid, firstName: book.firstName, lastName: book.lastName };
         sendOverdueNotification(user, book.title);
       });
-  
-      console.log("Filtered Overdue Books:", overdueBooks);
   
       setFilteredBooks(overdueBooks);
       setShowOverdue(true);
@@ -159,7 +158,6 @@ const BorrowedCopiesPage = () => {
   
           const deleteBorrowListResponse = await axios.delete(`/api/users/${borrowerUID}/borrow-books-list/deletebookfromborrowlist`, { data: { title } });
           if (deleteBorrowListResponse.data.success) {
-            console.log("Book entry deleted from borrow-books-list successfully");
           } else {
             setErrorMessage("Failed to delete book entry from borrow-books-list.");
           }

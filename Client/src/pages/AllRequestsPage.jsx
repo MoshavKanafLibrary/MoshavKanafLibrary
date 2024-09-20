@@ -2,6 +2,14 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaSpinner, FaTrash, FaBell } from "react-icons/fa";
 
+/*
+ * AllRequestsPage component for displaying and managing user requests.
+ * It allows filtering requests, paginating through the list, deleting requests, 
+ * and sending notifications to users in response to their requests.
+ * Users can search for specific requests, and the component also supports custom messaging to users.
+ */
+
+
 const AllRequestsPage = () => {
   const [requests, setRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
@@ -81,8 +89,8 @@ const AllRequestsPage = () => {
       });
       if (response.data.success) {
         setSuccessMessage("המשתמש קיבל התראה בהצלחה.");
-        setSelectedUser(null); // נקה את המשתמש הנבחר לאחר שליחה
-        setCustomMessage('');  // נקה את ההודעה המותאמת אישית
+        setSelectedUser(null); 
+        setCustomMessage('');  
       } else {
         console.error("Failed to send notification:", response.data.message);
       }

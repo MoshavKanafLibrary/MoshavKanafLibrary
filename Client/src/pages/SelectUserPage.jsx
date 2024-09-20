@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { FaSpinner } from 'react-icons/fa';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
+/**
+ * SelectUserPage component allows an admin or manager to select a user from the list,
+ * view their borrowed and read book details, and manage borrowing requests.
+ */
 
 const SelectUserPage = () => {
   const { uid } = useParams(); // Fetch uid from URL if it exists
@@ -120,11 +124,9 @@ const SelectUserPage = () => {
         if (book) {
           const deleteRequestResponse = await axios.delete(`/api/books/${book.id}/waiting-list`, { data: { uid: selectedUser.uid } });
           if (deleteRequestResponse.data.success) {
-            console.log("Borrow request deleted successfully");
 
             const deleteBorrowListResponse = await axios.delete(`/api/users/${selectedUser.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title: deleteEntry } });
             if (deleteBorrowListResponse.data.success) {
-              console.log("Book entry deleted from borrowBooks-list successfully");
 
               setBorrowedBooks(prevBooks => prevBooks.filter(book => book.title !== deleteEntry));
               await notifyManagers(deleteEntry);
@@ -159,7 +161,6 @@ const SelectUserPage = () => {
       );
 
       await Promise.all(notificationPromises);
-      console.log("Managers notified successfully.");
     } catch (error) {
       console.error(`Error notifying managers: ${error.response?.data?.message || error.message}`);
     }

@@ -8,6 +8,9 @@ import {
 import { auth } from "./FireBaseAuth";
 import { addNewUserToDb } from "../api/users";
 
+// Firebase authentication functions for login, logout, user registration, and password update
+// Includes adding a new user to Firestore during sign-up and handling errors for each operation
+
 export function login(email, password) {
   try {
     return signInWithEmailAndPassword(auth, email, password)

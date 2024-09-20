@@ -3,6 +3,14 @@ import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 
+/*
+* AddOrUpdateBookPage component for adding or updating book details, including title, author, image URL, and more.
+* It handles form submission, validation, and displaying success or error messages.
+* If in edit mode, existing book details are pre-filled, and new copies can be added or existing ones removed.
+* Book numbers are automatically generated based on the base number retrieved from the counter.
+*/
+
+
 const AddOrUpdateBookPage = () => {
   // State variables for form fields
   const [title, setTitle] = useState("");
@@ -25,7 +33,7 @@ const AddOrUpdateBookPage = () => {
   const [copyNumbers, setCopyNumbers] = useState([]);
 
 
-
+// Fetches base book number from the counter API on component mount for generating unique copy numbers.
   useEffect(() => {
     const fetchBaseNumber = async () => {
       try {
@@ -39,7 +47,8 @@ const AddOrUpdateBookPage = () => {
     fetchBaseNumber();
   }, []);
   
-
+  
+// Generates and updates copy numbers based on the base number and total copies whenever either changes.
   useEffect(() => {
     if (baseNumber !== null && copies > 0) {
       const updatedCopyNumbers = Array.from({ length: copies }, (_, i) => baseNumber + i);
@@ -48,13 +57,6 @@ const AddOrUpdateBookPage = () => {
       setCopyNumbers([]);
     }
   }, [copies, baseNumber]);
-  
-
-
-
-
-
-
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -177,7 +179,6 @@ const AddOrUpdateBookPage = () => {
       );
 
       await Promise.all(notificationPromises);
-      console.log("משתמשים קיבלו התראה על הספר החדש בהצלחה.");
     } catch (error) {
       console.error(`שגיאה בהודעת המשתמשים: ${error.response?.data?.message || error.message}`);
     }

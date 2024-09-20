@@ -1,6 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+// NavHeaders component for displaying navigation links in the navbar.
+// Supports both Link-based navigation and button actions based on the `onClick` property.
+// Links are styled with hover effects and dynamically rendered based on the provided `navBarLinks` array.
+
+
 const NavHeaders = ({ navBarLinks }) => {
   return (
     <div className="hidden lg:flex">

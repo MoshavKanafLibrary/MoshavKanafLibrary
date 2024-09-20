@@ -2,6 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAuth, sendPasswordResetEmail } from "firebase/auth";
 import { FaSpinner } from "react-icons/fa";
+/*
+ * ResetPasswordPage component allows users to request a password reset email.
+ * It uses Firebase Authentication to send a password reset email to the provided email address.
+ * Displays a loading spinner while the reset request is being processed.
+ * Handles and displays errors if the reset email fails to send.
+ * Redirects the user to the login page after the password reset email is successfully sent.
+ */
 
 function ResetPasswordPage() {
   const [email, setEmail] = useState("");

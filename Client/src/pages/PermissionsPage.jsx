@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
 
+/*
+ * PermissionsPage component displays a list of users with their details and allows managing user permissions.
+ * Users can search for specific users based on various fields such as name, email, or phone number.
+ * The component allows toggling the manager status of each user.
+ * It uses pagination to display users in a manageable way and shows a loading spinner while data is being fetched.
+ */
+
 const PermissionsPage = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);

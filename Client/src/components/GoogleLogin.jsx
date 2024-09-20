@@ -5,6 +5,9 @@ import { FcGoogle } from "react-icons/fc";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+// GoogleLogin component for signing in with Google via Firebase. 
+// New users are prompted to complete their profile, while existing users are redirected based on profile completeness.
+
 const GoogleLogin = () => {
   const provider = new GoogleAuthProvider();
   const navigate = useNavigate();

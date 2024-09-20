@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { FaSpinner } from 'react-icons/fa';
 import axios from 'axios';
 import useUser from '../hooks/useUser';
+/*
+ * ProfilePage component displays the profile details of a user, including borrowed books, read books, and allows book rating.
+ * It fetches user details, borrowed books, and read books history from the server.
+ * Users can cancel book borrow requests and rate books they have read.
+ * The component shows a loading spinner while data is being fetched, and includes a confirmation popup for canceling borrow requests.
+ */
 
 const ProfilePage = () => {
   const { user } = useUser();
@@ -90,7 +96,6 @@ const ProfilePage = () => {
       try {
         const response = await axios.get(`/api/users/${user.uid}/present-borrow-books-list`);
         const borrowedBooksData = response.data.borrowBooksList || {};
-        console.log(borrowedBooksData);
         const books = Object.entries(borrowedBooksData).map(([title, details]) => ({
           title,
           borrowedDate: convertToDateString(details.borrowedDate),
@@ -128,11 +133,9 @@ const ProfilePage = () => {
         if (book) {
           const deleteRequestResponse = await axios.delete(`/api/books/${book.id}/waiting-list`, { data: { uid: user.uid } });
           if (deleteRequestResponse.data.success) {
-            console.log("Borrow request deleted successfully");
 
             const deleteBorrowListResponse = await axios.delete(`/api/users/${user.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title: deleteEntry } });
             if (deleteBorrowListResponse.data.success) {
-              console.log("Book entry deleted from borrowBooks-list successfully");
 
               setBorrowedBooks(prevBooks => prevBooks.filter(book => book.title !== deleteEntry));
 
@@ -170,7 +173,6 @@ const ProfilePage = () => {
       );
 
       await Promise.all(notificationPromises);
-      console.log("Managers notified successfully.");
     } catch (error) {
       console.error(`Error notifying managers: ${error.response?.data?.message || error.message}`);
     }
@@ -194,7 +196,6 @@ const ProfilePage = () => {
       if (book) {
         const response = await axios.post(`/api/books/${book.id}/rate`, { rating, uid: user.uid });
         if (response.data.success) {
-          console.log(`Rating for ${title} submitted successfully`);
           setHasRated({ ...hasRated, [title]: true });
         } else {
           console.error("Failed to submit rating");

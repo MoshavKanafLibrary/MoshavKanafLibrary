@@ -6,6 +6,10 @@ import useUser from "../hooks/useUser";
 import GoogleLogin from "../components/GoogleLogin";
 import { FaSpinner } from "react-icons/fa";
 import { MoreInfoPage } from "../components/MoreInfoPage";
+/*
+ * LoginPage component handles user login and displays a form for email and password input.
+ * It uses Firebase authentication for logging in and includes a Google login option.
+ */
 
 function LoginPage() {
   const navigate = useNavigate();

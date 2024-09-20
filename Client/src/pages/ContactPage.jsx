@@ -1,4 +1,9 @@
 import React from 'react';
+/*
+ * ContactPage component displays information about the library, including opening hours, contact details, and location.
+ * It presents the content in a structured, responsive layout with sections for opening hours, contact information, and location.
+ * The page includes an embedded static Google Map image for the library location.
+ */
 
 const ContactPage = () => {
   return (
@@ -29,7 +34,6 @@ const ContactPage = () => {
             <p className="text-lg sm:text-xl">חנייה רחבה ונגישות לנכים</p>
           </div>
 
-          {/* התאמת התמונה לרספונסיביות */}
           <div className="mb-6 sm:mb-8">
             <img
               src="https://maps.googleapis.com/maps/api/staticmap?key=AIzaSyDvJPUjwB_z9I6MAuVQ2ISnKaWK59M0IqA&center=32.870865,35.697842&markers=color:red%7C32.870865,35.697842&zoom=13&scale=1&size=760x315&language=he"

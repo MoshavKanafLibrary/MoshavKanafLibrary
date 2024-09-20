@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { FaSpinner } from 'react-icons/fa';
 import axios from 'axios';
+/**
+ * SelectBookPage component allows users to search for books, view book details, 
+ * and check the availability of book copies including borrowed and available ones.
+ * It also displays the waiting list for books that are currently borrowed.
+ */
 
 const SelectBookPage = () => {
   const [books, setBooks] = useState([]);

@@ -63,22 +63,18 @@ const initializeLocalData = async () => {
     const usersCollection = collection(db, "users");
     const usersSnapshot = await getDocs(usersCollection);
     usersSnapshot.docs.forEach(doc => localUsersData.set(doc.id, { id: doc.id, ...doc.data() }));
-    console.log("users done");
     // Initialize localBooksData
     const booksCollection = collection(db, "books");
     const booksSnapshot = await getDocs(booksCollection);
     booksSnapshot.docs.forEach(doc => localBooksData.set(doc.id, { id: doc.id, ...doc.data() }));
-    console.log("books done");
     // Initialize localCopiesData
     const copiesCollection = collection(db, "copies");
     const copiesSnapshot = await getDocs(copiesCollection);
     copiesSnapshot.docs.forEach(doc => localCopiesData.set(doc.data().copyID, { id: doc.id, ...doc.data() }));
-    console.log("copies done");
     // Initialize localRequestsData
     const requestsCollection = collection(db, "requests");
     const requestsSnapshot = await getDocs(requestsCollection);
     requestsSnapshot.docs.forEach(doc => localRequestsData.set(doc.id, { id: doc.id, ...doc.data() }));
-    console.log("requests done");
   } catch (error) {
     console.error("Error initializing local data:", error);
   }
@@ -137,14 +133,11 @@ app.put("/api/users/:uid", async (req, res) => {
   }
 });
 
+// Gettubg books history
 app.get('/api/users/:uid/historyBooks', async (req, res) => {
-  console.log("Endpoint Hit: /api/users/:uid/historyBooks");
 
   const { uid } = req.params;
-  console.log("UID received:", uid);
-
   if (!uid) {
-    console.log("No UID provided in URL parameters");
     return res.status(400).json({ success: false, message: "User ID is required" });
   }
 
@@ -153,7 +146,6 @@ app.get('/api/users/:uid/historyBooks', async (req, res) => {
     if (localUsersData.has(uid)) {
       const user = localUsersData.get(uid);
       const historyBooks = user.historyBooks || [];
-      console.log("Initial History Books found:", historyBooks.length);
 
       const booksDetails = historyBooks.map(historyBook => ({
         title: historyBook.title,
@@ -162,9 +154,6 @@ app.get('/api/users/:uid/historyBooks', async (req, res) => {
         startDate: historyBook.startDate ? historyBook.startDate : new Date().getTime()
       }));
       
-
-      console.log("Processed History Books:", booksDetails.length);
-      console.log(booksDetails);
       return res.status(200).json({ success: true, historyBooks: booksDetails });
     } else {
       return res.status(404).json({ success: false, message: "User not found in local cache" });
@@ -235,7 +224,6 @@ app.put("/api/displaynames/:uid", async (req, res) => {
 // Handler for user sign up
 app.post("/api/users/signUp", async (req, res) => {
   try {
-    console.log("Request body:", req.body); 
     const { uid, email, displayName, firstName, lastName, phone, familySize } = req.body; 
     const random = Math.floor(Math.random() * 1000000);
     const usersCollection = collection(db, "users");
@@ -255,7 +243,6 @@ app.post("/api/users/signUp", async (req, res) => {
       historyBooks: [] 
     });
 
-    console.log("User created successfully"); 
     localUsersData.set(uid, { id: uid, uid, email, displayName, firstName, lastName, phone, familySize, random, isManager: false, historyBooks: [] });
 
     res.status(200).json({ success: true });
@@ -315,7 +302,6 @@ async function fetchTitles(productId) {
     });
 
     // Log the titles
-    console.log("Titles under 'המלצות נוספות':", titles);
 
     return titles;
   } catch (error) {
@@ -335,21 +321,17 @@ async function extractProductId(searchResponseData) {
     const productNameMatch = /"Name":"([^"]+)"/.exec(productListItemsSubstring);
     if (productNameMatch) {
       const productName = productNameMatch[1];
-      console.log("Found product name:", productName);
 
       // Extract product ID from the product list items
       const productIdMatch = /"ProductID":(\d+)/.exec(productListItemsSubstring);
       if (productIdMatch) {
         const productId = productIdMatch[1];
-        console.log("Product ID:", productId);
 
         return productId;
       }
     } else {
-      console.log("Product name not found in the product list items.");
     }
   } else {
-    console.log("Product list items not found in the response data.");
   }
 
   return null;
@@ -361,7 +343,6 @@ async function fetchBookTitles(bookName) {
   try {
     // Step 1: Search for the book by name
     const searchResponse = await axios.get(searchUrl, { timeout: 10000 });
-    console.log("HTTP Status:", searchResponse.status);
 
     // Step 2: Extract product ID from the response data
     const productId = await extractProductId(searchResponse.data);
@@ -370,7 +351,6 @@ async function fetchBookTitles(bookName) {
       // Step 3: Fetch titles using the extracted product ID
       return await fetchTitles(productId);
     } else {
-      console.log("Failed to extract product ID.");
     }
   } catch (error) {
     console.error("Error fetching book information:", error.message);
@@ -378,11 +358,10 @@ async function fetchBookTitles(bookName) {
   return null;
 }
 
+// Getting all books
 app.get("/api/books/getAllBooksData", async (req, res) => {
   try {
     if (localBooksData.size > 0) {
-      console.log("Using local cache for books data:");
-      console.log(`@@@@ Local cache size: ${localBooksData.size} @@@@`); 
       return res.status(200).json({ success: true, books: Array.from(localBooksData.values()) });
     }
   } catch (error) {
@@ -391,6 +370,7 @@ app.get("/api/books/getAllBooksData", async (req, res) => {
   }
 });
 
+// Endpoint to get up to 4 books from local data that match the search query based on unique titles
 app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
   try {
     const searchQuery = req.query.bookName || ""; // Book name search parameter
@@ -417,6 +397,7 @@ app.get("/api/books/getBooksMatchingTitles", async (req, res) => {
   }
 });
 
+// Endpoint to retrieve the current book counter value, with a default of 6000 if the document does not exist
 app.get("/api/counter", async (req, res) => {
   try {
     const counterRef = doc(db, 'counters', 'bookCounter');
@@ -469,7 +450,6 @@ app.post("/api/books/add", async (req, res) => {
     const booksCollection = collection(db, 'books');
     const copiesCollection = collection(db, 'copies');
     const docRef = await addDoc(booksCollection, newBookData);
-    console.log("Book added to Firestore:", newBookData);
 
     const copiesPromises = copiesID.map(copyID => {
       const copyData = {
@@ -478,13 +458,11 @@ app.post("/api/books/add", async (req, res) => {
         borrowedTo: null,
         copyID: copyID
       };
-      console.log("Copy added to Firestore:", copyData);
       return addDoc(copiesCollection, copyData);
     });
 
     await Promise.all(copiesPromises);
     localBooksData.set(docRef.id, { id: docRef.id, ...newBookData });
-    console.log("Book added to local cache:", localBooksData.get(docRef.id));
 
     copiesID.forEach(copyID => {
       const copyData = {
@@ -494,7 +472,6 @@ app.post("/api/books/add", async (req, res) => {
         copyID: copyID
       };
       localCopiesData.set(copyID, copyData);
-      console.log("Copy added to local cache:", localCopiesData.get(copyID));
     });
 
     res.status(200).json({ success: true, docId: docRef.id });
@@ -664,6 +641,7 @@ app.get("/api/book/getCopy", async (req, res) => {
   }
 });
 
+// Endpoint to add a user to the waiting list of a book by its ID, ensuring no duplicates
 app.post("/api/books/:id/waiting-list", async (req, res) => {
   const { id } = req.params;
   const { uid } = req.body;
@@ -693,7 +671,6 @@ app.post("/api/books/:id/waiting-list", async (req, res) => {
 
     localBooksData.set(id, bookData);
     const updatedBook = localBooksData.get(id);
-    console.log(`Updated waiting list for book ID ${id}:`, updatedBook.waitingList);
 
     res.status(200).json({ success: true, message: "User added to waiting list" });
   } catch (error) {
@@ -713,10 +690,6 @@ app.get("/api/book/getCopiesByTitle", async (req, res) => {
   try {
     const copies = Array.from(localCopiesData.values()).filter(copy => copy.title === title);
     if (copies.length > 0) {
-      console.log("All copies data in local cache:");
-      console.log(Array.from(localCopiesData.values()));
-      console.log("the copies are: ");
-      console.log(copies.length);
       return res.status(200).json({ success: true, copies });
     }
   } catch (error) {
@@ -754,11 +727,6 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
     const copyDocRef = doc(db, "copies", copyDat.id);
     await updateDoc(copyDocRef, { borrowedTo: newBorrowedEntry });
     localCopiesData.set(copyData.copyID, { ...copyData, borrowedTo: newBorrowedEntry }); // single object instead of array
-
-    for (const key of localCopiesData.keys()) {
-      console.log("Key:", key);
-      console.log("Type of key:", typeof key);
-    }
     
     res.status(200).json({ success: true, message: "BorrowedTo field updated successfully" });
   } catch (error) {
@@ -767,7 +735,7 @@ app.put("/api/copies/updateBorrowedTo", async (req, res) => {
   }
 });
 
-
+// Deleting someone from the waiting list
 app.delete("/api/books/:id/waiting-list", async (req, res) => {
   const { id } = req.params;
   const { uid } = req.body;
@@ -782,7 +750,6 @@ app.delete("/api/books/:id/waiting-list", async (req, res) => {
     await updateDoc(bookRef, { waitingList: newWaitingList });
     bookData.waitingList = newWaitingList;
     localBooksData.set(id, bookData);
-    console.log(`Updated waiting list for book ID ${id}:`, bookData.waitingList);
     res.status(200).json({ success: true, message: "User removed from waiting list" });
     
   } catch (error) {
@@ -791,6 +758,7 @@ app.delete("/api/books/:id/waiting-list", async (req, res) => {
   }
 });
 
+//Getting all users
 app.get("/api/users", async (req, res) => {
   try {
     if (localUsersData.size > 0) {
@@ -874,7 +842,7 @@ app.put("/api/users/:uid/isManager", async (req, res) => {
   }
 });
 
-
+// Endpoint to add a book to a user's borrow list with a pending status and request date
 app.post("/api/users/:uid/borrow-books-list", async (req, res) => {
   const { uid } = req.params;
   const { title } = req.body;
@@ -1153,6 +1121,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Endpoint to send an email to a user by their UID with a custom message, using their registered email
 app.post('/api/users/:uid/send-email', async (req, res) => {
   const { uid } = req.params;
   const { message } = req.body;
@@ -1182,7 +1151,6 @@ app.post('/api/users/:uid/send-email', async (req, res) => {
         console.error('Error sending email:', error);
         return res.status(500).json({ success: false, message: `Failed to send email: ${error.message}` });
       } else {
-        console.log('Email sent:', info.response);
         return res.status(200).json({ success: true, message: 'Email sent successfully' });
       }
     });
@@ -1448,6 +1416,7 @@ app.delete("/api/books/:id/removeCopy/:copyID", async (req, res) => {
   }
 });
 
+// Endpoint to retrieve detailed information about all users in the waiting lists of books, including user details and waiting date
 app.get('/api/waiting-list/details', async (req, res) => {
   try {
     const waitingListDetails = [];
@@ -1486,7 +1455,7 @@ app.get('/api/waiting-list/details', async (req, res) => {
   }
 });
 
-
+// Function to convert a date or Firestore timestamp into a formatted string in "en-GB" locale and "Asia/Jerusalem" timezone
 const convertToLocaleString = (dateOrTimestamp) => {
   if (!dateOrTimestamp) return null;
 
@@ -1542,7 +1511,7 @@ const getBorrowedBooksDetails = () => {
 };
 
 
-
+// Endpoint to retrieve details of borrowed books and return the data in the response
 app.get("/api/borrowed-books-details", async (req, res) => {
   try {
     const borrowedBooksDetails = getBorrowedBooksDetails(); 
@@ -1559,6 +1528,7 @@ const convertToValidDate = (dateStr) => {
   return `${year}-${month}-${day}`;
 };
 
+// Endpoint to update the return date of a specific book in a user's borrow list by their UID
 app.put("/api/users/:uid/borrow-books-list/update-return-date", async (req, res) => {
   const { uid } = req.params;
   const { title, newEndDate } = req.body;
@@ -1570,11 +1540,9 @@ app.put("/api/users/:uid/borrow-books-list/update-return-date", async (req, res)
   try {
     // Convert the newEndDate to the correct format
     const formattedDate = convertToValidDate(newEndDate);
-    console.log("Formatted newEndDate:", formattedDate);
 
     // Convert the newEndDate to a JavaScript Date object
     const endDate = new Date(formattedDate);
-    console.log("Converted endDate:", endDate); // לוג עבור התאריך לאחר ההמרה
 
     // Check if the date is valid
     if (isNaN(endDate.getTime())) {
@@ -1615,6 +1583,7 @@ app.put("/api/users/:uid/borrow-books-list/update-return-date", async (req, res)
 });
 
 
+// Endpoint to accept a book in a user's borrow list, updating its status to 'accepted' with the start and end dates
 app.post("/api/users/:uid/accept-borrow-books-list", async (req, res) => {
   const { uid } = req.params;
   const { title } = req.body;

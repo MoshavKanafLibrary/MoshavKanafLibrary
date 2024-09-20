@@ -9,6 +9,12 @@ import { GiBookmarklet } from "react-icons/gi";
 import AdminSidebar from "./AdminSidebar";
 import { FaBell, FaUserShield } from "react-icons/fa";
 
+// NavBar component for managing navigation and user interactions.
+// Displays different links and options for registered and unregistered users.
+// Includes notifications, a dropdown for user profile actions, and an admin sidebar for users with manager privileges.
+// The component fetches user details and notifications from the server and handles marking notifications as read.
+
+
 const NavBar = () => {
   const { navBarDisplayName } = useContext(UserContext);
   const { user } = useUser();

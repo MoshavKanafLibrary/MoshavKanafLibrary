@@ -1,6 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import NotFoundPageImage from '../assets/NotFoundPageImage.png'
+/**
+ * NotFoundPage component displays a 404 error page when a user navigates to a non-existent route.
+ */
 
 const NotFoundPage = () => {
   return (

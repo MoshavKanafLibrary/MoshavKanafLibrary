@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaSpinner, FaTimes, FaEdit } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+/*
+ * PresentBooksPage component displays a paginated list of books.
+ * Users can search for specific books by title, author, classification, locator code, title type, etc.
+ * The component allows users to update or delete books from the list.
+ * The page includes pagination controls and displays a loading spinner while data is being fetched.
+ * Success messages are displayed after certain actions like book deletion.
+ */
 
 const PresentBooksPage = () => {
   const [books, setBooks] = useState([]);

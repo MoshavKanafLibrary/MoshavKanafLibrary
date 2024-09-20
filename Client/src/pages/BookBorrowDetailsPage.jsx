@@ -3,6 +3,13 @@ import axios from "axios";
 import { FaSpinner, FaBell } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 
+/*
+ * BookBorrowDetailsPage component for displaying borrow details of book copies by title.
+ * It fetches available copies, allows borrowing copies for a specific user, and sends notifications to the user.
+ * Pagination is implemented to navigate through available book copies, and error/success messages are displayed accordingly.
+ */
+
+
 const BookBorrowDetailsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [copies, setCopies] = useState([]);
@@ -60,7 +67,6 @@ const BookBorrowDetailsPage = () => {
       if (book) {
         const deleteRequestResponse = await axios.delete(`/api/books/${book.id}/waiting-list`, { data: { uid } });
         if (deleteRequestResponse.data.success) {
-          console.log("בקשת השאלה נמחקה בהצלחה");
   
           const updateBorrowResponse = await axios.put('/api/copies/updateBorrowedTo', { copyID, uid, title: bookTitle });
           if (updateBorrowResponse.data.success) {
@@ -73,7 +79,6 @@ const BookBorrowDetailsPage = () => {
   
             const updateStatusResponse = await axios.put(`/api/users/${uid}/borrow-books-list/update-status`, { title: bookTitle });
             if (updateStatusResponse.data.success) {
-              console.log("סטטוס רשימת ההשאלות עודכן בהצלחה");
             } else {
               setError("נכשל בעדכון סטטוס רשימת ההשאלות.");
             }

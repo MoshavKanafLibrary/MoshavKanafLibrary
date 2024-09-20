@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { FaSpinner, FaTimes } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+/*
+ * WaitingListPage component handles the display and management of a waiting list for book borrowing.
+ */
 
 const WaitingListPage = () => {
   const [loading, setLoading] = useState(true);
@@ -68,12 +71,10 @@ const WaitingListPage = () => {
   const confirmDelete = async () => {
     if (deleteEntry) {
       try {
-        console.log("Deleting entry:", deleteEntry);
         const responseBook = await axios.delete(`/api/books/${deleteEntry.bookId}/waiting-list`, { data: { uid: deleteEntry.uid } });
         const responseUser = await axios.delete(`/api/users/${deleteEntry.uid}/borrow-books-list/deletebookfromborrowlist`, { data: { title: deleteEntry.bookTitle } });
 
         if (responseBook.status === 200 && responseUser.status === 200) {
-          console.log("Both delete requests were successful");
           const updatedWaitingList = waitingListDetails.filter(entry => !(entry.uid === deleteEntry.uid && entry.bookId === deleteEntry.bookId));
           const updatedFilteredWaitingList = filteredWaitingList.filter(entry => !(entry.uid === deleteEntry.uid && entry.bookId === deleteEntry.bookId));
 
@@ -138,8 +139,8 @@ const WaitingListPage = () => {
     <div className="min-w-0">שם פרטי</div>
     <div className="min-w-0">שם משפחה</div>
     <div className="min-w-0">כמות נפשות במשפחה</div>
-    <div className="min-w-0 pr-4">אימייל</div>  {/* הוספת רווח בצד ימין */}
-    <div className="min-w-0 pl-4">תאריך בקשה</div>  {/* הוספת רווח בצד שמאל */}
+    <div className="min-w-0 pr-4">אימייל</div>  
+    <div className="min-w-0 pl-4">תאריך בקשה</div> 
     <div className="min-w-0">כותר הספר</div>
   </div>
   {currentItems.length > 0 ? (

@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import useUser from "../hooks/useUser"; // Import the custom hook to get the user
+/*
+ * UserRequestsPage component allows users to submit book requests.
+*/
 
 const UserRequestsPage = () => {
   const { user } = useUser(); // Get the current user details

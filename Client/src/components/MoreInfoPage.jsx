@@ -4,6 +4,11 @@ import axios from "axios";
 import useUser from "../hooks/useUser";
 import { FaSpinner } from "react-icons/fa";
 
+// MoreInfoPage component for collecting additional user details such as first name, last name, phone, and family size.
+// Uses `useUser` hook to get user data, pre-fills form fields with existing information, and updates user data on form submission.
+// Displays loading spinner while the user data is being fetched and handles form validation and error messages.
+
+
 const MoreInfoPage = () => {
   const { user, isLoading } = useUser(); // Assuming `useUser` provides a loading state as well
   const [firstName, setFirstName] = useState("");
@@ -11,15 +16,14 @@ const MoreInfoPage = () => {
   const [phone, setPhone] = useState("");
   const [familySize, setfamilySize] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user && !isLoading) {
-      setFirstName(user.firstName || "");  // Prefill the firstName field
-      setLastName(user.lastName || "");    // Prefill the lastName field
-      setPhone(user.phone || "");          // Prefill the phone field
-      setfamilySize(user.familySize || "");// Prefill the family size field
+      setFirstName(user.firstName || "");  
+      setLastName(user.lastName || "");    
+      setPhone(user.phone || "");          
+      setfamilySize(user.familySize || "");
     }
   }, [user, isLoading]);
   

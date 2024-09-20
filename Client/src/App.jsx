@@ -27,12 +27,16 @@ import { MoreInfoPage } from "./components/MoreInfoPage"; // Import the MoreInfo
 import SelectUserPage from "./pages/SelectUserPage";
 import SelectBookPage from "./pages/SelectBookPage";
 
+/**
+ * App component that serves as the main entry point of the application.
+ */
+
+
 function App() {
   const { user } = useUser();
 
   // Function to check if the user is an admin
   const isAdmin = () => {
-    console.log(user);
     return user && user.isManager; // Assuming the isAdmin property is called isManager
   };
 
