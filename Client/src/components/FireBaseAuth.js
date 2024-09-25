@@ -5,15 +5,16 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBmOPl5T6NZU_uuLpf923LWlUd-3VQ-CZ8",
-  authDomain: "library-eae50.firebaseapp.com",
-  databaseURL: "https://library-eae50-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "library-eae50",
-  storageBucket: "library-eae50.appspot.com",
-  messagingSenderId: "147258996344",
-  appId: "1:147258996344:web:2a4a3e23e7f9327f309f8d",
-  measurementId: "G-CKZ548XRFZ"
+  apiKey: "AIzaSyCJh5TTu3aot-bINnyrEbMpmCN7QY3UF_E",
+  authDomain: "moshavkanaf-a8e03.firebaseapp.com",
+  databaseURL: "https://moshavkanaf-a8e03-default-rtdb.firebaseio.com",
+  projectId: "moshavkanaf-a8e03",
+  storageBucket: "moshavkanaf-a8e03.appspot.com",
+  messagingSenderId: "565628714410",
+  appId: "1:565628714410:web:df389145d40adf099ebfd3",
+  measurementId: "G-X0FCSY15HD"
 };
+
 
 
 
